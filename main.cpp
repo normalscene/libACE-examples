@@ -1,12 +1,12 @@
-#include "TCP_Client.h"
+#include "TcpClient.h"
 #include <ace/OS_NS_stdio.h>
-#include <string>
 #include <iostream>
+#include <string>
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	TCP_Client client;	
+	TcpClient client;	
 
 	client.connect(argc > 1 ? argv[1] : "0.0.0.0:3322");
 	client.enable(ACE_NONBLOCK);
@@ -14,20 +14,16 @@ int main(int argc, char **argv)
 	for(unsigned i = 0;;i++)
 	{
 		string s = "hello!\r";
-		if( (int)client.send(s.data(), s.length(), MSG_NOSIGNAL) > 0)
+		int l = client.sendString(s);
+		if(l >= 0)
 		{
-			::printf("send:%u\r", i*s.length());
+			::printf("sendString:%u\r", i * l);
 			::fflush(stdout);
 			::usleep(500 * 1000);
 			continue;
 		}
-		perror("send");
-		if(EPIPE == errno || client.get_handle() == ACE_INVALID_HANDLE)
-		{
-			client.try_reconnect(100, 1); 
-			client.enable(ACE_NONBLOCK);
-			perror("connect");
-		}
+		client.tryReconnect(100, 1); 
+		client.enable(ACE_NONBLOCK);
 	}
 
 	return 0;
