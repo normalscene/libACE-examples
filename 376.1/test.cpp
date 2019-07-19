@@ -1,19 +1,31 @@
-#include "LinkFrame.h"
+#include "AFN01/AFN01F01.h"
+
+
+extern uint8_t g_frame1[];
+extern uint8_t g_login[];
+
 
 int main(int argc, char **argv)
 {
-	LinkFrame frame;
+	Frame *frame = (Frame*)g_frame1;
 
-	frame.control.DIR = 1;
-	frame.control.PRM = 1;
-	frame.print();
+	frame->printHex();
+	frame->print();
 
-	printf("frame:");
-	for(int i = 0; i < 32; i++)
-	{
-		printf("%02X ", ((uint8_t*)&frame)[i]);
-	}
-	printf("\n");
+	frame = (Frame*)g_login;
+
+	frame->printHex();
+	frame->print();
+
+
+	AFN01F01 afn01f01;
+
+	afn01f01.init();
+	afn01f01.make();
+	afn01f01.printHex();
+	afn01f01.print();
 
 	return 0;
 }
+
+
