@@ -46,8 +46,14 @@ void TcpClient::printConnectionInfo(void)
 	ACE_INET_Addr l;
 	ACE_INET_Addr r;
 
-	get_local_addr(l);
-	get_remote_addr(r);
+	if( get_local_addr(l) == -1)
+	{
+		printf("get_local_addr failed!\n");
+	}
+	if(get_remote_addr(r) == -1)
+	{
+		printf("get_remote_addr failed!\n");
+	}
 
 	::printf("connection from %s:%d to %s:%d\n",
 			l.get_host_addr(),

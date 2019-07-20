@@ -72,7 +72,7 @@ public:
 	}
 	void print(void)const
 	{
-		printf("%10s: %02X = "
+		printf("%10s: %02X    = "
 			   "{DIR=%d, PRM=%d, FBC=%d FCV=%d, LFN=%d}\n", 
 			   "control", 
 			   getControl(), 
@@ -163,7 +163,7 @@ public:
 	}
 	void printStation(void)const
 	{
-		printf("%10s: %02X = %d\n",
+		printf("%10s: %02X    = %d\n",
 			   "station",
 			   station[0],
 			   getStation());
@@ -246,8 +246,9 @@ public:
 	}
 	const void print(void)const
 	{
-		printf("%10s: %02X = {TpV=%d, FRS=%d, FIN=%d, CON=%d, PSEQ/RSEQ=%d}\n",
-				"SEQ", *(uint8_t*)this, TpV, FRS, FIN, CON, SEQ);
+		printf("%10s: %02X    = "
+			   "{TpV=%d, FRS=%d, FIN=%d, CON=%d, PSEQ/RSEQ=%d}\n",
+			   "SEQ", *(uint8_t*)this, TpV, FRS, FIN, CON, SEQ);
 	}
 	const uint8_t size(void)const
 	{

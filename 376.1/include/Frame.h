@@ -15,6 +15,7 @@ public:
 	{
 		linkHeader.init();
 		userHeader.init();
+		payload.init();
 	}
 	bool check(void)const
 	{
@@ -67,6 +68,7 @@ public:
 		}
 		return l - sizeof(UserHeader);
 	}
+public:
 	void printHex(void)
 	{
 		int len = getLength();
@@ -93,6 +95,11 @@ public:
 		getLinkTail().print();
 		printf("\n");
 	}
+	void printPayload(void)const
+	{
+		payload.print(linkHeader.getLength() - sizeof(UserHeader));
+	}
+public:
 	void make(void)
 	{
 		LinkTail& t = *(LinkTail*)&getLinkTail();

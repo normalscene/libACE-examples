@@ -142,6 +142,10 @@ public:
 		header2.init();
 		setVersion(2);
 	}
+	uint8_t size(void)const
+	{
+		return sizeof(*this);
+	}
 	bool check(void)const
 	{
 		return header1.check()

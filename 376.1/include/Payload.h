@@ -23,7 +23,7 @@ public:
 public:
 	uint16_t getPn(void)const
 	{
-		uint8_t n = 0;
+		uint8_t n = (uint8_t)PnUnknown;
 
 		switch(DA1)
 		{
@@ -35,15 +35,19 @@ public:
 			case (1 << 5): n = 6; break;
 			case (1 << 6): n = 7; break;
 			case (1 << 7): n = 8; break;
-			case 0x00:break;
-			case 0xFF:break;
+			case 0xFF:return (DA2 == 0) ? PnAll : PnUnknown;
+			case 0x00:return (DA2 == 0) ? Pn0 : PnUnknown;
+		}
+		if(DA2 < 1)
+		{
+			return PnUnknown;
 		}
 
 		return (DA2 - 1) * 8 + n;
 	}
 	uint16_t getFn(void)const
 	{
-		uint8_t n = 0;
+		uint8_t n = FnMax + 1;
 
 		switch(DT1)
 		{
@@ -55,11 +59,9 @@ public:
 			case (1 << 5): n = 6; break;
 			case (1 << 6): n = 7; break;
 			case (1 << 7): n = 8; break;
-			case 0x00:break;
-			case 0xFF:break;
 		}
 
-		return (DT2* 8) + n;
+		return (DT2 * 8) + n;
 	}
 public:
 	void setPn(const uint16_t pn)
@@ -97,22 +99,23 @@ public:
 	{
 		printf("%10s: %02X %02X = %d\n"
 			   "%10s: %02X %02X = %d%s", 
-			   "Pn",
-			   DA1, DA2, getPn(),
-			   "Fn",
-			   DT1, DT2, getFn(),
-			   (getFn() > FnMax) ? "\n" : " undefined\n");
+			   "Pn", DA1, DA2, getPn(),
+			   "Fn", DT1, DT2, getFn(),
+			   ((getFn() > FnMax) ? "<undefined>\n" : "\n"));
 	}
 public:
-	enum{
+	enum PnType
+	{
 		FnMin = 1,
-		FnMax = 241,
+		FnMax = 248,
 	};
-	enum{
+	enum FnType
+	{
 		Pn0   = 0,
 		PnMin = 1,
 		PnMax = 2040,
-		PnAll = 0xFFFF
+		PnAll = 0xFF00,
+		PnUnknown,
 	};
 };
 
@@ -145,7 +148,7 @@ public:
 class Payload 
 {
 public:
-	uint8_t  data[4096];
+	uint8_t  data[8192];
 	uint16_t length;
 public:
 	void init(void)
@@ -157,9 +160,15 @@ public:
 	{
 		return sizeof(data) - 2;
 	}
-	DataPoint& dataPoint(void)
+	DataPoint& dataPoint(uint16_t pos)
 	{
-		return *(DataPoint*)&data[length % (sizeof(data)-sizeof(DataPoint))];
+		return *(DataPoint*)
+			&data[pos % (sizeof(data)-sizeof(DataPoint))];
+	}
+	const DataPoint& getDataPoint(uint16_t pos)const
+	{
+		return *(const DataPoint*)
+			&data[pos % (sizeof(data)-sizeof(DataPoint))];
 	}
 	void print(int len)const
 	{
