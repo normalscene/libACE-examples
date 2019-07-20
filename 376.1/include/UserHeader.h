@@ -72,9 +72,15 @@ public:
 	}
 	void print(void)const
 	{
-		printf("control: %02X "
+		printf("%10s: %02X = "
 			   "{DIR=%d, PRM=%d, FBC=%d FCV=%d, LFN=%d}\n", 
-				getControl(), DIR, PRM, FBC, FCV, LFN);
+			   "control", 
+			   getControl(), 
+			   DIR, 
+			   PRM, 
+			   FBC, 
+			   FCV, 
+			   LFN);
 	}
 	void setControl(const uint8_t v)
 	{
@@ -121,7 +127,8 @@ public:
 	}
 	void printRegion(void)const
 	{
-		printf("region:  %02X %02X = %02X%02X\n",
+		printf("%10s: %02X %02X = %02X%02X\n",
+			   "region",
 			   region[0],
 			   region[1],
 			   region[1],
@@ -139,7 +146,8 @@ public:
 	}
 	void printTerminal(void)const
 	{
-		printf("termial: %02X %02X = %d\n",
+		printf("%10s: %02X %02X = %d\n",
+			   "termial",
 			   terminal[0],
 			   terminal[1],
 			   getTerminal());
@@ -155,7 +163,8 @@ public:
 	}
 	void printStation(void)const
 	{
-		printf("station: %02X = %d\n",
+		printf("%10s: %02X = %d\n",
+			   "station",
 			   station[0],
 			   getStation());
 	}
@@ -177,27 +186,27 @@ public:
 class Funtion
 {
 public:
-	uint8_t function;
+	uint8_t AFN;
 public:
 	void init(void)
 	{
-		function = 0;
+		AFN = 0;
 	}
 	const uint8_t getFunction(void)const
 	{
-		return function;
+		return AFN ;
 	}
 	void setFunction(uint8_t v)
 	{
-		function = v;
+		AFN = v;
 	}
 	void print(void)const
 	{
-		printf("afn: %02X\n", function);
+		printf("%10s: %02X\n", "AFN", AFN);
 	}
 	const uint8_t size(void)const
 	{
-		return sizeof(function);
+		return sizeof(*this);
 	}
 public:
 	enum
@@ -237,8 +246,8 @@ public:
 	}
 	const void print(void)const
 	{
-		printf("seq: %02X = {TpV=%d, FRS=%d, FIN=%d, CON=%d, PSEQ/RSEQ=%d}\n",
-				*(uint8_t*)this, TpV, FRS, FIN, CON, SEQ);
+		printf("%10s: %02X = {TpV=%d, FRS=%d, FIN=%d, CON=%d, PSEQ/RSEQ=%d}\n",
+				"SEQ", *(uint8_t*)this, TpV, FRS, FIN, CON, SEQ);
 	}
 	const uint8_t size(void)const
 	{

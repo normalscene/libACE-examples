@@ -7,7 +7,7 @@
 
 #pragma pack(1)
 
-class PnFn
+class DataPoint
 {
 public:
 	uint8_t  DA1;
@@ -17,7 +17,8 @@ public:
 public:
 	void init(void)
 	{
-		DA1 = DA2 = DT1 = DT2 = 0;
+		setPn(0);
+		setFn(FnMin);
 	}
 public:
 	uint16_t getPn(void)const
@@ -58,27 +59,61 @@ public:
 			case 0xFF:break;
 		}
 
-		return (DT2 - 1) * 8 + n;
+		return (DT2* 8) + n;
 	}
 public:
 	void setPn(const uint16_t pn)
 	{
-		DA1 = (pn + 7) / 8;
-		DA2 = 1 << ((pn + 7) % 8);
+		switch(pn)
+		{
+			case Pn0:
+				DA1 = 0;
+				DA2 = 0;
+				return;
+				break;
+			case PnAll:
+				DA1 = 0xFF;
+				DA2 = 0x00;
+				return;
+				break;
+		}
+		DA1 = 1 << (pn % 8);
+		DA2 = 1 +  (pn / 8);
 	}
-	void setFn(const uint16_t fn)
+	void setFn(const uint8_t fn)
 	{
-		DT1 = (fn + 7) / 8;
-		DT2 = 1 << ((fn + 7) % 8);
+		uint8_t n = FnMin;
+
+		if(fn < FnMin)
+		{
+			n = FnMin;
+		}
+
+		DT1 = 1 << ((n-1) % 8);
+		DT2 = 0  + (n / 8);
 	}
 public:
 	void print(void)const
 	{
-		printf("Pn:%02X %02X = %d\n"
-			   "Fn:%02X %02X = %d\n", 
+		printf("%10s: %02X %02X = %d\n"
+			   "%10s: %02X %02X = %d%s", 
+			   "Pn",
 			   DA1, DA2, getPn(),
-			   DT1, DT2, getFn());
+			   "Fn",
+			   DT1, DT2, getFn(),
+			   (getFn() > FnMax) ? "\n" : " undefined\n");
 	}
+public:
+	enum{
+		FnMin = 1,
+		FnMax = 241,
+	};
+	enum{
+		Pn0   = 0,
+		PnMin = 1,
+		PnMax = 2040,
+		PnAll = 0xFFFF
+	};
 };
 
 class TimeTag
@@ -99,13 +134,13 @@ public:
 	}
 	void print(void)const
 	{
-		printf("Tp: %02X %02X %02X %02X %02X %02X"
-			   " = {PFC=%d, Day=%02X, T=%02X:%02X:%02X, Delay=%d}\n",
+		printf("%10s: %02X %02X %02X %02X %02X %02X = "
+			   "{PFC=%d, Day=%02X, T=%02X:%02X:%02X, Delay=%d}\n",
+			   "Tp",
 			   pfc, sec, min, hour, day, delay,
 			   pfc, day, hour, min, sec, delay);
 	}
 };
-
 
 class Payload 
 {
@@ -122,12 +157,20 @@ public:
 	{
 		return sizeof(data) - 2;
 	}
+	DataPoint& dataPoint(void)
+	{
+		return *(DataPoint*)&data[length % (sizeof(data)-sizeof(DataPoint))];
+	}
 	void print(int len)const
 	{
 		int l = len % maxPayload();
-		printf("payload(%d):", l);
+		printf("%10s: <len=%d>", "payload", l);
 		for(int i = 0; i < l; i++)
 		{
+			if((i + 0) % 32 == 0)
+			{
+				printf("\n%12s", " ");
+			}
 			printf("%02X ", data[i]);
 		}
 		printf("\n");

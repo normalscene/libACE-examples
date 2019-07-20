@@ -1,4 +1,4 @@
-#include "AFN01/AFN01F01.h"
+#include "AFN01/F01.h"
 
 
 extern uint8_t g_frame1[];
@@ -18,12 +18,10 @@ int main(int argc, char **argv)
 	frame->print();
 
 
-	AFN01F01 afn01f01;
+	AFN01::F01 login;
 
-	afn01f01.init();
-	afn01f01.make();
-	afn01f01.printHex();
-	afn01f01.print();
+	login.printHex();
+	login.print();
 
 	return 0;
 }

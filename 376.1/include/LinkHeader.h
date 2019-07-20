@@ -35,7 +35,7 @@ public:
 public:
 	void print(void)const
 	{
-		printf("header: %02X\n", header);
+		printf("%10s: %02X\n", "header", header);
 	}
 };
 
@@ -84,7 +84,8 @@ public:
 public:
 	void print(void)const
 	{
-		printf("length: %02X %02X = <%d,%d>\n", 
+		printf("%10s: %02X %02X = <%d,%d>\n", 
+				"length",
 				length[0],
 				length[1],
 				getLength(),
@@ -105,7 +106,6 @@ public:
 	}
 	bool check(uint8_t cs)const
 	{
-		printf("cs=%02X, %02X, %02X\n", cs, checksum, linktail);
 		return checksum == cs
 			&& linktail == 0x16;
 	}
@@ -115,8 +115,8 @@ public:
 	}
 	void print(void)const
 	{
-		printf("checksum: %02X\n", checksum);
-		printf("linktail: %02X\n", linktail);
+		printf("%10s: %02X\n", "checksum", checksum);
+		printf("%10s: %02X\n", "frameend", linktail);
 	}
 };
 

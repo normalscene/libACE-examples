@@ -69,16 +69,24 @@ public:
 	}
 	void printHex(void)
 	{
-		printf("frame: ");
-		for(int i = 0; i < getLength(); i++)
+		int len = getLength();
+
+		printf("%10s: <len=%d>", "frame", len);
+		for(int i = 0; i < len; i++)
 		{
+			if(i % 32 == 0)
+			{
+				printf("\n%12s", " ");
+			}
 			printf("%02X ", ((uint8_t*)this)[i]);
 		}
 		printf("\n");
 	}
 	void print(void)
 	{
-		printf("check:%s\n", check() ? "ok" : "failed");
+		printf("%10s: %s\n", 
+				"check", 
+				check() ? "ok" : "failed");
 		linkHeader.print();
 		userHeader.print();
 		payload.print(getPayloadLength());
