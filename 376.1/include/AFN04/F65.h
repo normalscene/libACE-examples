@@ -1,14 +1,32 @@
-#ifndef _3761_AFN01_F01_H_
-#define _3761_AFN01_F01_H_
+#ifndef _3761_AFN04_F65_H_
+#define _3761_AFN04_F65_H_
 #include <stdint.h>
 #include "../Frame.h"
 
-
-namespace AFN01
+namespace AFN04
 {
-	class F01 : public Frame
+
+	class UploadCycle
 	{
 	public:
+		uint8_t cycle:6;
+		uint8_t type:2;
+	public:
+		void print(void)
+		{
+			printf("%10s: %02x {type=%d, cycle=%d}\n",
+					"uploadCycle", type, cycle);
+		}
+	};
+	class UploadTime
+	{
+	};
+	class F65 : public Frame
+	{
+	public:
+		F65(void)
+		{
+		}
 		void init(uint16_t region, uint16_t terminal, uint8_t station)
 		{
 			linkHeader.init();
@@ -40,4 +58,4 @@ namespace AFN01
 	};
 };
 
-#endif//_3761_AFN01_F01_H_
+#endif//_3761_AFN04_F65_H_

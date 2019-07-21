@@ -80,7 +80,6 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-
 void procFrame(Frame& frame, TcpClient& client)
 {
 	printf("\n");
@@ -174,6 +173,9 @@ void procAFN05(Frame& frame, TcpClient& client)
 	response.userHeader.sequence.SEQ = frame.userHeader.sequence.SEQ;
 	response.make();
 
+	response.printHex();
+	return;
+
 	if( client.send_n(&response, response.getLength()) > 0)
 	{
 		response.printHex();
@@ -210,5 +212,3 @@ void procAFN14(Frame& frame, TcpClient& client)
 void procAFN15(Frame& frame, TcpClient& client)
 {
 }
-
-
