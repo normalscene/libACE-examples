@@ -41063,7 +41063,7 @@ emt_err_t emt_pack(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     emt_err_t eRet = MT_OK;
 
     // 两种方式任选某一, emtPackBase较费内存
-    // eRet = emt_pack_base(psPack, pusLen, pOutBuf);
+    //eRet = emt_pack_base(psPack, pusLen, pOutBuf);
     eRet = emt_pack_lite(psPack, pusLen, pOutBuf);
     
     return eRet;

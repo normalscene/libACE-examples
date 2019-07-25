@@ -337,7 +337,7 @@ typedef union
 typedef struct
 {
     eCmCmd   eCmd;        // 子命令字
-    uint16_t   usPN;        // 子命令字一级参数
+    uint16_t usPN;        // 子命令字一级参数
     bool     bApp;        // 应用层数据时有时无
     uCmApp   uAppData;    // 应用层数据 联合
 }sCmSub;                  // 子命令数据结构
@@ -356,7 +356,7 @@ typedef struct
     sMtAddress   sAddress;       // 地址信息
     bool         bReSend;        // 是否为重发  true 重发的帧计数不会自动增加1 false 会自增1
     bool         bActive;        // 是否为主动上报 (仅登录、心跳、退出登录、1类2类数据主动上报时为真)
-    uint8_t        ucCmdNum;       // 该包中含有子命令的个数 最少有一个子命令 
+    uint8_t      ucCmdNum;       // 该包中含有子命令的个数 最少有一个子命令 
     sCmSub       sCmdData[1];    // 每条子命令的内容
     
 }sCmPacket;
@@ -364,7 +364,7 @@ typedef struct
 typedef struct
 {
     eMtRole      eRole;                    // 身份    
-    uint8_t        ucPermitDelayMinutes;     // 允许时延
+    uint8_t      ucPermitDelayMinutes;     // 允许时延
 
 }sCmInit; // 3761协议层初始化数据结构
 
@@ -372,6 +372,7 @@ emt_afn_t ecm_get_cmd_afn(eCmCmd eCmd);
 
 // 上层调用本模块前,保确实进行初始化
 eCmErr ecm_3761_init(sCmInit * psCmInit); 
+
 // 上层接口封装
 int32_t ncm_3761_pack(sCmPacket* psCmPacket, uint8_t * pBuf);
 int32_t ncm_3761_unpack(uint8_t * pBuf, uint16_t usBufLen, sCmPacket* psCmPacket);

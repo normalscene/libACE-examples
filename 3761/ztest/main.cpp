@@ -294,8 +294,8 @@ emt_err_t test_pack_0001_m2s()
 
     /* 2 环境初始化 */
     sCmInit  sInit;
-    sInit.eRole = MT_ROLE_MASTER;
-    //sInit.eRole = MT_ROLE_CONTOR;
+    //sInit.eRole = MT_ROLE_MASTER;
+    sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
     if(eRet != MT_OK)
@@ -304,17 +304,17 @@ emt_err_t test_pack_0001_m2s()
         return eRet;
     }
     const char *str = "0123456789ABCDEF";
-    bcm_set_pw(str);
+    //bcm_set_pw(str);
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
-    pscmPacket->sAddress.usTAddress = 1;
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
+    pscmPacket->sAddress.usTAddress = 256;
     pscmPacket->sAddress.bTeamAddr  = false;
-    pscmPacket->sAddress.ucMAddress = 1;
+    pscmPacket->sAddress.ucMAddress = 0;
 
     pscmPacket->eAFN = AFN_00_CONF;
-    pscmPacket->eDir = MT_DIR_M2S;
+    pscmPacket->eDir = MT_DIR_S2M;
     pscmPacket->ePRM = MT_PRM_PASIVE;
     
     pscmPacket->ePos = MT_POS_SIGLE;
@@ -397,7 +397,7 @@ emt_err_t test_pack_0001()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 123456;
     psPack->sAddress.ucMAddress = 123;
@@ -485,7 +485,7 @@ emt_err_t test_pack_0002()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -579,7 +579,7 @@ emt_err_t test_pack_0101()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -692,7 +692,7 @@ emt_err_t test_pack_0102()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -797,7 +797,7 @@ emt_err_t test_pack_0103()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -901,7 +901,7 @@ emt_err_t test_pack_0104()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1006,7 +1006,7 @@ emt_err_t test_pack_0201()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1112,7 +1112,7 @@ emt_err_t test_pack_0202()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1217,7 +1217,7 @@ emt_err_t test_pack_0203()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1319,7 +1319,7 @@ emt_err_t test_pack_0401()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1425,7 +1425,7 @@ emt_err_t test_pack_0402()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1535,7 +1535,7 @@ emt_err_t test_pack_0403()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1637,7 +1637,7 @@ emt_err_t test_pack_0404()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1742,7 +1742,7 @@ emt_err_t test_pack_0501()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1842,7 +1842,7 @@ emt_err_t test_pack_0601()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -1945,7 +1945,7 @@ emt_err_t test_pack_0602()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -2048,7 +2048,7 @@ emt_err_t test_pack_0603()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -2152,7 +2152,7 @@ emt_err_t test_pack_0604()
     /* 3 封装参数 */
 
     // address
-    uint8_t strRegionCode[5] = "1100"; 
+    uint8_t strRegionCode[5] = "4301"; 
     memcpy((void*)psPack->sAddress.acRegionCode, (void*)strRegionCode, strlen(strRegionCode));
     psPack->sAddress.usTAddress = 0x12345678;
     psPack->sAddress.ucMAddress = 123;
@@ -2242,7 +2242,7 @@ emt_err_t test_pack_0421()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 12345678;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -2317,7 +2317,7 @@ emt_err_t test_pack_afn05_f90()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 12345678;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -2388,7 +2388,7 @@ emt_err_t test_pack_afn00_f3()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -2506,7 +2506,7 @@ emt_err_t test_pack_afn02f1()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -2572,7 +2572,7 @@ emt_err_t test_pack_afn04f1()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -2653,7 +2653,7 @@ emt_err_t test_pack_afn04f10()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -2804,7 +2804,7 @@ emt_err_t test_pack_afn04f10_s2m_auto()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -2932,7 +2932,7 @@ emt_err_t test_pack_afn0cf25_s2m_auto()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3061,7 +3061,7 @@ emt_err_t test_pack_afn0af38_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3135,7 +3135,7 @@ emt_err_t test_pack_afn0af39_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3209,7 +3209,7 @@ emt_err_t test_pack_afn0af65_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3295,7 +3295,7 @@ emt_err_t test_pack_afn0af66_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3381,7 +3381,7 @@ emt_err_t test_pack_afn0af67_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3452,7 +3452,7 @@ emt_err_t test_pack_afn0af68_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3524,7 +3524,7 @@ emt_err_t test_pack_afn04f38_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3604,7 +3604,7 @@ emt_err_t test_pack_afn04f39_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3684,7 +3684,7 @@ emt_err_t test_pack_afn04f62_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3764,7 +3764,7 @@ emt_err_t test_pack_afn04f65_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3857,7 +3857,7 @@ emt_err_t test_pack_afn04f66_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -3952,7 +3952,7 @@ emt_err_t test_pack_afn04f67_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4025,7 +4025,7 @@ emt_err_t test_pack_afn04f68_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4084,7 +4084,7 @@ emt_err_t test_pack_afn0cf25_S2M()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4193,11 +4193,11 @@ emt_err_t test_pack_afn05f31()
         return eRet;
     }
     const char *str = "1234567890123456";
-    bcm_set_pw(str);
+    //bcm_set_pw(str);
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4207,7 +4207,7 @@ emt_err_t test_pack_afn05f31()
     pscmPacket->ePRM = MT_PRM_ACTIVE;
     
     pscmPacket->ePos = MT_POS_SIGLE;
-    pscmPacket->ucSeq = 0;
+    pscmPacket->ucSeq = 1;
     pscmPacket->bAcdFcb = true;
 
 
@@ -4262,7 +4262,7 @@ emt_err_t test_pack_afn05f27()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4321,7 +4321,7 @@ emt_err_t test_pack_afn05f29()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4380,7 +4380,7 @@ emt_err_t test_pack_afn05f35()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4441,7 +4441,7 @@ emt_err_t test_pack_afn09f1_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4544,7 +4544,7 @@ emt_err_t test_pack_afn09f2_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4624,7 +4624,7 @@ emt_err_t test_pack_afn09f3_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4708,7 +4708,7 @@ emt_err_t test_pack_afn09f4_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4766,7 +4766,7 @@ emt_err_t test_pack_afn09f5_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4830,7 +4830,7 @@ emt_err_t test_pack_afn09f6_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4889,7 +4889,7 @@ emt_err_t test_pack_afn09f7_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -4954,7 +4954,7 @@ emt_err_t test_pack_afn09f8_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -5018,7 +5018,7 @@ emt_err_t test_pack_afn0cf02_s2m_auto()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -5079,7 +5079,7 @@ emt_err_t test_pack_afn0cf02_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5140,7 +5140,7 @@ emt_err_t test_pack_afn0cf03_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5201,7 +5201,7 @@ emt_err_t test_pack_afn0cf04_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5257,7 +5257,7 @@ emt_err_t test_pack_afn0cf05_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5378,7 +5378,7 @@ emt_err_t test_pack_afn0cf06_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5516,7 +5516,7 @@ emt_err_t test_pack_afn0cf07_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5572,7 +5572,7 @@ emt_err_t test_pack_afn0cf08_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5639,7 +5639,7 @@ emt_err_t test_pack_afn0cf17_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -5694,7 +5694,7 @@ emt_err_t test_pack_afn0cf18_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -5745,7 +5745,7 @@ emt_err_t test_pack_afn0cf31_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5887,7 +5887,7 @@ emt_err_t test_pack_afn0cf57_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -5990,7 +5990,7 @@ emt_err_t test_pack_afn0cf58_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6107,7 +6107,7 @@ emt_err_t test_pack_afn0cf73_s2m()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -6158,7 +6158,7 @@ emt_err_t test_pack_afn0cf129_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6223,7 +6223,7 @@ emt_err_t test_pack_afn0cf130_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6288,7 +6288,7 @@ emt_err_t test_pack_afn0cf166_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6359,7 +6359,7 @@ emt_err_t test_pack_afn0cf167_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6426,7 +6426,7 @@ emt_err_t test_pack_afn0df97_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6493,7 +6493,7 @@ emt_err_t test_pack_afn0df101_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6560,7 +6560,7 @@ emt_err_t test_pack_afn0df105_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6627,7 +6627,7 @@ emt_err_t test_pack_afn0df109_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6711,7 +6711,7 @@ emt_err_t test_pack_afn0df113_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6780,7 +6780,7 @@ emt_err_t test_pack_afn0df116_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6849,7 +6849,7 @@ emt_err_t test_pack_afn0df121_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6918,7 +6918,7 @@ emt_err_t test_pack_afn0df169_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -6983,7 +6983,7 @@ emt_err_t test_pack_afn0df170_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7051,7 +7051,7 @@ emt_err_t test_pack_afn0df171_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7119,7 +7119,7 @@ emt_err_t test_pack_afn0df177_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7186,7 +7186,7 @@ emt_err_t test_pack_afn0df178_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7253,7 +7253,7 @@ emt_err_t test_pack_afn0df185_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7333,7 +7333,7 @@ emt_err_t test_pack_afn0df215_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7405,7 +7405,7 @@ emt_err_t test_pack_afn0df216_s2m()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 123;
@@ -7484,7 +7484,7 @@ emt_err_t test_pack_afn05f37()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7544,7 +7544,7 @@ emt_err_t test_pack_afn05f38()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7603,7 +7603,7 @@ emt_err_t test_pack_afn09f1_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7662,7 +7662,7 @@ emt_err_t test_pack_afn09f2_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7740,7 +7740,7 @@ emt_err_t test_pack_afn09f3_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7818,7 +7818,7 @@ emt_err_t test_pack_afn09f4_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7880,7 +7880,7 @@ emt_err_t test_pack_afn09f5_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7938,7 +7938,7 @@ emt_err_t test_pack_afn09f6_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -7995,7 +7995,7 @@ emt_err_t test_pack_afn09f7_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8053,7 +8053,7 @@ emt_err_t test_pack_afn09f8_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8111,7 +8111,7 @@ emt_err_t test_pack_afn0af10_m2s()
   
     
     /* 3 ???? */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8181,7 +8181,7 @@ emt_err_t test_pack_afn0af38_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8261,7 +8261,7 @@ emt_err_t test_pack_afn0af39_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8336,7 +8336,7 @@ emt_err_t test_pack_afn0af65_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8394,7 +8394,7 @@ emt_err_t test_pack_afn0af66_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8452,7 +8452,7 @@ emt_err_t test_pack_afn0af67_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8510,7 +8510,7 @@ emt_err_t test_pack_afn0af68_m2s()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8567,7 +8567,7 @@ emt_err_t test_pack_afn05f39()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8623,7 +8623,7 @@ emt_err_t test_pack_afn0cf02_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8677,7 +8677,7 @@ emt_err_t test_pack_afn0cf03_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8731,7 +8731,7 @@ emt_err_t test_pack_afn0cf04_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8785,7 +8785,7 @@ emt_err_t test_pack_afn0cf05_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8839,7 +8839,7 @@ emt_err_t test_pack_afn0cf06_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8893,7 +8893,7 @@ emt_err_t test_pack_afn0cf07_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -8947,7 +8947,7 @@ emt_err_t test_pack_afn0cf08_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9004,7 +9004,7 @@ emt_err_t test_pack_afn0cf25()
   
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9079,7 +9079,7 @@ emt_err_t test_pack_afn0cf31_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9133,7 +9133,7 @@ emt_err_t test_pack_afn0cf57_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9187,7 +9187,7 @@ emt_err_t test_pack_afn0cf58_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9241,7 +9241,7 @@ emt_err_t test_pack_afn0cf73_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9294,7 +9294,7 @@ emt_err_t test_pack_afn0cf129_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9348,7 +9348,7 @@ emt_err_t test_pack_afn0cf130_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9402,7 +9402,7 @@ emt_err_t test_pack_afn0cf166_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9456,7 +9456,7 @@ emt_err_t test_pack_afn0cf167_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9510,7 +9510,7 @@ emt_err_t test_pack_afn0df28_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9568,7 +9568,7 @@ emt_err_t test_pack_afn0df36_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9621,7 +9621,7 @@ emt_err_t test_pack_afn0df97_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9675,7 +9675,7 @@ emt_err_t test_pack_afn0df101_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9729,7 +9729,7 @@ emt_err_t test_pack_afn0df105_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9783,7 +9783,7 @@ emt_err_t test_pack_afn0df109_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9837,7 +9837,7 @@ emt_err_t test_pack_afn0df113_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9891,7 +9891,7 @@ emt_err_t test_pack_afn0df116_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9945,7 +9945,7 @@ emt_err_t test_pack_afn0df121_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -9998,7 +9998,7 @@ emt_err_t test_pack_afn0df169_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10051,7 +10051,7 @@ emt_err_t test_pack_afn0df170_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10104,7 +10104,7 @@ emt_err_t test_pack_afn0df171_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10157,7 +10157,7 @@ emt_err_t test_pack_afn0df177_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10210,7 +10210,7 @@ emt_err_t test_pack_afn0df178_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10263,7 +10263,7 @@ emt_err_t test_pack_afn0df185_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10316,7 +10316,7 @@ emt_err_t test_pack_afn0df215_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10369,7 +10369,7 @@ emt_err_t test_pack_afn0df216_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10425,7 +10425,7 @@ emt_err_t test_pack_afn0ef1_m2s()
     }
     
     /* 3 封装参数 */
-    memcpy(pscmPacket->sAddress.acRegionCode, "1100", 4);
+    memcpy(pscmPacket->sAddress.acRegionCode, "4301", 4);
     pscmPacket->sAddress.usTAddress = 1;
     pscmPacket->sAddress.bTeamAddr  = false;
     pscmPacket->sAddress.ucMAddress = 1;
@@ -10485,11 +10485,11 @@ sTestPack  g_test_pack_down[] =
     {CMD_AFN_4_F67_GOP_AUTO_1,     test_pack_afn04f67_m2s},
     {CMD_AFN_4_F68_GOP_AUTO_2,     test_pack_afn04f68_m2s},
 
-    {CMD_AFN_5_F27_PERMIT_TALK_GO,     test_pack_afn05f27},
-    {CMD_AFN_5_F29_AUTO_SAY_GO,        test_pack_afn05f29},
-    {CMD_AFN_5_F35_PERMIT_TALK_STOP,    test_pack_afn05f35},
-    {CMD_AFN_5_F37_AUTO_SAY_STOP,     test_pack_afn05f37},
-    {CMD_AFN_5_F38_TML_LINK_ON,     test_pack_afn05f38},
+    {CMD_AFN_5_F27_PERMIT_TALK_GO,   test_pack_afn05f27},
+    {CMD_AFN_5_F29_AUTO_SAY_GO,      test_pack_afn05f29},
+    {CMD_AFN_5_F35_PERMIT_TALK_STOP, test_pack_afn05f35},
+    {CMD_AFN_5_F37_AUTO_SAY_STOP,    test_pack_afn05f37},
+    {CMD_AFN_5_F38_TML_LINK_ON,      test_pack_afn05f38},
     {CMD_AFN_5_F39_TML_LINK_OFF,     test_pack_afn05f39},
 
     {CMD_AFN_9_F1_TML_VERSION,     test_pack_afn09f1_m2s},

@@ -1,10 +1,12 @@
 CC := g++
-CFLAGS := -I.
+CFLAGS := -I./include\
+   		  -I./frame\
+   		  -I./common
 LDFLAGS := -lACE
-OBJ:= qgdw_3761_api.o\
-	  con3761adp.o\
-	  fmprint.o\
-	  TcpClient.o
+OBJ:= lib/qgdw_3761_api.o\
+	  lib/con3761adp.o\
+	  lib/fmprint.o\
+	  lib/TcpClient.o
 
 main.exe: $(OBJ) ztest/main.o
 	@$(CC) $(CFLAGS) $(LDFLAGS) $+ -o $@
@@ -22,4 +24,4 @@ test.exe: $(OBJ) ztest/test.o
 	$(CC) $(CFLAGS)  $+ -c -o $@
 
 clean:
-	rm *.o *.exe
+	rm $(OBJ) *.o */*.o *.exe

@@ -2410,7 +2410,7 @@ typedef struct
 {
     uint8_t  acRegionCode[4];    // 行政区划码A1 如北京 1100, 行政区划码按GB 2260-91的规定执行
     uint16_t usTAddress;         // 终端或集中器地址A2 范围(1 ~ 65535)
-    bool   bTeamAddr;          // 为true 表示ulTAddress 为组地址, 为false 表示ulTAddress单一地址
+    bool     bTeamAddr;          // 为true 表示ulTAddress 为组地址, 为false 表示ulTAddress单一地址
     uint8_t  ucMAddress;         // 主站地址和组地址标志A3, 范围(0~127)
     
 }sMtAddress;
@@ -14488,7 +14488,7 @@ uint8_t  ucGetCmdFn(eMtCmd eCmd);
 typedef struct
 {
     eMtCmd       eCmd;        // 功能码
-    uint16_t       usPN;        // Pn (0 <= pn <= 2040 )
+    uint16_t     usPN;        // Pn (0 <= pn <= 2040 )
     bool         bApp;        // 是否有数据单元
     uMtApp       uApp;        // 对应不同的命令类型, 及上下行类型, 应用层数据时有时无
     
@@ -14503,11 +14503,11 @@ typedef struct
 typedef struct
 {
     sMtAddress    sAddress;        // 地址域
-    emt_afn_t        eAFN;            // 主功能码  同帧中必须是同一个主功能码下的不同子命令的组合
+    emt_afn_t     eAFN;            // 主功能码  同帧中必须是同一个主功能码下的不同子命令的组合
     eMtDir        eDir;            // 上下行
     eMtPRM        ePRM;            // 标志该报文是来自启动站 还是从动站
     eMtPos        ePos;            // 位置
-    uint8_t         ucSeq;           // pseq/rseq (0~15) 
+    uint8_t       ucSeq;           // pseq/rseq (0~15) 
  
     bool          bAcdFcb;         // FCB 帧计数位 在下行报文中有效
                                    /*
