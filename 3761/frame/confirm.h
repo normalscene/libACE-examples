@@ -18,7 +18,7 @@ public:
 	   eCmErr eRet;
 	   uint16_t usBuflen = 0;
 	   uint8_t cleanbuf[1<<10];
-	   smt_pack_t *pscmPacket = (smt_pack_t*)cleanbuf;
+	   pack_t *pscmPacket = (pack_t*)cleanbuf;
 	   CommonHeader& head = *(CommonHeader*)data;
 
 		/* 2 环境初始化 */
@@ -26,7 +26,7 @@ public:
 		sInit.eRole = MT_ROLE_CONTOR;
 		sInit.ucPermitDelayMinutes = 0;
 		eRet = ecm_3761_init(&sInit);
-		if(eRet != MT_OK)
+		if(eRet != MT_ERR_OK)
 		{
 			printf("初始化失败\n");
 			return eRet;
@@ -71,8 +71,8 @@ public:
 		uint8_t buf[1<<10];
 		uint16_t len = 0;
 
-		eRet = emt_pack(pscmPacket, &len, buf);
-		if(eRet != MT_OK)
+		eRet = pack(pscmPacket, &len, buf);
+		if(eRet != MT_ERR_OK)
 		{
 			printf("ecm_3761_pack error %d\n", eRet);
 			return eRet;

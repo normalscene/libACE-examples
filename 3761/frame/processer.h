@@ -30,7 +30,7 @@ public:
 		printf("\n");
 
 		eCmErr err = ecm_3761_unpack(begin, len, &pack);
-		if(MT_OK != err)
+		if(MT_ERR_OK != err)
 		{
 			printf("unpack error\n");
 			show_mt_error(err);
@@ -55,14 +55,14 @@ public:
 		com.print();
 	}
 
-	void show_mt_error(emt_err_t eErr)
+	void show_mt_error(err_t eErr)
 	{
 		const char *str = NULL;
 
 		switch(eErr)
 		{
-			case MT_OK:
-				str = "MT_OK 无错误";
+			case MT_ERR_OK:
+				str = "MT_ERR_OK 无错误";
 				break;
 
 			case MT_ERR_NULL:

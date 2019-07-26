@@ -40,7 +40,7 @@ int get_login_frame(uint8_t *buf, const char *region, uint16_t termaddr, uint8_t
 
     eRet = ecm_3761_init(&sInit);
 
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return 0;
@@ -61,7 +61,7 @@ int get_login_frame(uint8_t *buf, const char *region, uint16_t termaddr, uint8_t
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(&pack, buf, &len);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return 0;

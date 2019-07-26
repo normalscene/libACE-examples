@@ -7,11 +7,11 @@ using namespace std;
 
 class Timesync
 
-	emt_err_t test_pack_0001_m2s()
+	err_t test_pack_0001_m2s()
 	{
 	   eCmErr eRet;
 	   uint16_t usBuflen = 0;
-	   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+	   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
 	   
 
 		/* 2 环境初始化 */
@@ -19,7 +19,7 @@ class Timesync
 		sInit.eRole = MT_ROLE_CONTOR;
 		sInit.ucPermitDelayMinutes = 255;
 		eRet = ecm_3761_init(&sInit);
-		if(eRet != MT_OK)
+		if(eRet != MT_ERR_OK)
 		{
 			printf("初始化失败\n");
 			return eRet;
@@ -53,8 +53,8 @@ class Timesync
 
 
 		/* 4 调用函数 */
-		eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-		if(eRet != MT_OK)
+		eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+		if(eRet != MT_ERR_OK)
 		{
 			printf("ecm_3761_pack error %d\n", eRet);
 			return eRet;
@@ -62,7 +62,7 @@ class Timesync
 		
 		/* 5 输出结果 */ 
 		printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-		return MT_OK;
+		return MT_ERR_OK;
 	}
 
 

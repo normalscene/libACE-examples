@@ -73,10 +73,23 @@ sed \
 	-e 's/\<eMtInit\>/emt_init/g'\
 	-e 's/\<sMtfComHead\>/smt_fcomhead_t/g'\
 	-e 's/\<sMtComPack\>/smt_compack_t/g'\
+	-e 's/\<emtGetPrm\>/emt_get_prm/g'\
+	-e 's/\<sMtCtrl\>/smt_ctrl_t/g'\
+	-e 's/\<sMtBaseData\>/smt_base_data_t/g'\
+	-e 's/\<sMtSEQ\>/smt_seq_t/g'\
+	-e 's/\<sMtTP\>/smt_tp_t/g'\
+	-e 's/\<sMtPnFn\>/smt_pnfn_t/g'\
+	-e 's/\<sMtLiteData\>/smt_lite_data_t/g'\
 	\
-	-e 's/\<emt_\>//g'\
-	-e 's/\<vmt_\>//g'\
-	-e 's/\<smt_\>//g'\
+	-e 's/\<pMtFunc\>/trans_func_t/g'\
+	-e 's/\<peMtEncryptFunc\>/encrept_func_t/g'\
+	-e 's/\<peMtDecryptFunc\>/decrept_func_t/g'\
+	\
+	-e 's/\<MT_OK\>/MT_ERR_OK/g'\
+	\
+	-e 's/emt_//g'\
+	-e 's/vmt_//g'\
+	-e 's/smt_//g'\
 	\
 	-i $@
 

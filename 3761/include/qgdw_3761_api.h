@@ -16,15 +16,15 @@
                集中器  concentrator -> c
                终端    terminal     -> t
   函数列表   : 
-               (1) emt_init()           协议模块初始化
-               (2) emt_find_valid_pack()  一个buf内找到第一个有效帧
-               (3) emt_is_valid_pack()    判断一个帧是否为有效的3761帧
-               (4) emt_pack()           封装3761协议
-               (5) emt_unpack()         解析3761协议
-               (6) vmt_set_pw()          主站设置报文中的pw字段
-               (7) vmt_set_pw_buf()       主站设置报文中的pw字段
-               (8) emt_whoami()         判断自是主站还是集中器
-               (9) vmt_set_ec()          集中器设置应答报文中的EC字段
+               (1) init()           协议模块初始化
+               (2) find_valid_pack()  一个buf内找到第一个有效帧
+               (3) is_valid_pack()    判断一个帧是否为有效的3761帧
+               (4) pack()           封装3761协议
+               (5) unpack()         解析3761协议
+               (6) set_pw()          主站设置报文中的pw字段
+               (7) set_pw_buf()       主站设置报文中的pw字段
+               (8) whoami()         判断自是主站还是集中器
+               (9) set_ec()          集中器设置应答报文中的EC字段
                
   修改历史   :
   1.日    期   : 2013年7月25日 星期四
@@ -119,7 +119,7 @@
 #endif
 
 #define MT_SEQ2CS_BYTES_MAX (MT_FRM_LEN_MAX - MT_HCANS_LEN)  // 每单帧允许SEQ与CS之间数据字节数最大值
-#define MT_USER_MAX         (2*MT_SEQ2CS_BYTES_MAX)          // 用户侧等变长结构 smt_pack_t smt_basepack_t 最大长度
+#define MT_USER_MAX         (2*MT_SEQ2CS_BYTES_MAX)          // 用户侧等变长结构 pack_t basepack_t 最大长度
 
 // 帧的最小字长
 #define MT_FRM_LEN_MIN      (20)                             // 心跳、登录的帧长最小
@@ -152,7 +152,7 @@ typedef enum
     AFN_11_MAX   = 0x11,     // 最大值
     AFN_NULL     = 0xFF      // 不存在的AFN
 
-}emt_afn_t;    
+}afn_t;    
  ///*} 
 
 /*******************************************************
@@ -960,16 +960,16 @@ typedef enum
     
     /* 在这之上添加扩展命令字 */
     CMD_AFN_FN_MAX  
-}emt_cmd_t;
+}cmd_t;
 ///*}
 
 /*******************************************************
- *  错误码定义 emt_err_t
+ *  错误码定义 err_t
  *
 {*///
 typedef enum
 {  
-    MT_OK,             // 无错误                    0 
+    MT_ERR_OK,             // 无错误                    0 
     MT_ERR_NULL,       // 指针为空                  1 
     MT_ERR_OUTRNG,     // 参数越界                  2
     MT_ERR_NONE,       // 不存在,没有找到           3    
@@ -998,7 +998,7 @@ typedef enum
     MT_ERR_ENCRYPT,    // 加密错误                  26
     MT_ERR_DECRYPT,    // 解密错误                  27
     
-}emt_err_t;    
+}err_t;    
 ///*} 
 
 /*******************************************************
@@ -1056,11 +1056,11 @@ typedef enum
     MT_TRANS_UNKOWN,    // 未知方向
     MT_TRANS_U2F,       // 用户侧数据结构到帧数据结构
     MT_TRANS_F2U,       // 帧侧数据结构到用户侧数据结构 
-}emt_trans_t;              // 用户侧与帧侧数据结构转换方向
+}trans_t;              // 用户侧与帧侧数据结构转换方向
 
 // 转换帧侧与用户侧数据结构的函数指针类型
 // pusLen 为封装成帧侧的数据字节长
-typedef emt_err_t (*pMtFunc)(emt_trans_t eTrans, void* pUser, void* pFrame, uint16_t* pusLen);  
+typedef err_t (*trans_func_t)(trans_t eTrans, void* pUser, void* pFrame, uint16_t* pusLen);  
 ///*} 
 
 /*******************************************************
@@ -1081,10 +1081,10 @@ typedef emt_err_t (*pMtFunc)(emt_trans_t eTrans, void* pUser, void* pFrame, uint
 {*///
 #if MT_CFG_ENCRYPT
 // 加密函数类型
-typedef emt_err_t (*peMtEncryptFunc)(uint8_t* pInData, int nInLen, uint8_t* pOutData, int *pOutLen);  
+typedef err_t (*encrept_func_t)(uint8_t* pInData, int nInLen, uint8_t* pOutData, int *pOutLen);  
 
 // 解密函数类型
-typedef emt_err_t (*peMtDecryptFunc)(uint8_t* pInData, int nInLen, uint8_t* pOutData, int *pOutLen);  
+typedef err_t (*decrept_func_t)(uint8_t* pInData, int nInLen, uint8_t* pOutData, int *pOutLen);  
 #endif
 ///*} 
 
@@ -1152,7 +1152,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMtFrmClock* psFrame);
+err_t trans_YYWWMMDDhhmmss(trans_t eTrans, sMtUserClock* psUser, sMtFrmClock* psFrame);
 ///*} 
 
 /*********************************************
@@ -1210,7 +1210,7 @@ typedef struct
 }sMtFmt02_f,sMtsXXX;
 
 // 转换函数
-emt_err_t emt_trans_sXXX(emt_trans_t eTrans, float* psUser, sMtsXXX* psFrame);
+err_t trans_sXXX(trans_t eTrans, float* psUser, sMtsXXX* psFrame);
 ///*} 
 
 /*********************************************
@@ -1268,7 +1268,7 @@ typedef struct
 }sMtFmt03_f,sMtFmt_sX7_f;
 
 // 转换函数
-emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* psFrame);
+err_t trans_sX7(trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -1313,7 +1313,7 @@ typedef struct
 }sMtFmt04_f,sMtsXX_f;
 
 // 转换函数
-emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame);
+err_t trans_sXX(trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame);
 ///*}
 
 /*********************************************
@@ -1346,7 +1346,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_sXXX_X(emt_trans_t eTrans, float* psUser, sMtFmt05* psFrame);
+err_t trans_sXXX_X(trans_t eTrans, float* psUser, sMtFmt05* psFrame);
 ///*} 
 
 /*********************************************
@@ -1379,7 +1379,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_sXX_XX(emt_trans_t eTrans, float* psUser, sMtFmt06* psFrame);
+err_t trans_sXX_XX(trans_t eTrans, float* psUser, sMtFmt06* psFrame);
 ///*} 
 
 /*********************************************
@@ -1412,7 +1412,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_XXX_X(emt_trans_t eTrans, float* psUser, sMtFmt07* psFrame);
+err_t trans_XXX_X(trans_t eTrans, float* psUser, sMtFmt07* psFrame);
 ///*} 
 
 /*********************************************
@@ -1443,7 +1443,7 @@ typedef struct
 }sMtFmt08, sMtFmt08_f, sMtFmt_XXXX;
 
 // 转换函数
-emt_err_t emt_trans_XXXX(emt_trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame);
+err_t trans_XXXX(trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame);
 ///*} 
 
 
@@ -1483,7 +1483,7 @@ typedef struct
 int  nMtPow(uint8_t exp); 
 
 // 转换函数
-emt_err_t emt_trans_sXX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt09* psFrame);
+err_t trans_sXX_XXXX(trans_t eTrans, float* psUser, sMtFmt09* psFrame);
 ///*} 
 
 /*********************************************
@@ -1519,7 +1519,7 @@ typedef struct
 }sMtFmt_XXXXXX, sMtFmt10_f;
 
 // 转换函数
-emt_err_t emt_trans_XXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* psFrame);
+err_t trans_XXXXXX(trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* psFrame);
 ///*} 
 
 /*********************************************
@@ -1559,7 +1559,7 @@ typedef struct
 }sMtFmt11, sMtFmt11_f, sMtFmt_XXXXXX_XX;
 
 // 转换函数
-emt_err_t emt_trans_XXXXXX_XX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XX* psFrame);
+err_t trans_XXXXXX_XX(trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XX* psFrame);
 ///*}
 
 /*********************************************
@@ -1608,7 +1608,7 @@ typedef struct
 }sMtFmt12, sMtFmt_XX_6;
 
 // 转换函数
-emt_err_t emt_trans_XX_6(emt_trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFrame);
+err_t trans_XX_6(trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFrame);
 ///*}
 
 /*********************************************
@@ -1649,7 +1649,7 @@ typedef struct
 }sMtFmt13, sMtFmt_XXXX_XXXX, sMtFmt13_f;
 
 // 转换函数
-emt_err_t emt_trans_XXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXX_XXXX* psFrame);
+err_t trans_XXXX_XXXX(trans_t eTrans, double* psUser, sMtFmt_XXXX_XXXX* psFrame);
 ///*}
 
 /*********************************************
@@ -1694,7 +1694,7 @@ typedef struct
 }sMtFmt14, sMtFmt14_f,sMtFmt_XXXXXX_XXXX;
 
 // 转换函数
-emt_err_t emt_trans_XXXXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XXXX* psFrame);
+err_t trans_XXXXXX_XXXX(trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XXXX* psFrame);
 ///*}
 
 /*********************************************
@@ -1748,7 +1748,7 @@ typedef struct
 }sMtFmt15_f,sMtYYMMDDhhmm_f;
 
 // 转换函数
-emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYMMDDhhmm_f* psFrame);
+err_t trans_YYMMDDhhmm(trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYMMDDhhmm_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -1796,7 +1796,7 @@ typedef struct
 }sMtFmt16_f, sMtDDHHmmss_f;
 
 // 转换函数
-emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtDDHHmmss_f* psDDHHmmss_f);
+err_t trans_DDHHmmss(trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtDDHHmmss_f* psDDHHmmss_f);
 ///*} 
 
 /*********************************************
@@ -1845,7 +1845,7 @@ typedef struct
 }sMtFmt17_f, sMtMMDDHHmm_f;
 
 // 转换函数
-emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtMMDDHHmm_f* psMMDDHHmm_f);
+err_t trans_MMDDHHmm(trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtMMDDHHmm_f* psMMDDHHmm_f);
 ///*} 
 
 /*********************************************
@@ -1887,7 +1887,7 @@ typedef struct
 }sMtFmt18_f, sMtDDHHmm_f;
 
 // 转换函数
-emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_f* psDDHHmm_f);
+err_t trans_DDHHmm(trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_f* psDDHHmm_f);
 ///*} 
 
 /*********************************************
@@ -1924,7 +1924,7 @@ typedef struct
 }sMtFmt19_f, sMtHHmm_f;
 
 // 转换函数
-emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHmm_f);
+err_t trans_HHmm(trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHmm_f);
 ///*} 
 
 /*********************************************
@@ -1966,7 +1966,7 @@ typedef struct
 }sMtFmt20_f, sMtYYMMDD_f;
 
 // 转换函数
-emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* psFrame);
+err_t trans_YYMMDD(trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -2004,7 +2004,7 @@ typedef struct
 }sMtFmt21_f, sMtYYMM_f;
 
 // 转换函数
-emt_err_t emt_trans_YYMM(emt_trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame);
+err_t trans_YYMM(trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -2032,7 +2032,7 @@ typedef struct
 }sMtFmt22_f, sMtX_X_f;
 
 // 转换函数
-emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame);
+err_t trans_X_X(trans_t eTrans, float* psUser, sMtFmt22_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -2069,7 +2069,7 @@ typedef struct
 }sMtFmt23_f, sMtFmt23, sMtFmt_XX_XXXX;
 
 // 转换函数
-emt_err_t emt_trans_XX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt23_f* psFrame);
+err_t trans_XX_XXXX(trans_t eTrans, float* psUser, sMtFmt23_f* psFrame);
 ///*} 
 
 /*********************************************
@@ -2107,7 +2107,7 @@ typedef struct
 }sMtFmt25, sMtFmt25_f, sMtFmt_sXXX_XXX;
 
 // 转换函数
-emt_err_t emt_trans_sXXX_XXX(emt_trans_t eTrans, float* psUser, sMtFmt25* psFrame);
+err_t trans_sXXX_XXX(trans_t eTrans, float* psUser, sMtFmt25* psFrame);
 ///*} 
 
 
@@ -2141,7 +2141,7 @@ typedef struct
 }sMtFmt26, sMtFmt_X_XXX;
 
 // 转换函数
-emt_err_t emt_trans_X_XXX(emt_trans_t eTrans, float* psUser, sMtFmt26* psFrame);
+err_t trans_X_XXX(trans_t eTrans, float* psUser, sMtFmt26* psFrame);
 ///*} 
 
 /*********************************************
@@ -2182,7 +2182,7 @@ typedef struct
 }sMtFmt_XXXXXXXX;
 
 // 转换函数
-emt_err_t emt_trans_XXXXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXXXX* psFrame);
+err_t trans_XXXXXXXX(trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXXXX* psFrame);
 ///*} 
 
 /******************************************************************************
@@ -2207,7 +2207,7 @@ typedef enum
 // uint8_t ucFrez;
 
 // 转换函数
-emt_err_t emt_trans_fmt_freeze(emt_trans_t eTrans, eMtFmtFrez* psUser, uint8_t* psFrame);
+err_t trans_fmt_freeze(trans_t eTrans, eMtFmtFrez* psUser, uint8_t* psFrame);
 ///*} 
 
 /******************************************************************************
@@ -2280,7 +2280,7 @@ typedef enum
     MT_ROLE_MASTER,    // 主站
     MT_ROLE_CONTOR,    // 集中器 或 终端
     
-}emt_role_t;              // 协议应用模块的身份
+}role_t;              // 协议应用模块的身份
  
 typedef enum
 {
@@ -2288,7 +2288,7 @@ typedef enum
     MT_DIR_M2S,        // 主站到集中器或终端  下行
     MT_DIR_S2M,        // 集中器或终端到主站  上行
     
-}emt_dir_t;               // 报文的发送方向 
+}dir_t;               // 报文的发送方向 
 
 typedef enum
 {
@@ -2305,10 +2305,10 @@ typedef enum
 
 typedef struct
 {    
-    emt_cmd_t  eCmd;
-    emt_dir_t  eDir;
+    cmd_t  eCmd;
+    dir_t  eDir;
     eMtPn   ePn;
-    pMtFunc pFunc;
+    trans_func_t pFunc;
     const char*   pName;    
 }sMtCmdInfor;    
  ///*}
@@ -2370,7 +2370,7 @@ typedef struct
                                         // MT_FN_MAX  最大值
                                         // MT_FN_MIN  最小值
                                         // MT_FN_NONE 无效值
-}sMtPnFn;
+}pnfn_t;
 
 // 帧侧结构
 typedef struct
@@ -2383,22 +2383,22 @@ typedef struct
 }sMtDaDt;
 
 // 转换函数
-emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt);
-emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn);
+err_t pnfn_to_dadt(pnfn_t* psPnFn, sMtDaDt* psDaDt);
+err_t dadt_to_pnfn(sMtDaDt* psDaDt, pnfn_t* psPnFn);
 
 typedef struct
 {
-    emt_cmd_t eCmd;
+    cmd_t eCmd;
     uint16_t usPn; 
     
 }sMtCmdPn;
 
 // 转换函数
-emt_err_t emt_add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmdPn);
-emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn);
-emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn);
-emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn);
-emt_err_t emt_cmdpn_to_dadt(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn);
+err_t add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmdPn);
+err_t pnfn_to_cmdpn(afn_t eAfn, pnfn_t* psPnFn, uint8_t ucNumPnFn,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn);
+err_t cmdpn_to_pnfn(afn_t eAfn, pnfn_t* psPnFn, uint8_t *pucNumPnFn, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn);
+err_t dadt_to_cmdpn(afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn);
+err_t cmdpn_to_dadt(afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn);
 ///*}
 
 /************************************************************
@@ -2413,7 +2413,7 @@ typedef struct
     bool     bTeamAddr;          // 为true 表示ulTAddress 为组地址, 为false 表示ulTAddress单一地址
     uint8_t  ucMAddress;         // 主站地址和组地址标志A3, 范围(0~127)
     
-}smt_addr_t;
+}addr_t;
 
 // 封帧侧结构
 #pragma pack(1) 
@@ -2428,7 +2428,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t *psAddr_u, sMtAddress_f *psAddr_f);
+err_t trans_address(trans_t eTrans, addr_t *psAddr_u, sMtAddress_f *psAddr_f);
 ///*}
 
 /************************************************************
@@ -2489,17 +2489,17 @@ typedef enum
     MT_POS_MUL_M,     // 多帧中间帧
     MT_POS_MUL_E,     // 多帧最后帧
     
-}emt_pos_t;              // 帧的位置类型
+}pos_t;              // 帧的位置类型
 
 // 用户侧
 typedef struct
 {
     bool     bTpv;     // 表示帧中有没有 时间标签 Tp
     bool     bCon;     // 是否需要确认
-    emt_pos_t   ePos;     // 位置
+    pos_t   ePos;     // 位置
     uint8_t    ucSeq;    // pseq/rseq (0~15) 
     
-}sMtSEQ;
+}seq_t;
 
 // 帧侧
 typedef struct
@@ -2513,7 +2513,7 @@ typedef struct
 }sMtSEQ_f;
 
 // 转换函数
-emt_err_t emt_trans_seq(emt_trans_t eTrans, sMtSEQ *puSEQ, sMtSEQ_f *pfSEQ);
+err_t trans_seq(trans_t eTrans, seq_t *puSEQ, sMtSEQ_f *pfSEQ);
 ///*}
 
 /************************************************************
@@ -2557,7 +2557,7 @@ typedef enum
     MT_PRM_ACTIVE,                   // 该帧来自于主动站
     MT_PRM_PASIVE,                   // 该帧来自于从动站
     
-}emt_prm_t;                             // 控制域中PRM字段描述 
+}prm_t;                             // 控制域中PRM字段描述 
 
 typedef enum
 {
@@ -2581,8 +2581,8 @@ typedef enum
 // 用户侧
 typedef struct
 {
-    emt_dir_t     eDir;                   // 上下行
-    emt_prm_t     ePRM;                   // 标志该报文是来自启动站 还是从动站
+    dir_t     eDir;                   // 上下行
+    prm_t     ePRM;                   // 标志该报文是来自启动站 还是从动站
     bool       bFcv;                   // 帧计数有效位FCV
     bool       bAcd_Fcb;               // ACD 要求访问位有效 (bFcv 为假时)
                                        // 自上次收到报文后发生新的重要事件，ACD位置"1"；
@@ -2598,16 +2598,16 @@ typedef struct
         eMtFcodeRpm1 eFcdPrm1;         // 主动站
     }uFCode;
 
-}sMtCtrl;
+}ctrl_t;
 
 // 帧侧
 // uint8_t ucMtCtrl;
 
 // 转换函数
-emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl);
+err_t trans_ctrl(trans_t eTrans, ctrl_t* puCtrl, uint8_t* pfCtrl);
 
 // 封装函数
-emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl);
+err_t get_ctrl(afn_t eAFN, dir_t eDir, prm_t ePRM, bool bAcd_Fcb, ctrl_t *psCtrl);
 ///*}
 
 /************************************************************
@@ -2618,7 +2618,7 @@ typedef struct
 {
     uint8_t  ucEC1;                      // 重要事件计数器
     uint8_t  ucEC2;                      // 一般事件计数器   
-}smt_ec_t;                                // 事件计数器  
+}ec_t;                                // 事件计数器  
 ///*}
 
 /************************************************************
@@ -2631,7 +2631,7 @@ typedef struct
     uint8_t           ucPFC;                 // 启动帧帧序号计数器PFC
     uint8_t           ucPermitDelayMinutes;  // 允许发送传输延时时间
     sMtDDHHmmss     sDDHHmmss;             // 启动帧发送时标
-}sMtTP;                          
+}tp_t;                          
 
 // 帧侧结构
 #pragma pack(1) 
@@ -2644,16 +2644,16 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f);
+err_t trans_tp(trans_t eTrans, tp_t* pTP_u, sMtTP_f* pTP_f);
 
 // 获得当前用户侧Tp原始数据 
-emt_err_t emt_get_tp(uint8_t ucPFC, sMtTP *psuTp);   
+err_t get_tp(uint8_t ucPFC, tp_t *psuTp);   
 
 // 以当前时间为基准判断一个tp是否超时
-bool  bmt_tp_timeout(sMtTP *psTP);
+bool  bmt_tp_timeout(tp_t *psTP);
 
 // 获得当前报文类型对应的aux(tp ec pw)总字长
-uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp); 
+uint16_t uget_aux_len(afn_t eAFN, dir_t eDir, bool bEc, bool bTp); 
 ///*}
 
 /************************************************************
@@ -2661,27 +2661,27 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp);
  *
 {*///
 // 通过命令类型和报文方向获得该命令对应的相关信息
-emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor* psInfor);
+err_t eMtGetCmdInfor(cmd_t eCmd, dir_t eDir, sMtCmdInfor* psInfor);
 
 /*******************************************
  *  数据项相关
  *  协议允许应答中每个实际的数据项为空,在帧侧需要将该数据内容域填充0xEE
 {*///
 bool   bmt_is_0xEE(uint8_t* pData, uint16_t usLen);   // 判断帧侧某数据项是否是无效的
-void   vmt_set_0xEE(uint8_t* pData, uint16_t usLen);  // 将帧侧某数据项设置为无效
+void   set_0xEE(uint8_t* pData, uint16_t usLen);  // 将帧侧某数据项设置为无效
 
 bool   bmt_is_none(uint8_t* pData, uint16_t usLen);   // 数据项缺少
-void   vmt_set_none(uint8_t* pData, uint16_t usLen);  // 将数据项设置为缺少
+void   set_none(uint8_t* pData, uint16_t usLen);  // 将数据项设置为缺少
 ///*}
 
 /*******************************************
  *  附加域
  *
 {*///
-bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有pw字段
-bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有EC字段
-bool   bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有tp字段
-bool   bmt_need_con(emt_afn_t eAFN, emt_dir_t eDir); // 此类报文是否需要确认
+bool   bmt_have_pw(afn_t eAFN, dir_t eDir);  // 此类报文中是否应该有pw字段
+bool   bmt_have_ec(afn_t eAFN, dir_t eDir);  // 此类报文中是否应该有EC字段
+bool   bmt_have_tp(afn_t eAFN, dir_t eDir);  // 此类报文中是否应该有tp字段
+bool   bmt_need_con(afn_t eAFN, dir_t eDir); // 此类报文是否需要确认
 ///*}
 
 /*******************************************
@@ -2692,7 +2692,7 @@ bool   bmt_need_con(emt_afn_t eAFN, emt_dir_t eDir); // 此类报文是否需要
 
 typedef struct
 {
-    emt_cmd_t      eCmd;         // 
+    cmd_t      eCmd;         // 
     uint16_t      usPn;         // Pn  0 ~ 2040
     bool        bOk;
 }sMtCmdErr;                   // 确认与否认 用户侧数据结构
@@ -2700,7 +2700,7 @@ typedef struct
 
 typedef struct
 {
-    emt_afn_t      eAFN;          // 需要确认的AFN
+    afn_t      eAFN;          // 需要确认的AFN
     uint8_t       ucNum;         // 需要确认 或 否认的 Fn个数
     sMtCmdErr   sOne[1];       // ucNum 个sMtUFnPnErr  
 }sMtOnebyOne;                  // 确认与否认 (用户侧数据结构)
@@ -2709,7 +2709,7 @@ typedef struct
 #pragma pack(1) 
 typedef struct
 {
-    sMtPnFn     sPnFn;
+    pnfn_t     sPnFn;
     bool        bOk;
 }sMtFnPnErr;                   // 确认与否认 用户侧数据结构
 
@@ -2726,7 +2726,7 @@ typedef struct
 }sMtOneByOne_f;
 #pragma pack()
 // 转换函数
-emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_OneByOne(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2748,7 +2748,7 @@ typedef struct
 
 
 // 转换函数
-emt_err_t emtTrans_afn03f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn03f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2786,7 +2786,7 @@ typedef struct
 }sMtTmlUpCfg_f, sMtAfn04F1_f;   
 
 // 转换函数
-emt_err_t emtTrans_afn04f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2816,7 +2816,7 @@ typedef struct
 }sMtTmlConUpWireless_f, sMtAfn04F2_f;   
 
 // 转换函数
-emt_err_t emtTrans_afn04f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f2(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2852,7 +2852,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2880,7 +2880,7 @@ typedef struct
 }sMtMasterPhoneSms_f, sMtAfn04F4_f;   
 
 // 转换函数
-emt_err_t emtTrans_afn04f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2910,7 +2910,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f5(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2940,7 +2940,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f6(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -2970,7 +2970,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f7(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3000,7 +3000,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f8(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3030,7 +3030,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f9(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3192,7 +3192,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3255,7 +3255,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f11(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f11(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3299,7 +3299,7 @@ typedef struct
 }sMtTmlStateInput_f, sMtAfn04F12_f;
 
 // 转换函数
-emt_err_t emtTrans_afn04f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f12(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3355,7 +3355,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f13(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f13(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3416,7 +3416,7 @@ typedef struct
 }sMtTmlGrupTotl_f, sMtAfn04F14_f;
 #pragma pack() 
 // 转换函数
-emt_err_t emtTrans_afn04f14(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f14(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3488,7 +3488,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f15(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f15(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3515,7 +3515,7 @@ typedef struct
 
 
 // 转换函数
-emt_err_t emtTrans_afn04f16(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f16(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3533,7 +3533,7 @@ emt_err_t emtTrans_afn04f16(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 //sMtFmt02_f sXXX;
 
 // 转换函数
-emt_err_t emtTrans_afn04f17(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f17(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3574,7 +3574,7 @@ typedef struct
 }sMtPCtrl_f;
 
 // 转换函数
-emt_err_t emtTrans_afn04f18(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f18(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3592,7 +3592,7 @@ emt_err_t emtTrans_afn04f18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 //sMtFmt04_f sXXX;
 
 // 转换函数
-emt_err_t emtTrans_afn04f19(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f19(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3610,7 +3610,7 @@ emt_err_t emtTrans_afn04f19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 //sMtFmt04_f sXXX;
 
 // 转换函数
-emt_err_t emtTrans_afn04f20(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f20(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3639,7 +3639,7 @@ typedef struct
 //sMtTmlPowerFactor_f;
 
 // 转换函数
-emt_err_t emtTrans_afn04f21(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f21(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3672,7 +3672,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f22(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3706,7 +3706,7 @@ typedef struct
 }sMtTmlWarningCfg_f, sMtAfn04f23_f;
 
 // 转换函数
-emt_err_t emtTrans_afn04f23(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f23(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -3766,7 +3766,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -3962,7 +3962,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f26(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f26(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4016,7 +4016,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f27(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f27(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4046,7 +4046,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f28(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f28(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4067,7 +4067,7 @@ typedef struct
 
 
 // 转换函数
-emt_err_t emtTrans_afn04f29(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f29(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4104,7 +4104,7 @@ typedef struct
 
 
 // 转换函数
-emt_err_t emtTrans_afn04f30(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f30(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4139,7 +4139,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4207,7 +4207,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f33(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f33(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4251,7 +4251,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f34(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f34(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4293,7 +4293,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f35(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f35(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4318,7 +4318,7 @@ typedef struct
 }sMtTmlUpLimit_f, sMtAfn04f36_f;
 
 // 转换函数
-emt_err_t emtTrans_afn04f36(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f36(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4360,7 +4360,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f37(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f37(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4379,7 +4379,7 @@ typedef struct
 {    
     uint8_t   ucSmall;                    //  用户小类号 (0 ~ 15)           
     uint8_t   ucFN;                       //  支持的命令个数  0 ~ 248
-    emt_cmd_t  eCmd[MT_FN_MAX];            //  支持的一类数据命令码 CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
+    cmd_t  eCmd[MT_FN_MAX];            //  支持的一类数据命令码 CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
 }sMtAsk1CfgOne;
 
 typedef struct
@@ -4411,7 +4411,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4427,7 +4427,7 @@ typedef struct
 {    
     uint8_t ucSmall;              //  用户小类号            
     uint8_t   ucFN;               //  支持的命令个数  0 ~ 248
-    emt_cmd_t  eCmd[MT_FN_MAX];    //  支持的一类数据命令码 CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
+    cmd_t  eCmd[MT_FN_MAX];    //  支持的一类数据命令码 CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
 
 }sMtAsk2CfgOne;
 
@@ -4459,7 +4459,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4471,7 +4471,7 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f41(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4483,7 +4483,7 @@ emt_err_t emtTrans_afn04f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f42(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4495,7 +4495,7 @@ emt_err_t emtTrans_afn04f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f43(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f43(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4507,7 +4507,7 @@ emt_err_t emtTrans_afn04f43(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f44(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f44(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4519,7 +4519,7 @@ emt_err_t emtTrans_afn04f44(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f45(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f45(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4531,7 +4531,7 @@ emt_err_t emtTrans_afn04f45(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f46(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f46(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4543,7 +4543,7 @@ emt_err_t emtTrans_afn04f46(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f47(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f47(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4555,7 +4555,7 @@ emt_err_t emtTrans_afn04f47(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f48(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f48(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4567,7 +4567,7 @@ emt_err_t emtTrans_afn04f48(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4579,7 +4579,7 @@ emt_err_t emtTrans_afn04f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f57(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f57(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4591,7 +4591,7 @@ emt_err_t emtTrans_afn04f57(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f58(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f58(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4603,7 +4603,7 @@ emt_err_t emtTrans_afn04f58(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f59(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f59(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4615,7 +4615,7 @@ emt_err_t emtTrans_afn04f59(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f60(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f60(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4627,7 +4627,7 @@ emt_err_t emtTrans_afn04f60(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f61(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f61(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4682,7 +4682,7 @@ typedef struct
 
 // 转换函数
 
-emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f65(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4719,7 +4719,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f66(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4755,7 +4755,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn04f67(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f67(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4782,7 +4782,7 @@ typedef struct
 }sMtGopAuto_2_f, sMtAfn04f68_f;
 #pragma pack() 
 // 转换函数
-emt_err_t emtTrans_afn04f68(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f68(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4794,7 +4794,7 @@ emt_err_t emtTrans_afn04f68(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f73(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f73(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4806,7 +4806,7 @@ emt_err_t emtTrans_afn04f73(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f74(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f74(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4818,7 +4818,7 @@ emt_err_t emtTrans_afn04f74(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f75(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f75(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4830,7 +4830,7 @@ emt_err_t emtTrans_afn04f75(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f76(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f76(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4842,7 +4842,7 @@ emt_err_t emtTrans_afn04f76(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f81(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f81(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4854,7 +4854,7 @@ emt_err_t emtTrans_afn04f81(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f82(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f82(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4866,7 +4866,7 @@ emt_err_t emtTrans_afn04f82(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 {*///
 
 // 转换函数
-emt_err_t emtTrans_afn04f83(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn04f83(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4887,7 +4887,7 @@ typedef struct
 // 帧侧
 
 // 转换函数
-emt_err_t emtTrans_afn05f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4912,7 +4912,7 @@ typedef struct
 }sMtPeriodGo_f, sMtAfn05F9_f; 
 
 // 转换函数
-emt_err_t emtTrans_afn05f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f9(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4945,7 +4945,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn05f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f12(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -4961,7 +4961,7 @@ emt_err_t emtTrans_afn05f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -4979,7 +4979,7 @@ emt_err_t emtTrans_afn05f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 //sMtYYWWMMDDhhmmss_f sTime;
 
 // 转换函数
-emt_err_t emtTrans_afn05f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5018,7 +5018,7 @@ typedef struct
 }sMtChineseInfo_f, sMtAfn05F32_f;
 
 // 转换函数
-emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f32(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5034,7 +5034,7 @@ emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f41(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5050,7 +5050,7 @@ emt_err_t emtTrans_afn05f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f42(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5067,7 +5067,7 @@ emt_err_t emtTrans_afn05f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5084,7 +5084,7 @@ emt_err_t emtTrans_afn05f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f50(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f50(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5100,7 +5100,7 @@ emt_err_t emtTrans_afn05f50(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f51(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f51(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5116,7 +5116,7 @@ emt_err_t emtTrans_afn05f51(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f52(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f52(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5132,7 +5132,7 @@ emt_err_t emtTrans_afn05f52(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
 // 转换函数
-emt_err_t emtTrans_afn05f53(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn05f53(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5152,7 +5152,7 @@ typedef struct
 // 帧侧
 
 // 转换函数
-emt_err_t emtTrans_afn06f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn06f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5171,7 +5171,7 @@ typedef struct
 // 帧侧
 
 // 转换函数
-emt_err_t emtTrans_afn06f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn06f2(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5190,7 +5190,7 @@ typedef struct
 // 帧侧
 
 // 转换函数
-emt_err_t emtTrans_afn06f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn06f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5210,7 +5210,7 @@ typedef struct
 // 帧侧
 
 // 转换函数
-emt_err_t emtTrans_afn06f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn06f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5251,7 +5251,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5365,7 +5365,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn09f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f2(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5452,7 +5452,7 @@ typedef struct
 #pragma pack() 
  
 // 转换函数
-emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5468,7 +5468,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 支持的配置的参数的个数
-    emt_cmd_t  eCfgCmd[1];  // 支持的配置  CMD_AFN_4_F1_TML_UP_CFG 到 CMD_AFN_4_F83_CD_FREEZE_PARA
+    cmd_t  eCfgCmd[1];  // 支持的配置  CMD_AFN_4_F1_TML_UP_CFG 到 CMD_AFN_4_F83_CD_FREEZE_PARA
 
 }sMtSuptParaCfg, sMtAfn09F4;
 
@@ -5481,10 +5481,10 @@ typedef struct
 }sMtSuptParaCfg_f, sMtAfn09F4_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
+err_t emtTrans_afn09f4_ast(trans_t eTrans,cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
-emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5500,7 +5500,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 支持的控制命令的个数
-    emt_cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_5_F1_REMOTE_TURN_OFF 到 CMD_AFN_5_F53_DELET_ALL_METER
+    cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_5_F1_REMOTE_TURN_OFF 到 CMD_AFN_5_F53_DELET_ALL_METER
 
 }sMtSuptCtrlCfg, sMtAfn09F5;
 
@@ -5513,10 +5513,10 @@ typedef struct
 }sMtSuptCtrlCfg_f, sMtAfn09F5_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
+err_t emtTrans_afn09f5_ast(trans_t eTrans,cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
-emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f5(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5532,7 +5532,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 终端支持的1类数据配个数
-    emt_cmd_t  eCfgCmd[1];  // ucNum 个命令    CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
+    cmd_t  eCfgCmd[1];  // ucNum 个命令    CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
 
 }sMtSuptAsk1, sMtAfn09F6;
 
@@ -5546,10 +5546,10 @@ typedef struct
 }sMtSuptAsk1_f, sMtAfn09F6_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
+err_t emtTrans_afn09f6_ast(trans_t eTrans,cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
-emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f6(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5565,7 +5565,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;     // 支持的控制命令的FN个数
-    emt_cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
+    cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
 
 }sMtSuptAsk2, sMtAfn09F7;
 
@@ -5581,10 +5581,10 @@ typedef struct
 #pragma pack() 
 
 // 辅助函数
-emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
+err_t emtTrans_afn09f7_ast(trans_t eTrans,cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
-emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f7(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5614,7 +5614,7 @@ typedef struct
 
 
 // 转换函数
-emt_err_t emtTrans_afn09f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn09f8(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5647,7 +5647,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0af10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0af10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5681,7 +5681,7 @@ typedef struct
 #pragma pack(0) 
 
 // 转换函数
-emt_err_t emtTrans_afn0af38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0af38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5716,7 +5716,7 @@ typedef struct
 #pragma pack(0) 
 
 // 转换函数
-emt_err_t emtTrans_afn0af39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0af39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5735,7 +5735,7 @@ typedef sMtUserClock sMtAfn0cF02;
 // 帧侧
 typedef sMtFrmClock  sMtAfn0cF02_f;
 
-emt_err_t emtTrans_afn0cf02(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf02(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5761,7 +5761,7 @@ typedef struct
     
 }sMtAfn0cF03_f;
 
-emt_err_t emtTrans_afn0cf03(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf03(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5790,7 +5790,7 @@ typedef struct
     uint8_t   ucReserve:4;    // 保留备用
 }sMtTmlUpComState_f, sMtAfn0cF04_f;
 
-emt_err_t emtTrans_afn0cf04(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf04(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5871,7 +5871,7 @@ typedef struct
     sMtComGroupSta sGroup[MT_AFN0CF05_MAXGROUPS]; // 总加组状态对应1 ~ 8 总加组
 }sMtAfn0cF05;
 
-emt_err_t emtTrans_afn0cf05(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf05(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5937,7 +5937,7 @@ typedef struct
     sMtCtrlGroupSta sGroup[8];  // 总加组当前控制状态
 }sMtAfn0cF06;
 
-emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf06(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -5958,7 +5958,7 @@ typedef struct
 // 用户侧
 typedef sMtAfn0cF07_f sMtAfn0cF07;
 
-emt_err_t emtTrans_afn0cf07(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf07(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -5982,7 +5982,7 @@ typedef struct
     bool bErc[MT_AFN0CF08_ERC_MAX];  // 保留，仅用于计算长度
 }sMtAfn0cF08;
 
-emt_err_t emtTrans_afn0cf08(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf08(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6006,7 +6006,7 @@ typedef struct
     
 }sMtAfn0cF09;
 
-emt_err_t emtTrans_afn0cf09(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf09(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6030,7 +6030,7 @@ typedef struct
     
 }sMtAfn0cF10;
 
-emt_err_t emtTrans_afn0cf10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6069,7 +6069,7 @@ typedef struct
     
 }sMtAfn0cF11;
 
-emt_err_t emtTrans_afn0cf11(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf11(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6089,7 +6089,7 @@ typedef struct
             
 }sMtAfn0cF17, sMtTotalPowerHave;
 
-emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf17(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6109,7 +6109,7 @@ typedef struct
     
 }sMtAfn0cF18, sMtTotalPowerNone;
 
-emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf18(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6137,7 +6137,7 @@ typedef struct
     
 }sMtAfn0cF19;
 
-emt_err_t emtTrans_afn0cf19(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf19(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6165,7 +6165,7 @@ typedef struct
  
 }sMtAfn0cF20;
 
-emt_err_t emtTrans_afn0cf20(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf20(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6185,7 +6185,7 @@ typedef struct
     
 }sMtAfn0cF21;
 
-emt_err_t emtTrans_afn0cf21(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf21(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6205,7 +6205,7 @@ typedef struct
     
 }sMtAfn0cF22;
 
-emt_err_t emtTrans_afn0cf22(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf22(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6225,7 +6225,7 @@ typedef struct
     
 }sMtAfn0cF23;
 
-emt_err_t emtTrans_afn0cf23(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf23(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6245,7 +6245,7 @@ typedef struct
     
 }sMtAfn0cF24;
 
-emt_err_t emtTrans_afn0cf24(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf24(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -6360,7 +6360,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 
 ///*}
 
@@ -6403,7 +6403,7 @@ typedef struct
     
 }sMtAfn0cF26;
 
-emt_err_t emtTrans_afn0cf26(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf26(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6441,7 +6441,7 @@ typedef struct
     
 }sMtAfn0cF27;
 
-emt_err_t emtTrans_afn0cf27(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf27(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6467,7 +6467,7 @@ typedef struct
     
 }sMtAfn0cF28;
 
-emt_err_t emtTrans_afn0cf28(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf28(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6506,7 +6506,7 @@ typedef struct
     
 }sMtAfn0cF29;
 
-emt_err_t emtTrans_afn0cf29(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf29(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6526,7 +6526,7 @@ typedef struct
     
 }sMtAfn0cF30;
 
-emt_err_t emtTrans_afn0cf30(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf30(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6578,7 +6578,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn0cf31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6596,7 +6596,7 @@ typedef sMtAfn0cf31 sMtAfn0cf32;
 typedef sMtAfn0cf31_f sMtAfn0cf32_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf32(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf32(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6641,7 +6641,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn0cf33(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf33(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6672,7 +6672,7 @@ typedef struct
 }sMtAfn0cf34_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf34(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf34(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6718,7 +6718,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf35(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf35(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6750,7 +6750,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emtTrans_afn0cf36(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf36(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6782,7 +6782,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf37(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf37(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6814,7 +6814,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6846,7 +6846,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6878,7 +6878,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf40(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf40(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6918,7 +6918,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf41(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6957,7 +6957,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf42(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf42(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -6994,7 +6994,7 @@ typedef struct
 }sMtBackHavePowerDay_f, sMtAfn0cF43_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf43(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf43(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7031,7 +7031,7 @@ typedef struct
 }sMtBackNonePowerDay_f, sMtAfn0cF44_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf44(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf44(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7068,7 +7068,7 @@ typedef struct
 }sMtForthHavePowerM_f, sMtAfn0cF45_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf45(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf45(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7105,7 +7105,7 @@ typedef struct
 }sMtForthNonePowerM_f, sMtAfn0cF46_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf46(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf46(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7142,7 +7142,7 @@ typedef struct
 }sMtBackHavePowerMc_f, sMtAfn0cF47_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf47(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf47(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7179,7 +7179,7 @@ typedef struct
 }sMtBackNonePowerMc_f, sMtAfn0cF48_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf48(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf48(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7205,7 +7205,7 @@ typedef struct
 }sMtAfn0cf49_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7262,7 +7262,7 @@ typedef struct
 }sMtCurtHarmValue_f, sMtAfn0cF57_f;
 #pragma pack() 
 // 转换函数
-emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf57(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7328,7 +7328,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf58(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -7352,7 +7352,7 @@ typedef struct
 }sMtAfn0cf65_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf65(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf65(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7375,7 +7375,7 @@ typedef struct
 }sMtAfn0cf66_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf66(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf66(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7398,7 +7398,7 @@ typedef struct
 }sMtAfn0cf67_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf67(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf67(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7417,7 +7417,7 @@ emt_err_t emtTrans_afn0cf67(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFmt02_f sMtAfn0cf73_f;   // 直流模拟量当前数据
 
 // 转换函数
-emt_err_t emtTrans_afn0cf73(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf73(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7461,7 +7461,7 @@ typedef struct
 typedef sMtFrzGrupPower sMtAfn0cf81_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf81(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf81(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7480,7 +7480,7 @@ emt_err_t emtTrans_afn0cf81(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzGrupPower sMtAfn0cf82_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf82(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf82(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7505,7 +7505,7 @@ typedef struct
 typedef sMtFrzGrupValue sMtAfn0cf83_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf83(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf83(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7524,7 +7524,7 @@ emt_err_t emtTrans_afn0cf83(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzGrupValue sMtAfn0cf84_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf84(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf84(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7548,7 +7548,7 @@ typedef struct
 typedef sMtFrzPower sMtAfn0cf89_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf89(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf89(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7566,7 +7566,7 @@ emt_err_t emtTrans_afn0cf89(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf90_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf90(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf90(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7584,7 +7584,7 @@ emt_err_t emtTrans_afn0cf90(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf91_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf91(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf91(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7602,7 +7602,7 @@ emt_err_t emtTrans_afn0cf91(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf92_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf92(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf92(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7620,7 +7620,7 @@ emt_err_t emtTrans_afn0cf92(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf93_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf93(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf93(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7638,7 +7638,7 @@ emt_err_t emtTrans_afn0cf93(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf94_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf94(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf94(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7656,7 +7656,7 @@ emt_err_t emtTrans_afn0cf94(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf95_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf95(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf95(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7674,7 +7674,7 @@ emt_err_t emtTrans_afn0cf95(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzPower sMtAfn0cf96_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf96(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf96(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7698,7 +7698,7 @@ typedef struct
 typedef sMtFrzVolt sMtAfn0cf97_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf97(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf97(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7716,7 +7716,7 @@ emt_err_t emtTrans_afn0cf97(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzVolt sMtAfn0cf98_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf98(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf98(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7734,7 +7734,7 @@ emt_err_t emtTrans_afn0cf98(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 typedef sMtFrzVolt sMtAfn0cf99_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf99(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf99(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7758,7 +7758,7 @@ typedef struct
 typedef sMtFrzElec sMtAfn0cf100_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf100(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf100(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7776,7 +7776,7 @@ emt_err_t emtTrans_afn0cf100(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzElec sMtAfn0cf101_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf101(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf101(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7794,7 +7794,7 @@ emt_err_t emtTrans_afn0cf101(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzElec sMtAfn0cf102_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf102(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf102(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7812,7 +7812,7 @@ emt_err_t emtTrans_afn0cf102(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzElec sMtAfn0cf103_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf103(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf103(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7836,7 +7836,7 @@ typedef struct
 typedef sMtFrzErgy sMtAfn0cf105_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf105(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf105(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7854,7 +7854,7 @@ emt_err_t emtTrans_afn0cf105(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzErgy sMtAfn0cf106_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf106(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf106(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -7873,7 +7873,7 @@ emt_err_t emtTrans_afn0cf106(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzErgy sMtAfn0cf107_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf107(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf107(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7891,7 +7891,7 @@ emt_err_t emtTrans_afn0cf107(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzElec sMtAfn0cf108_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf108(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf108(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7915,7 +7915,7 @@ typedef struct
 typedef sMtFrzValue sMtAfn0cf109_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf109(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf109(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7933,7 +7933,7 @@ emt_err_t emtTrans_afn0cf109(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzValue sMtAfn0cf110_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf110(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf110(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7951,7 +7951,7 @@ emt_err_t emtTrans_afn0cf110(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzValue sMtAfn0cf111_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf111(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf111(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7969,7 +7969,7 @@ emt_err_t emtTrans_afn0cf111(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzValue sMtAfn0cf112_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf112(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf112(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -7993,7 +7993,7 @@ typedef struct
 typedef sMtFrzFact sMtAfn0cf113_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf113(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf113(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8012,7 +8012,7 @@ emt_err_t emtTrans_afn0cf113(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzFact sMtAfn0cf114_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf114(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf114(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8031,7 +8031,7 @@ emt_err_t emtTrans_afn0cf114(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzFact sMtAfn0cf115_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf115(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf115(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8050,7 +8050,7 @@ emt_err_t emtTrans_afn0cf115(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzFact sMtAfn0cf116_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf116(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf116(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8069,7 +8069,7 @@ emt_err_t emtTrans_afn0cf116(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtFrzGrupPower sMtAfn0cf121_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf121(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf121(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8100,7 +8100,7 @@ typedef struct
 }sMtAfn0cf129_f, sMtFrthHavePower_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf129(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8131,7 +8131,7 @@ typedef struct
 }sMtAfn0cf130_f, sMtFrthNonePower_f;
 #pragma pack() 
 // 转换函数
-emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf130(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8149,7 +8149,7 @@ emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf131_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf131(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf131(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8167,7 +8167,7 @@ emt_err_t emtTrans_afn0cf131(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf132_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf132(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf132(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8185,7 +8185,7 @@ emt_err_t emtTrans_afn0cf132(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf133_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf133(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf133(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8203,7 +8203,7 @@ emt_err_t emtTrans_afn0cf133(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf134_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf134(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf134(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8221,7 +8221,7 @@ emt_err_t emtTrans_afn0cf134(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf135_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf135(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf135(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8239,7 +8239,7 @@ emt_err_t emtTrans_afn0cf135(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf136_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf136(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf136(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -8258,7 +8258,7 @@ emt_err_t emtTrans_afn0cf136(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf137_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf137(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf137(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8276,7 +8276,7 @@ emt_err_t emtTrans_afn0cf137(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf138_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf138(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf138(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8294,7 +8294,7 @@ emt_err_t emtTrans_afn0cf138(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf139_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf139(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf139(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8312,7 +8312,7 @@ emt_err_t emtTrans_afn0cf139(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf140_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf140(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf140(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8330,7 +8330,7 @@ emt_err_t emtTrans_afn0cf140(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf141_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf141(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf141(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8348,7 +8348,7 @@ emt_err_t emtTrans_afn0cf141(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf142_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf142(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf142(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8366,7 +8366,7 @@ emt_err_t emtTrans_afn0cf142(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf143_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf143(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf143(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8384,7 +8384,7 @@ emt_err_t emtTrans_afn0cf143(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf130_f sMtAfn0cf144_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf144(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf144(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8415,7 +8415,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf145(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf145(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8434,7 +8434,7 @@ emt_err_t emtTrans_afn0cf145(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf146_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf146(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf146(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8453,7 +8453,7 @@ emt_err_t emtTrans_afn0cf146(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf147_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf147(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf147(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8472,7 +8472,7 @@ emt_err_t emtTrans_afn0cf147(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf148_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf148(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf148(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8491,7 +8491,7 @@ emt_err_t emtTrans_afn0cf148(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf149_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf149(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf149(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8510,7 +8510,7 @@ emt_err_t emtTrans_afn0cf149(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf150_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf150(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf150(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8529,7 +8529,7 @@ emt_err_t emtTrans_afn0cf150(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf151_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf151(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf151(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8548,7 +8548,7 @@ emt_err_t emtTrans_afn0cf151(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf145_f sMtAfn0cf152_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf152(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf152(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8567,7 +8567,7 @@ emt_err_t emtTrans_afn0cf152(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf153_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf153(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf153(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8586,7 +8586,7 @@ emt_err_t emtTrans_afn0cf153(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf154_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf154(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf154(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8605,7 +8605,7 @@ emt_err_t emtTrans_afn0cf154(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf155_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf155(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf155(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8624,7 +8624,7 @@ emt_err_t emtTrans_afn0cf155(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf156_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf156(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf156(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8643,7 +8643,7 @@ emt_err_t emtTrans_afn0cf156(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf157_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf157(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf157(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8662,7 +8662,7 @@ emt_err_t emtTrans_afn0cf157(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf158_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf158(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf158(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8681,7 +8681,7 @@ emt_err_t emtTrans_afn0cf158(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf159_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf159(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf159(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8700,7 +8700,7 @@ emt_err_t emtTrans_afn0cf159(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 typedef sMtAfn0cf129_f sMtAfn0cf160_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf160(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf160(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8732,7 +8732,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf161(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf161(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8776,7 +8776,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf165(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf165(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -8795,7 +8795,7 @@ typedef sMtAfn0cf165 sMtAfn0cf166;
 typedef sMtAfn0cf165_f sMtAfn0cf166_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf166(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf166(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8842,7 +8842,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf167(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf167(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8865,7 +8865,7 @@ typedef struct
 }sMtAfn0cf168_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf168(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf168(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8896,7 +8896,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0cf169(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf169(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -8925,7 +8925,7 @@ typedef struct
 }sMtAfn0cf170_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0cf170(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0cf170(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -8962,7 +8962,7 @@ typedef struct
 }sMtTd_h_f;
 
 // 转换函数
-emt_err_t emtTrans_td_h(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_td_h(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -8991,7 +8991,7 @@ typedef struct
 }sMtTd_c_f;
 
 // 转换函数
-emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_td_c(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9018,7 +9018,7 @@ typedef struct
 }sMtTd_d_f;
 
 // 转换函数
-emt_err_t emtTrans_td_d(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_td_d(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9044,7 +9044,7 @@ typedef struct
 }sMtTd_m_f;
 
 // 转换函数
-emt_err_t emtTrans_td_m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_td_m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -9095,7 +9095,7 @@ typedef struct
 }sMtFrthPowerP1P2D_f, sMtAfn0dF1_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df1(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9142,7 +9142,7 @@ typedef struct
 }sMtFrthPowerP2P3D_f, sMtAfn0dF2_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df2(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9196,7 +9196,7 @@ typedef struct
 }sMtFrthDemand_f, sMtAfn0dF3_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df3(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9250,7 +9250,7 @@ typedef struct
 }sMtBackDemand_f, sMtBackDemandD_f, sMtAfn0dF4_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df4(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9284,7 +9284,7 @@ typedef struct
 }sMtFrthHavePowerD_f, sMtAfn0dF5_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df5(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9318,7 +9318,7 @@ typedef struct
 }sMtFrthNonePowerD_f, sMtAfn0dF6_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df6(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9352,7 +9352,7 @@ typedef struct
 }sMtBackHavePowerD_f, sMtAfn0dF7_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df7(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9385,7 +9385,7 @@ typedef struct
 }sMtBackNonePowerD_f, sMtAfn0dF8_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df8(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9402,7 +9402,7 @@ typedef sMtFrthPowerP1P2D    sMtFrthPowerP1P2R, sMtAfn0dF9;
 typedef sMtFrthPowerP1P2D_f sMtFrthPowerP1P2R_f, sMtAfn0dF9_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df9(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9419,7 +9419,7 @@ typedef sMtFrthPowerP2P3D    sMtFrthPowerP2P3R, sMtAfn0dF10;
 typedef sMtFrthPowerP2P3D_f    sMtFrthPowerP2P3R_f, sMtAfn0dF10_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df10(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df10(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9436,7 +9436,7 @@ typedef sMtFrthDemand    sMtFrthDemandR, sMtAfn0dF11;
 typedef sMtFrthDemand_f  sMtFrthDemandR_f, sMtAfn0dF11_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df11(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df11(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9453,7 +9453,7 @@ typedef sMtBackDemand    sMtBackDemandR, sMtAfn0dF12;
 typedef sMtBackDemand_f  sMtBackDemandR_f, sMtAfn0dF12_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df12(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df12(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9503,7 +9503,7 @@ typedef struct
 }sMtFrthPowerP1P2M_f, sMtAfn0dF17_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df17(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9550,7 +9550,7 @@ typedef struct
 }sMtFrthPowerP2P3M_f, sMtAfn0dF18_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df18(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9604,7 +9604,7 @@ typedef struct
 }sMtFrthDemandM_f, sMtAfn0dF19_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df19(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9657,7 +9657,7 @@ typedef struct
 }sMtBackDemandM_f, sMtAfn0dF20_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df20(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9690,7 +9690,7 @@ typedef struct
 }sMtFrthHavePowerM_f, sMtAfn0dF21_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df21(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9723,7 +9723,7 @@ typedef struct
 }sMtFrthNonePowerM_f, sMtAfn0dF22_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df22(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9757,7 +9757,7 @@ typedef struct
 }sMtBackHavePowerM_f, sMtAfn0dF23_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df23(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9790,7 +9790,7 @@ typedef struct
 }sMtBackNonePowerM_f, sMtAfn0dF24_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df24(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9839,7 +9839,7 @@ typedef struct
 }sMtPowerFreezeD_f, sMtAfn0dF25_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df25(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df25(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9882,7 +9882,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df26(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df26(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -9965,7 +9965,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df27(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df27(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10003,7 +10003,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df28(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df28(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10061,7 +10061,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df29(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df29(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10093,7 +10093,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df30(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df30(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10129,7 +10129,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df31(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df31(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10191,7 +10191,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df32(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df32(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10240,7 +10240,7 @@ typedef struct
 }sMtPowerFreezeM_f, sMtAfn0dF33_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df33(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df33(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10283,7 +10283,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df34(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df34(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10369,7 +10369,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df35(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df35(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10408,7 +10408,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df36(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df36(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10466,7 +10466,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df37(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df37(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10497,7 +10497,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df38(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df38(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10533,7 +10533,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df39(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df39(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10565,7 +10565,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df41(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df41(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10596,7 +10596,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df42(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df42(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10629,7 +10629,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df43(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df43(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10662,7 +10662,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0df44(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df44(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10687,7 +10687,7 @@ typedef struct
 }sMtAfn0dF97_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df97(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10704,7 +10704,7 @@ typedef sMtAfn0dF97 sMtAfn0dF98;
 typedef sMtAfn0dF97_f sMtAfn0dF98_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df98(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df98(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10721,7 +10721,7 @@ typedef sMtAfn0dF97 sMtAfn0dF99;
 typedef sMtAfn0dF97_f sMtAfn0dF99_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df99(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df99(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10738,7 +10738,7 @@ typedef sMtAfn0dF97 sMtAfn0dF100;
 typedef sMtAfn0dF97_f sMtAfn0dF100_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df100(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df100(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10763,7 +10763,7 @@ typedef struct
 }sMtAfn0dF101_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df101(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10780,7 +10780,7 @@ typedef sMtAfn0dF101 sMtAfn0dF102;
 typedef sMtAfn0dF101_f sMtAfn0dF102_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df102(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df102(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10797,7 +10797,7 @@ typedef sMtAfn0dF101 sMtAfn0dF103;
 typedef sMtAfn0dF101_f sMtAfn0dF103_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df103(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df103(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10814,7 +10814,7 @@ typedef sMtAfn0dF101 sMtAfn0dF104;
 typedef sMtAfn0dF101_f sMtAfn0dF104_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df104(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df104(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10839,7 +10839,7 @@ typedef struct
 }sMtAfn0dF105_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df105(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10856,7 +10856,7 @@ typedef sMtAfn0dF105 sMtAfn0dF106;
 typedef sMtAfn0dF105_f sMtAfn0dF106_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df106(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df106(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10873,7 +10873,7 @@ typedef sMtAfn0dF105 sMtAfn0dF107;
 typedef sMtAfn0dF105_f sMtAfn0dF107_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df107(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df107(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10890,7 +10890,7 @@ typedef sMtAfn0dF105 sMtAfn0dF108;
 typedef sMtAfn0dF105_f sMtAfn0dF108_f ;
 
 // 转换函数
-emt_err_t emtTrans_afn0df108(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df108(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10929,7 +10929,7 @@ typedef struct
 }sMtAfn0dF109_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df109(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10961,7 +10961,7 @@ typedef struct
 }sMtAfn0dF110_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df110(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df110(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -10999,7 +10999,7 @@ typedef struct
 }sMtAfn0dF113_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df113(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df113(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11016,7 +11016,7 @@ typedef sMtAfn0dF113 sMtAfn0dF114;
 typedef sMtAfn0dF113_f sMtAfn0dF114_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df114(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df114(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11033,7 +11033,7 @@ typedef sMtAfn0dF113 sMtAfn0dF115;
 typedef sMtAfn0dF113_f sMtAfn0dF115_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df115(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df115(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11073,7 +11073,7 @@ typedef struct
 }sMtAfn0dF116_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df116(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df116(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11090,7 +11090,7 @@ typedef sMtAfn0dF116 sMtAfn0dF117;
 typedef sMtAfn0dF116_f sMtAfn0dF117_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df117(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df117(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11107,7 +11107,7 @@ typedef sMtAfn0dF116 sMtAfn0dF118;
 typedef sMtAfn0dF116_f sMtAfn0dF118_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df118(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df118(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11139,7 +11139,7 @@ typedef struct
 }sMtAfn0dF121_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df121(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11156,7 +11156,7 @@ typedef sMtAfn0dF121 sMtAfn0dF122;
 typedef sMtAfn0dF121_f sMtAfn0dF122_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df122(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df122(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11173,7 +11173,7 @@ typedef sMtAfn0dF121 sMtAfn0dF123;
 typedef sMtAfn0dF121_f sMtAfn0dF123_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df123(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df123(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11199,7 +11199,7 @@ typedef struct
 }sMtAfn0dF129_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df129(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df129(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11215,7 +11215,7 @@ emt_err_t emtTrans_afn0df129(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF129_f sMtAfn0dF130_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df130(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df130(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11239,7 +11239,7 @@ typedef struct
 }sMtAfn0dF138_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df138(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df138(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11263,7 +11263,7 @@ typedef struct
 }sMtAfn0dF145_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df145(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df145(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11280,7 +11280,7 @@ typedef sMtAfn0dF145 sMtAfn0dF146;
 typedef sMtAfn0dF145_f sMtAfn0dF146_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df146(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df146(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11297,7 +11297,7 @@ typedef sMtAfn0dF145 sMtAfn0dF147;
 typedef sMtAfn0dF145_f sMtAfn0dF147_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df147(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df147(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11314,7 +11314,7 @@ typedef sMtAfn0dF145 sMtAfn0dF148;
 typedef sMtAfn0dF145_f sMtAfn0dF148_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df148(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df148(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11337,7 +11337,7 @@ typedef struct
 }sMtAfn0dF153_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df153(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df153(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11360,7 +11360,7 @@ typedef struct
 }sMtAfn0dF154_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df154(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df154(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11376,7 +11376,7 @@ emt_err_t emtTrans_afn0df154(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF153_f sMtAfn0dF155_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df155(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df155(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11392,7 +11392,7 @@ emt_err_t emtTrans_afn0df155(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF154_f sMtAfn0dF156_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df156(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df156(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11421,7 +11421,7 @@ typedef struct {
 }sMtAfn0dF157_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df157(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df157(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11444,7 +11444,7 @@ typedef struct
 }sMtAfn0dF158_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df158(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df158(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11460,7 +11460,7 @@ emt_err_t emtTrans_afn0df158(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF157_f sMtAfn0dF159_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df159(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df159(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11476,7 +11476,7 @@ emt_err_t emtTrans_afn0df159(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF158_f sMtAfn0dF160_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df160(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df160(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11504,7 +11504,7 @@ typedef struct
 }sMtAfn0dF161_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df161(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11532,7 +11532,7 @@ typedef struct
 }sMtAfn0dF162_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df162(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11548,7 +11548,7 @@ typedef sMtAfn0dF161 sMtAfn0dF163;
 typedef sMtAfn0dF161_f sMtAfn0dF163_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df163(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df163(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11564,7 +11564,7 @@ typedef sMtAfn0dF162 sMtAfn0dF164;
 typedef sMtAfn0dF162_f sMtAfn0dF164_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df164(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df164(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11580,7 +11580,7 @@ typedef sMtAfn0dF162 sMtAfn0dF165;
 typedef sMtAfn0dF162_f sMtAfn0dF165_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df165(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df165(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -11597,7 +11597,7 @@ typedef sMtAfn0dF162 sMtAfn0dF166;
 typedef sMtAfn0dF162_f sMtAfn0dF166_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df166(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df166(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11613,7 +11613,7 @@ typedef sMtAfn0dF162 sMtAfn0dF167;
 typedef sMtAfn0dF162_f sMtAfn0dF167_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df167(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df167(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11629,7 +11629,7 @@ typedef sMtAfn0dF162 sMtAfn0dF168;
 typedef sMtAfn0dF162_f sMtAfn0dF168_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df168(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df168(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11646,7 +11646,7 @@ typedef sMtAfn0dF157 sMtAfn0dF169;
 typedef sMtAfn0dF157_f sMtAfn0dF169_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df169(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df169(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11662,7 +11662,7 @@ typedef sMtAfn0dF162 sMtAfn0dF170;
 typedef sMtAfn0dF162_f sMtAfn0dF170_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df170(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df170(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11679,7 +11679,7 @@ typedef sMtAfn0dF163 sMtAfn0dF171;
 typedef sMtAfn0dF163_f sMtAfn0dF171_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df171(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df171(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11695,7 +11695,7 @@ emt_err_t emtTrans_afn0df171(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF164_f sMtAfn0dF172_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df172(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df172(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11711,7 +11711,7 @@ emt_err_t emtTrans_afn0df172(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF165_f sMtAfn0dF173_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df173(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df173(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11727,7 +11727,7 @@ emt_err_t emtTrans_afn0df173(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF166_f sMtAfn0dF174_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df174(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df174(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11743,7 +11743,7 @@ emt_err_t emtTrans_afn0df174(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF167_f sMtAfn0dF175_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df175(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df175(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11759,7 +11759,7 @@ emt_err_t emtTrans_afn0df175(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 typedef sMtAfn0dF168_f sMtAfn0dF176_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df176(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df176(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11788,7 +11788,7 @@ typedef struct
 }sMtAfn0dF177_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df177(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11817,7 +11817,7 @@ typedef struct
 }sMtAfn0dF178_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df178(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11834,7 +11834,7 @@ typedef sMtAfn0dF177 sMtAfn0dF179;
 typedef sMtAfn0dF177_f sMtAfn0dF179_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df179(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df179(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11851,7 +11851,7 @@ typedef sMtAfn0dF178 sMtAfn0dF180;
 typedef sMtAfn0dF178_f sMtAfn0dF180_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df180(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df180(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11868,7 +11868,7 @@ typedef sMtAfn0dF178 sMtAfn0dF181;
 typedef sMtAfn0dF178_f sMtAfn0dF181_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df181(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df181(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11885,7 +11885,7 @@ typedef sMtAfn0dF178 sMtAfn0dF182;
 typedef sMtAfn0dF178_f sMtAfn0dF182_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df182(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df182(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11902,7 +11902,7 @@ typedef sMtAfn0dF178 sMtAfn0dF183;
 typedef sMtAfn0dF178_f sMtAfn0dF183_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df183(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df183(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11919,7 +11919,7 @@ typedef sMtAfn0dF178 sMtAfn0dF184;
 typedef sMtAfn0dF178_f sMtAfn0dF184_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df184(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df184(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11960,7 +11960,7 @@ typedef struct
 }sMtAfn0dF185_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df185(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11978,7 +11978,7 @@ typedef sMtAfn0dF185 sMtAfn0dF186;
 typedef sMtAfn0dF185_f sMtAfn0dF186_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df186(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df186(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -11996,7 +11996,7 @@ typedef sMtAfn0dF185 sMtAfn0dF187;
 typedef sMtAfn0dF185_f sMtAfn0dF187_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df187(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df187(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12014,7 +12014,7 @@ typedef sMtAfn0dF185 sMtAfn0dF188;
 typedef sMtAfn0dF185_f sMtAfn0dF188_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df188(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df188(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12032,7 +12032,7 @@ typedef sMtAfn0dF185 sMtAfn0dF189;
 typedef sMtAfn0dF185_f sMtAfn0dF189_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df189(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df189(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12050,7 +12050,7 @@ typedef sMtAfn0dF186 sMtAfn0dF190;
 typedef sMtAfn0dF186_f sMtAfn0dF190_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df190(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df190(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12068,7 +12068,7 @@ typedef sMtAfn0dF187 sMtAfn0dF191;
 typedef sMtAfn0dF187_f sMtAfn0dF191_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df191(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df191(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12086,7 +12086,7 @@ typedef sMtAfn0dF188 sMtAfn0dF192;
 typedef sMtAfn0dF188_f sMtAfn0dF192_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df192(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df192(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12115,7 +12115,7 @@ typedef struct
 }sMtAfn0dF193_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df193(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df193(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12133,7 +12133,7 @@ typedef sMtAfn0dF193 sMtAfn0dF194;
 typedef sMtAfn0dF193_f sMtAfn0dF194_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df194(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df194(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12151,7 +12151,7 @@ typedef sMtAfn0dF193 sMtAfn0dF195;
 typedef sMtAfn0dF193_f sMtAfn0dF195_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df195(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df195(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12169,7 +12169,7 @@ typedef sMtAfn0dF193 sMtAfn0dF196;
 typedef sMtAfn0dF193_f sMtAfn0dF196_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df196(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df196(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12187,7 +12187,7 @@ typedef sMtAfn0dF177 sMtAfn0dF201;
 typedef sMtAfn0dF177_f sMtAfn0dF201_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df201(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df201(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12205,7 +12205,7 @@ typedef sMtAfn0dF201 sMtAfn0dF202;
 typedef sMtAfn0dF201_f sMtAfn0dF202_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df202(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df202(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12223,7 +12223,7 @@ typedef sMtAfn0dF201 sMtAfn0dF203;
 typedef sMtAfn0dF201_f sMtAfn0dF203_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df203(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df203(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12241,7 +12241,7 @@ typedef sMtAfn0dF201 sMtAfn0dF204;
 typedef sMtAfn0dF201_f sMtAfn0dF204_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df204(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df204(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12259,7 +12259,7 @@ typedef sMtAfn0dF201 sMtAfn0dF205;
 typedef sMtAfn0dF201_f sMtAfn0dF205_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df205(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df205(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12277,7 +12277,7 @@ typedef sMtAfn0dF201 sMtAfn0dF206;
 typedef sMtAfn0dF201_f sMtAfn0dF206_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df206(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df206(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12295,7 +12295,7 @@ typedef sMtAfn0dF201 sMtAfn0dF207;
 typedef sMtAfn0dF201_f sMtAfn0dF207_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df207(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df207(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12313,7 +12313,7 @@ typedef sMtAfn0dF201 sMtAfn0dF208;
 typedef sMtAfn0dF201_f sMtAfn0dF208_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df208(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df208(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12343,7 +12343,7 @@ typedef struct
 }sMtAfn0dF209_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df209(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df209(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12371,7 +12371,7 @@ typedef struct
 }sMtAfn0dF213_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df213(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df213(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12399,7 +12399,7 @@ typedef struct
 }sMtAfn0dF214_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df214(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df214(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12442,7 +12442,7 @@ typedef struct
 }sMtAfn0dF215_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df215(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df215(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12475,7 +12475,7 @@ typedef struct
 }sMtAfn0dF216_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df216(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12500,7 +12500,7 @@ typedef struct
 }sMtAfn0dF217_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df217(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df217(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12530,7 +12530,7 @@ typedef struct
 }sMtAfn0dF218_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0df218(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0df218(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -12574,7 +12574,7 @@ typedef struct
 }sMtRec1_f, sMtRecInit_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_1(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12604,7 +12604,7 @@ typedef struct
 }sMtRec2_f, sMtRecParaLoss_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_2(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 
 ///*}
 
@@ -12642,7 +12642,7 @@ typedef struct
 }sMtRec3_f, sMtRecParaModify_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_3(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 
 ///*}
 
@@ -12673,7 +12673,7 @@ typedef struct
 }sMtRec4_f, sMtRecStateChange_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_4(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -12706,7 +12706,7 @@ typedef struct
 }sMtRec5_f, sMtRecRemoteSwitch_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_5(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12748,7 +12748,7 @@ typedef struct
 }sMtRec6_f, sMtRecPCtrlSwitch_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_6(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -12787,7 +12787,7 @@ typedef struct
 }sMtRec7_f, sMtRecECtrlSwitch_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_7(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12821,7 +12821,7 @@ typedef struct
 }sMtRec8_f, sMtRecMeterChange_f;
 
 // 转换函数
-emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_8(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12880,7 +12880,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_9(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12938,7 +12938,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_10(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -12983,7 +12983,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_11(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13014,7 +13014,7 @@ typedef struct
 #pragma pack(0) 
 
 // 转换函数
-emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_12(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13051,7 +13051,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_13(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13081,7 +13081,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_14(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13151,7 +13151,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_15(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13185,7 +13185,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_16(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13235,7 +13235,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_17(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13277,7 +13277,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_18(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13321,7 +13321,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_19(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13352,7 +13352,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_20(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13397,7 +13397,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_21(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13459,7 +13459,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_22(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13508,7 +13508,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_23(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13550,7 +13550,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_24(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13594,7 +13594,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_25(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13632,7 +13632,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_26(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13667,7 +13667,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_27(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13705,7 +13705,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_28(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13742,7 +13742,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_29(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13779,7 +13779,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_30(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13818,7 +13818,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_31(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 
@@ -13851,7 +13851,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_32(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13883,7 +13883,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_33(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13929,7 +13929,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_34(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 
 /*******************************************
@@ -13958,7 +13958,7 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_rec_35(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 ///*}
 ///*}
 
@@ -14053,11 +14053,11 @@ typedef struct
 #pragma pack() 
 
 // 转换函数
-emt_err_t emtTrans_afn0ef1_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
-emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0ef1_m2s(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0ef1_s2m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 
 // 辅助函数
-pMtFunc pMtGetRecTransFunc(uint8_t ucRecID);
+trans_func_t pMtGetRecTransFunc(uint8_t ucRecID);
 ///*}
 
 /*******************************************
@@ -14087,8 +14087,8 @@ typedef sMtResEvent1 sMtResEvent2;
 typedef sMtResEvent1_f sMtResEvent2_f;
 
 // 转换函数
-emt_err_t emtTrans_afn0ef2_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
-emt_err_t emtTrans_afn0ef2_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0ef2_m2s(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
+err_t emtTrans_afn0ef2_s2m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen);
 
 ///*}
 
@@ -14107,8 +14107,8 @@ uint8_t ucmt_get_bcd_1(uint8_t ucData);        // 获得该数的BCD高位
  * len 必须为偶数
  *
 {*///
-emt_err_t emt_str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len); 
-emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len);
+err_t str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len); 
+err_t bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len);
 ///*}
 
 /***************************************************************************
@@ -14120,16 +14120,16 @@ emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len);
 bool   bmt_big_endian();
 
 // 将一个UINT16数值字小字节序写入地址pWrite
-emt_err_t emt_write_uint16_small_endian(uint16_t usData, uint8_t* pWrite);  
+err_t write_uint16_small_endian(uint16_t usData, uint8_t* pWrite);  
 
 // 将一个UINT32数值字小字节序写入地址pWrite
-emt_err_t emt_write_uint32_small_endian(uint32_t ulData, uint8_t* pWrite); 
+err_t write_uint32_small_endian(uint32_t ulData, uint8_t* pWrite); 
 
 // 从指定地址位置以小字节序的方式读入一个整数
-emt_err_t emt_read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16);
+err_t read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16);
 
 // 从指定地址位置以小字节序的方式读入一个长整数
-emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32);  
+err_t read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32);  
 ///*}
 
 /***************************************************************************
@@ -14262,16 +14262,16 @@ typedef union
  *  变长结构
 {*///
 
-typedef struct
+typedef struct lite_data_t
 {
-    sMtPnFn    sPnFn;
+    pnfn_t    sPnFn;
     umt_app_t     *puApp[PN_INDEX_MAX][FN_INDEX_MAX];
-}sMtLiteData;
+}lite_data_t;
 
 typedef struct
 {
-    smt_addr_t    sAddress;      // 地址域
-    sMtCtrl       sCtrl;         // 控制域
+    addr_t    sAddress;      // 地址域
+    ctrl_t       sCtrl;         // 控制域
 
     // 附加域
     uint8_t         acPW[16];      // pw字段  消息认证码字段PW用于重要下行报文中，
@@ -14280,23 +14280,23 @@ typedef struct
                                  // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                  // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
 
-    smt_ec_t         sEC;           // 事件计数器
-    sMtTP         sTP;           // 时间标签
+    ec_t         sEC;           // 事件计数器
+    tp_t         sTP;           // 时间标签
  
     // 应用层数据域  
-    emt_afn_t        eAFN;          // 功能码
-    sMtSEQ        sSEQ;          // 帧序列域
+    afn_t        eAFN;          // 功能码
+    seq_t        sSEQ;          // 帧序列域
     
     // 数据单元域  变长域
     uint16_t        usDataNum;     // 数据单元组的个数
-    sMtLiteData   sData[1];      // 数据单元组
-}smt_litepack_t;
+    lite_data_t   sData[1];      // 数据单元组
+}litepack_t;
 
 // 封帧函数
-emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
+err_t lite_pack(litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
 
 // 解帧函数
-emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t lite_unpack(litepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 ///*}
 
 /***************************************
@@ -14310,9 +14310,9 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
 
 typedef struct
 {
-    sMtPnFn    sPnFn;
+    pnfn_t    sPnFn;
     umt_app_t     uApp[PN_INDEX_MAX][FN_INDEX_MAX];
-}sMtBaseData;
+}base_data_t;
 
 // 根据总加组有效标志位获取总加组个数
 uint8_t emtGetGroupNum(uint8_t ucGroupFlag);
@@ -14354,10 +14354,10 @@ bool bmt_in_fn8(uint8_t ucFn, uint8_t *pucFn8);
  *  用于封装与解析
  *  变长结构
 {*///
-typedef struct
+typedef struct basepack_t
 {
-    smt_addr_t    sAddress;      // 地址域
-    sMtCtrl       sCtrl;         // 控制域
+    addr_t    sAddress;      // 地址域
+    ctrl_t       sCtrl;         // 控制域
 
     // 附加域
     uint8_t         acPW[16];      // pw字段  消息认证码字段PW用于重要下行报文中，
@@ -14366,23 +14366,23 @@ typedef struct
                                  // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                  // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
 
-    smt_ec_t         sEC;           // 事件计数器
-    sMtTP         sTP;           // 时间标签
+    ec_t         sEC;           // 事件计数器
+    tp_t         sTP;           // 时间标签
  
     // 应用层数据域  
-    emt_afn_t        eAFN;          // 功能码
-    sMtSEQ        sSEQ;          // 帧序列域
+    afn_t        eAFN;          // 功能码
+    seq_t        sSEQ;          // 帧序列域
     
     // 数据单元域  变长域
     uint16_t        usDataNum;     // 数据单元组的个数
-    sMtBaseData   sData[1];      // 数据单元组
-}smt_basepack_t;
+    base_data_t   sData[1];      // 数据单元组
+}basepack_t;
 
 // 封帧函数
-emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
+err_t base_pack(basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
 
 // 解帧函数
-emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t base_unpack(basepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 ///*}
 
 /***************************************
@@ -14392,15 +14392,15 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
 {*///
 
 // 用户侧数据
-typedef struct
+typedef struct compack_t
 {
-    smt_addr_t  sAddr;            // 地址信息
-    sMtCtrl     sCtrl;
-    sMtSEQ      sSEQ;         
+    addr_t  sAddr;            // 地址信息
+    ctrl_t  sCtrl;
+    seq_t   sSEQ;         
 
     uint16_t      usSeq2CsLen;     // 从SEQ 到 CS 之间的数据的长度
     uint8_t       *pSeq2Cs;        // 从SEQ 到 CS 之间的数据
-}smt_compack_t;
+}compack_t;
 
 // 抽象帧头
 typedef struct
@@ -14416,30 +14416,30 @@ typedef struct
     
     uint8_t         s68;          // 0x68
     uint8_t         C;            // 控制域
-    sMtAddress_f  A;            // 地址域
+    sMtAddress_f	A;            // 地址域
     uint8_t         AFN;          // 主功能码
     uint8_t         SEQ;          // 帧序列
     
-}smt_fcomhead_t;                   // 帧侧公共的头结构
+}fcomhead_t;                   // 帧侧公共的头结构
 
 // 计算检测和函数
 uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen);
 
 // 封装每个帧的公共部分 
-emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf); 
+err_t pack_common(afn_t eAFN, compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf); 
 
 // 解析公共部分
 typedef struct
 {
-    smt_fcomhead_t sfComHead;
-    smt_compack_t  sComPack;
+    fcomhead_t sfComHead;
+    compack_t  sComPack;
     uint8_t       u8CS;
     uint16_t      usLenUserField1; 
     uint16_t      usLenUserField2; 
 
-}smt_unpack_common_t;
+}unpack_common_t;
 
-emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t unpack_common(unpack_common_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 
 ///*}
 
@@ -14453,49 +14453,49 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
  *  使该协议API需要先进行初始化
  *  
 {*///
-typedef struct smt_init_t
+typedef struct init_t
 {
-    emt_role_t eRole;                  // 身份，主站或是从站
+    role_t eRole;                  // 身份，主站或是从站
     uint8_t   ucPermitDelayMinutes;   // 允许时延
     uint8_t   aucPw[MT_PW_LEN];       // 密码
 
 #if MT_CFG_ENCRYPT
-    peMtEncryptFunc   EncryptFunc;  // 加密接口
-    peMtDecryptFunc   DecryptFunc;  // 解密接口
+    encrept_func_t   EncryptFunc;  // 加密接口
+    decrept_func_t   DecryptFunc;  // 解密接口
 #endif
     
-}smt_init_t;                           // 协议初始化数据结构
+}init_t;                           // 协议初始化数据结构
 
 // 初始化函数
-emt_err_t emt_init(smt_init_t* psInit);
+err_t init(init_t* psInit);
 ///*}
 
 // 获得该类型的报文的主动性
-emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto);
+prm_t get_prm(dir_t eDir, afn_t eAfn, bool bAuto);
 
 // 判断一个报文是否是有一个有效的376.1帧
-emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen);
+err_t is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen);
 
 // 从帧缓冲区中找到第一个有效的帧的位置及长度
-emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen);
+err_t find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen);
 
 // 设置事件计数器
-void  vmt_set_ec(uint8_t ucEC1, uint8_t ucEC2);
+void  set_ec(uint8_t ucEC1, uint8_t ucEC2);
 
 // 以字符串方式设置密码
-void  vmt_set_pw(const char *pPw);
+void  set_pw(const char *pPw);
 
 // 以buffer 方式设置登录密码
-void vmt_set_pw_buf(uint8_t* buf);
+void set_pw_buf(uint8_t* buf);
 
 // 获得我的身份
-emt_role_t emt_whoami();
+role_t whoami();
 
 // 获得命令对应的AFN
-emt_afn_t emt_get_afn(emt_cmd_t eCmd);
+afn_t get_afn(cmd_t eCmd);
 
 // 获得命令对应的Fn
-uint8_t  uc_get_cmdfn(emt_cmd_t eCmd);
+uint8_t  uc_get_cmdfn(cmd_t eCmd);
 /***************************************
  *  数据单元标识与对应的数据单元 (高级抽象)
  *  
@@ -14506,12 +14506,12 @@ uint8_t  uc_get_cmdfn(emt_cmd_t eCmd);
 {*///
 typedef struct
 {
-    emt_cmd_t       eCmd;        // 功能码
+    cmd_t       eCmd;        // 功能码
     uint16_t     usPN;        // Pn (0 <= pn <= 2040 )
     bool         bApp;        // 是否有数据单元
     umt_app_t       uApp;        // 对应不同的命令类型, 及上下行类型, 应用层数据时有时无
     
-}smt_data_t;
+}data_t;
 ///*}
 
 /***************************************
@@ -14519,13 +14519,13 @@ typedef struct
  *  用于封装
  *  变长结构
 {*///
-typedef struct smt_pack_t
+typedef struct pack_t
 {
-    smt_addr_t    sAddress;        // 地址域
-    emt_afn_t     eAFN;            // 主功能码  同帧中必须是同一个主功能码下的不同子命令的组合
-    emt_dir_t        eDir;            // 上下行
-    emt_prm_t        ePRM;            // 标志该报文是来自启动站 还是从动站
-    emt_pos_t        ePos;            // 位置
+    addr_t    sAddress;        // 地址域
+    afn_t     eAFN;            // 主功能码  同帧中必须是同一个主功能码下的不同子命令的组合
+    dir_t        eDir;            // 上下行
+    prm_t        ePRM;            // 标志该报文是来自启动站 还是从动站
+    pos_t        ePos;            // 位置
     uint8_t       ucSeq;           // pseq/rseq (0~15) 
  
     bool          bAcdFcb;         // FCB 帧计数位 在下行报文中有效
@@ -14551,34 +14551,34 @@ typedef struct smt_pack_t
                                    // 并在主站发送的报文中下发给终端
                                    // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                    // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
-    smt_ec_t         sEC;             // 事件计数器
-    sMtTP         sTP;             // 时间标签
+    ec_t         sEC;             // 事件计数器
+    tp_t         sTP;             // 时间标签
  
 
     // 数据单元域  变长域
     uint16_t        usDataNum;      // 数据单元组的个数
-    smt_data_t       sData[1];       // 数据单元组 变长 可能没有 可能多个
+    data_t       sData[1];       // 数据单元组 变长 可能没有 可能多个
     
-}smt_pack_t;
+}pack_t;
 
 // 封装函数
-emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
+err_t pack_base(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
 
 // 解帧函数
-emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t unpack_base(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 
 // 封装函数
-emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
+err_t pack_lite(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
 
 // 解帧函数
-emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t unpack_lite(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 
 // 高级接口
 // 封装函数
-emt_err_t emt_pack(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
+err_t pack(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf);   
 
 // 解帧函数
-emt_err_t emt_unpack(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
+err_t unpack(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen);
 ///*}
 ///*}
  

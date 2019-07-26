@@ -24,7 +24,7 @@
 #pragma pack(push)  // 采用一字节对齐
 #pragma pack(1)
 
-typedef emt_err_t eCmErr;
+typedef err_t eCmErr;
 
 /* (1)定义主站与集中器通信协议命令类型, 每条命令对一条3761协议 
  * (2)该协议分十六大类,每大类,最多支持255个子命令
@@ -353,7 +353,7 @@ typedef struct
  */
 typedef struct
 {
-    smt_addr_t   sAddress;       // 地址信息
+    addr_t   sAddress;       // 地址信息
     bool         bReSend;        // 是否为重发  true 重发的帧计数不会自动增加1 false 会自增1
     bool         bActive;        // 是否为主动上报 (仅登录、心跳、退出登录、1类2类数据主动上报时为真)
     uint8_t      ucCmdNum;       // 该包中含有子命令的个数 最少有一个子命令 
@@ -363,12 +363,12 @@ typedef struct
 
 typedef struct
 {
-    emt_role_t      eRole;                    // 身份    
+    role_t      eRole;                    // 身份    
     uint8_t      ucPermitDelayMinutes;     // 允许时延
 
 }sCmInit; // 3761协议层初始化数据结构
 
-emt_afn_t ecm_get_cmd_afn(eCmCmd eCmd);
+afn_t ecm_get_cmd_afn(eCmCmd eCmd);
 
 // 上层调用本模块前,保确实进行初始化
 eCmErr ecm_3761_init(sCmInit * psCmInit); 
@@ -399,18 +399,18 @@ void vcm_set_ec(uint8_t ucEC1, uint8_t ucEC2);
 bool bcm_set_pw(const char *pw); 
 
 // 内部接口
-emt_cmd_t emt_trans_appdata_cm2mt(emt_cmd_t emtCmd, uCmApp *pcmAppData, umt_app_t *pmtAppData);
-emt_cmd_t emt_trans_appdata_mt2cm(emt_cmd_t emtCmd, umt_app_t *pmtAppData, uCmApp *pcmAppData);
+cmd_t trans_appdata_cm2mt(cmd_t emtCmd, uCmApp *pcmAppData, umt_app_t *pmtAppData);
+cmd_t trans_appdata_mt2cm(cmd_t emtCmd, umt_app_t *pmtAppData, uCmApp *pcmAppData);
 
-emt_cmd_t eget_mt_cmd(eCmCmd cmCMD);   
-eCmCmd eget_cm_cmd(emt_cmd_t mtCMD);
-emt_prm_t ecm_get_prm(eCmCmd cmCMD);  // 获得该命令的主动性
+cmd_t eget_mt_cmd(eCmCmd cmCMD);   
+eCmCmd eget_cm_cmd(cmd_t mtCMD);
+prm_t ecm_get_prm(eCmCmd cmCMD);  // 获得该命令的主动性
 
 typedef struct
 {
     eCmCmd ecmCMD;
-    emt_cmd_t emtCMD;
-    emt_prm_t ePrm;   // 集中器封装该命令时的主动性
+    cmd_t emtCMD;
+    prm_t ePrm;   // 集中器封装该命令时的主动性
  
 }sCmdMap; // 命令映射
 

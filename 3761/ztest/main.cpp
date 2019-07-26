@@ -35,10 +35,10 @@ uint8_t g_ucOutBuf[OUT_BUF_LEN]    = {0}; // 存放输出报文
 uint8_t g_ucInBuf[OUT_BUF_LEN]     = {0};
 uint8_t g_ucOutBufColor[OUT_BUF_LEN]    = {0}; // 存放输出报文
 
-smt_pack_t * getSmtPackPoint()
+pack_t * getSmtPackPoint()
 {
     memset((void*)g_ucPackMem, 0, PACK_MEM_SIZE);
-    return (smt_pack_t *)g_ucPackMem;
+    return (pack_t *)g_ucPackMem;
 }
 
 void show_main_name(const char *str)
@@ -139,13 +139,13 @@ void print_buffer(uint8_t * pBuf, uint16_t* pusBufLen)
 
 
 
-void show_mt_error(emt_err_t eErr)
+void show_mt_error(err_t eErr)
 {
     const char *str = NULL;
     switch(eErr)
     {
-        case MT_OK:
-        str = "MT_OK 无错误";
+        case MT_ERR_OK:
+        str = "MT_ERR_OK 无错误";
         break;
 
         case MT_ERR_NULL:
@@ -278,18 +278,18 @@ void show_mt_error(emt_err_t eErr)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0001()
+err_t test_pack_0001()
 {
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
-emt_err_t test_pack_0001_m2s()
+err_t test_pack_0001_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -298,7 +298,7 @@ emt_err_t test_pack_0001_m2s()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -329,8 +329,8 @@ emt_err_t test_pack_0001_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -338,7 +338,7 @@ emt_err_t test_pack_0001_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -359,14 +359,14 @@ emt_err_t test_pack_0001_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0001()
+err_t test_pack_0001()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -377,7 +377,7 @@ emt_err_t test_pack_0001()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -418,17 +418,17 @@ emt_err_t test_pack_0001()
     psPack->sSub[0].usLen     =  0;
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
- return MT_OK;
+ return MT_ERR_OK;
 }
 
 
@@ -448,14 +448,14 @@ emt_err_t test_pack_0001()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0002()
+err_t test_pack_0002()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -465,7 +465,7 @@ emt_err_t test_pack_0002()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -505,16 +505,16 @@ emt_err_t test_pack_0002()
     psPack->sSub[0].usLen     =  0;
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
  
 }
 
@@ -542,14 +542,14 @@ emt_err_t test_pack_0002()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0101()
+err_t test_pack_0101()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -559,7 +559,7 @@ emt_err_t test_pack_0101()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -615,16 +615,16 @@ emt_err_t test_pack_0101()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
  
 }
 
@@ -655,14 +655,14 @@ emt_err_t test_pack_0101()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0102()
+err_t test_pack_0102()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -672,7 +672,7 @@ emt_err_t test_pack_0102()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -730,17 +730,17 @@ emt_err_t test_pack_0102()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 
@@ -760,14 +760,14 @@ emt_err_t test_pack_0102()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0103()
+err_t test_pack_0103()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -777,7 +777,7 @@ emt_err_t test_pack_0103()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -835,17 +835,17 @@ emt_err_t test_pack_0103()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
-     return (emt_err_t)MT_OK;
+     return (err_t)MT_ERR_OK;
 }
 
 
@@ -864,14 +864,14 @@ emt_err_t test_pack_0103()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0104()
+err_t test_pack_0104()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -881,7 +881,7 @@ emt_err_t test_pack_0104()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -938,16 +938,16 @@ emt_err_t test_pack_0104()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
  
 }
 
@@ -969,14 +969,14 @@ emt_err_t test_pack_0104()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0201()
+err_t test_pack_0201()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -986,7 +986,7 @@ emt_err_t test_pack_0201()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1043,17 +1043,17 @@ emt_err_t test_pack_0201()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
-    return (emt_err_t)MT_OK;
+    return (err_t)MT_ERR_OK;
 }
 
 
@@ -1075,14 +1075,14 @@ emt_err_t test_pack_0201()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0202()
+err_t test_pack_0202()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1092,7 +1092,7 @@ emt_err_t test_pack_0202()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1149,17 +1149,17 @@ emt_err_t test_pack_0202()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1180,14 +1180,14 @@ emt_err_t test_pack_0202()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0203()
+err_t test_pack_0203()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1197,7 +1197,7 @@ emt_err_t test_pack_0203()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1254,17 +1254,17 @@ emt_err_t test_pack_0203()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
     /* 5 输出结果 */ 
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -1282,14 +1282,14 @@ emt_err_t test_pack_0203()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0401()
+err_t test_pack_0401()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1299,7 +1299,7 @@ emt_err_t test_pack_0401()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1356,10 +1356,10 @@ emt_err_t test_pack_0401()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1367,7 +1367,7 @@ emt_err_t test_pack_0401()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1388,14 +1388,14 @@ emt_err_t test_pack_0401()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0402()
+err_t test_pack_0402()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1405,7 +1405,7 @@ emt_err_t test_pack_0402()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1463,10 +1463,10 @@ emt_err_t test_pack_0402()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1474,7 +1474,7 @@ emt_err_t test_pack_0402()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1498,14 +1498,14 @@ emt_err_t test_pack_0402()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0403()
+err_t test_pack_0403()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1515,7 +1515,7 @@ emt_err_t test_pack_0403()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1569,10 +1569,10 @@ emt_err_t test_pack_0403()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1580,7 +1580,7 @@ emt_err_t test_pack_0403()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1600,14 +1600,14 @@ emt_err_t test_pack_0403()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0404()
+err_t test_pack_0404()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1617,7 +1617,7 @@ emt_err_t test_pack_0404()
     sProtoInit.ucPermitDelayMinutes = 0;
     
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1671,10 +1671,10 @@ emt_err_t test_pack_0404()
 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1682,7 +1682,7 @@ emt_err_t test_pack_0404()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1704,14 +1704,14 @@ emt_err_t test_pack_0404()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0501()
+err_t test_pack_0501()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1722,7 +1722,7 @@ emt_err_t test_pack_0501()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
       
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1772,10 +1772,10 @@ emt_err_t test_pack_0501()
     psPack->sSub[0].uAppData.sAfn05F1_RemoteCtrlTrip.ucHoldAlarmTime  = 15; 
 
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1783,7 +1783,7 @@ emt_err_t test_pack_0501()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1804,14 +1804,14 @@ emt_err_t test_pack_0501()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0601()
+err_t test_pack_0601()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1822,7 +1822,7 @@ emt_err_t test_pack_0601()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
       
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1874,10 +1874,10 @@ emt_err_t test_pack_0601()
 
     
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1885,7 +1885,7 @@ emt_err_t test_pack_0601()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -1907,14 +1907,14 @@ emt_err_t test_pack_0601()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0602()
+err_t test_pack_0602()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1925,7 +1925,7 @@ emt_err_t test_pack_0602()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
       
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -1977,10 +1977,10 @@ emt_err_t test_pack_0602()
 
     
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -1988,7 +1988,7 @@ emt_err_t test_pack_0602()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -2010,14 +2010,14 @@ emt_err_t test_pack_0602()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0603()
+err_t test_pack_0603()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -2028,7 +2028,7 @@ emt_err_t test_pack_0603()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
       
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -2080,10 +2080,10 @@ emt_err_t test_pack_0603()
 
     
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -2091,7 +2091,7 @@ emt_err_t test_pack_0603()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -2114,14 +2114,14 @@ emt_err_t test_pack_0603()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0604()
+err_t test_pack_0604()
 {
 
     /* 1 定义变量 */ 
-    emt_err_t eRet = MT_OK;
-    smt_pack_t *psPack = NULL;
+    err_t eRet = MT_ERR_OK;
+    pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    emt_dir_t eDir = MT_DIR_UNKOWN;
+    dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -2132,7 +2132,7 @@ emt_err_t test_pack_0604()
     memcpy(sProtoInit.aucPw,"1234567890abcde",16);
       
     eRet = eMtProtoInit(&sProtoInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("eMtProtoInit failed code = %d\n", eRet);
         return eRet;
@@ -2184,10 +2184,10 @@ emt_err_t test_pack_0604()
 
     
     /* 4 调用函数 */ 
-    eRet = emt_pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(psPack, &usBuflen, (uint8_t *)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_pack error code %d\n", eRet);
+        printf("pack error code %d\n", eRet);
         return eRet;
     }
 
@@ -2195,7 +2195,7 @@ emt_err_t test_pack_0604()
     printf_buffer_color(g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -2217,7 +2217,7 @@ emt_err_t test_pack_0604()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_0421()
+err_t test_pack_0421()
 {
 
 #if 0
@@ -2232,7 +2232,7 @@ emt_err_t test_pack_0421()
     sInit.eRole = MT_ROLE_MASTER;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return;
@@ -2259,7 +2259,7 @@ emt_err_t test_pack_0421()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return;
@@ -2271,7 +2271,7 @@ emt_err_t test_pack_0421()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 #endif
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 
@@ -2290,7 +2290,7 @@ emt_err_t test_pack_0421()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn05_f90()
+err_t test_pack_afn05_f90()
 {
 
 #if 0
@@ -2307,7 +2307,7 @@ emt_err_t test_pack_afn05_f90()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return;
@@ -2334,7 +2334,7 @@ emt_err_t test_pack_afn05_f90()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return;
@@ -2344,7 +2344,7 @@ emt_err_t test_pack_afn05_f90()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
     
     #endif
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -2363,7 +2363,7 @@ emt_err_t test_pack_afn05_f90()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn00_f3()
+err_t test_pack_afn00_f3()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -2377,7 +2377,7 @@ emt_err_t test_pack_afn00_f3()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -2453,7 +2453,7 @@ emt_err_t test_pack_afn00_f3()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -2463,7 +2463,7 @@ emt_err_t test_pack_afn00_f3()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -2482,7 +2482,7 @@ emt_err_t test_pack_afn00_f3()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn02f1()
+err_t test_pack_afn02f1()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -2496,7 +2496,7 @@ emt_err_t test_pack_afn02f1()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -2519,7 +2519,7 @@ emt_err_t test_pack_afn02f1()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -2527,7 +2527,7 @@ emt_err_t test_pack_afn02f1()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -2548,12 +2548,12 @@ emt_err_t test_pack_afn02f1()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f1()
+err_t test_pack_afn04f1()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -2562,7 +2562,7 @@ emt_err_t test_pack_afn04f1()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -2601,8 +2601,8 @@ emt_err_t test_pack_afn04f1()
     pscmPacket->sData[0].uApp.sTmlUpCfg.usTmWaitTimeoutS = 1;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -2610,7 +2610,7 @@ emt_err_t test_pack_afn04f1()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -2630,11 +2630,11 @@ emt_err_t test_pack_afn04f1()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f10()
+err_t test_pack_afn04f10()
 {
     eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -2643,7 +2643,7 @@ emt_err_t test_pack_afn04f10()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -2752,8 +2752,8 @@ emt_err_t test_pack_afn04f10()
 */
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -2761,7 +2761,7 @@ emt_err_t test_pack_afn04f10()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -2780,7 +2780,7 @@ emt_err_t test_pack_afn04f10()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f10_s2m_auto()
+err_t test_pack_afn04f10_s2m_auto()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -2794,7 +2794,7 @@ emt_err_t test_pack_afn04f10_s2m_auto()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -2880,7 +2880,7 @@ emt_err_t test_pack_afn04f10_s2m_auto()
     pscmPacket->sCmdData[0].uAppData.sCurPQUI.fSc  = -12.3456;
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -2890,7 +2890,7 @@ emt_err_t test_pack_afn04f10_s2m_auto()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -2908,7 +2908,7 @@ emt_err_t test_pack_afn04f10_s2m_auto()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0cf25_s2m_auto()
+err_t test_pack_afn0cf25_s2m_auto()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -2922,7 +2922,7 @@ emt_err_t test_pack_afn0cf25_s2m_auto()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3008,7 +3008,7 @@ emt_err_t test_pack_afn0cf25_s2m_auto()
     pscmPacket->sCmdData[0].uAppData.sCurPQUI.fSc  = -12.3456;
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3018,7 +3018,7 @@ emt_err_t test_pack_afn0cf25_s2m_auto()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -3037,7 +3037,7 @@ emt_err_t test_pack_afn0cf25_s2m_auto()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af38_s2m()
+err_t test_pack_afn0af38_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3051,7 +3051,7 @@ emt_err_t test_pack_afn0af38_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3083,7 +3083,7 @@ emt_err_t test_pack_afn0af38_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3093,7 +3093,7 @@ emt_err_t test_pack_afn0af38_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -3111,7 +3111,7 @@ emt_err_t test_pack_afn0af38_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af39_s2m()
+err_t test_pack_afn0af39_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3125,7 +3125,7 @@ emt_err_t test_pack_afn0af39_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3157,7 +3157,7 @@ emt_err_t test_pack_afn0af39_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3167,7 +3167,7 @@ emt_err_t test_pack_afn0af39_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -3185,7 +3185,7 @@ emt_err_t test_pack_afn0af39_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af65_s2m()
+err_t test_pack_afn0af65_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3199,7 +3199,7 @@ emt_err_t test_pack_afn0af65_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3243,7 +3243,7 @@ emt_err_t test_pack_afn0af65_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3253,7 +3253,7 @@ emt_err_t test_pack_afn0af65_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -3271,7 +3271,7 @@ emt_err_t test_pack_afn0af65_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af66_s2m()
+err_t test_pack_afn0af66_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3285,7 +3285,7 @@ emt_err_t test_pack_afn0af66_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3329,7 +3329,7 @@ emt_err_t test_pack_afn0af66_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3339,7 +3339,7 @@ emt_err_t test_pack_afn0af66_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -3357,7 +3357,7 @@ emt_err_t test_pack_afn0af66_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af67_s2m()
+err_t test_pack_afn0af67_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3371,7 +3371,7 @@ emt_err_t test_pack_afn0af67_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3399,7 +3399,7 @@ emt_err_t test_pack_afn0af67_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3409,7 +3409,7 @@ emt_err_t test_pack_afn0af67_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -3428,7 +3428,7 @@ emt_err_t test_pack_afn0af67_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn0af68_s2m()
+err_t test_pack_afn0af68_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -3442,7 +3442,7 @@ emt_err_t test_pack_afn0af68_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3470,7 +3470,7 @@ emt_err_t test_pack_afn0af68_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3480,7 +3480,7 @@ emt_err_t test_pack_afn0af68_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -3501,11 +3501,11 @@ emt_err_t test_pack_afn0af68_s2m()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f38_m2s()
+err_t test_pack_afn04f38_m2s()
 {
     eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3514,7 +3514,7 @@ emt_err_t test_pack_afn04f38_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3553,8 +3553,8 @@ emt_err_t test_pack_afn04f38_m2s()
     pscmPacket->sData[0].uApp.sAsk1Cfg.sOne[0].eCmd[2] = CMD_AFN_C_F3_TML_PARA_STATE;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3562,7 +3562,7 @@ emt_err_t test_pack_afn04f38_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -3581,11 +3581,11 @@ emt_err_t test_pack_afn04f38_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f39_m2s()
+err_t test_pack_afn04f39_m2s()
 {
     eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3594,7 +3594,7 @@ emt_err_t test_pack_afn04f39_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3633,8 +3633,8 @@ emt_err_t test_pack_afn04f39_m2s()
     pscmPacket->sData[0].uApp.sAsk1Cfg.sOne[0].eCmd[2] = CMD_AFN_D_F46_COPR_IRON_M;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3642,7 +3642,7 @@ emt_err_t test_pack_afn04f39_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -3661,11 +3661,11 @@ emt_err_t test_pack_afn04f39_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f62_m2s()
+err_t test_pack_afn04f62_m2s()
 {
     eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3674,7 +3674,7 @@ emt_err_t test_pack_afn04f62_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3713,8 +3713,8 @@ emt_err_t test_pack_afn04f62_m2s()
     pscmPacket->sData[0].uApp.sAsk1Cfg.sOne[0].eCmd[2] = CMD_AFN_D_F46_COPR_IRON_M;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3722,7 +3722,7 @@ emt_err_t test_pack_afn04f62_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -3741,11 +3741,11 @@ emt_err_t test_pack_afn04f62_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f65_m2s()
+err_t test_pack_afn04f65_m2s()
 {
     eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3754,7 +3754,7 @@ emt_err_t test_pack_afn04f65_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3806,8 +3806,8 @@ emt_err_t test_pack_afn04f65_m2s()
 
  
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3815,7 +3815,7 @@ emt_err_t test_pack_afn04f65_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -3834,11 +3834,11 @@ emt_err_t test_pack_afn04f65_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f66_m2s()
+err_t test_pack_afn04f66_m2s()
 {
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3847,7 +3847,7 @@ emt_err_t test_pack_afn04f66_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3901,8 +3901,8 @@ emt_err_t test_pack_afn04f66_m2s()
     pscmPacket->sData[0].uApp.sCfgAuto_1.sCmdPn[2].usPn = 3;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3910,7 +3910,7 @@ emt_err_t test_pack_afn04f66_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -3929,11 +3929,11 @@ emt_err_t test_pack_afn04f66_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f67_m2s()
+err_t test_pack_afn04f67_m2s()
 {
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -3942,7 +3942,7 @@ emt_err_t test_pack_afn04f67_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -3974,8 +3974,8 @@ emt_err_t test_pack_afn04f67_m2s()
     pscmPacket->sData[0].uApp.sGopAuto_1.eGo = MT_AUTO_GO;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -3983,7 +3983,7 @@ emt_err_t test_pack_afn04f67_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -4002,11 +4002,11 @@ emt_err_t test_pack_afn04f67_m2s()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t test_pack_afn04f68_m2s()
+err_t test_pack_afn04f68_m2s()
 {
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -4015,7 +4015,7 @@ emt_err_t test_pack_afn04f68_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4047,8 +4047,8 @@ emt_err_t test_pack_afn04f68_m2s()
     pscmPacket->sData[0].uApp.sGopAuto_1.eGo = MT_AUTO_STOP;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4056,11 +4056,11 @@ emt_err_t test_pack_afn04f68_m2s()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf25_S2M()
+err_t test_pack_afn0cf25_S2M()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4074,7 +4074,7 @@ emt_err_t test_pack_afn0cf25_S2M()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4161,7 +4161,7 @@ emt_err_t test_pack_afn0cf25_S2M()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4171,14 +4171,14 @@ emt_err_t test_pack_afn0cf25_S2M()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn05f31()
+err_t test_pack_afn05f31()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -4187,7 +4187,7 @@ emt_err_t test_pack_afn05f31()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4225,8 +4225,8 @@ emt_err_t test_pack_afn05f31()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4235,15 +4235,15 @@ emt_err_t test_pack_afn05f31()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn05f27()
+err_t test_pack_afn05f27()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -4252,7 +4252,7 @@ emt_err_t test_pack_afn05f27()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4284,8 +4284,8 @@ emt_err_t test_pack_afn05f27()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4294,15 +4294,15 @@ emt_err_t test_pack_afn05f27()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn05f29()
+err_t test_pack_afn05f29()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -4311,7 +4311,7 @@ emt_err_t test_pack_afn05f29()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4343,8 +4343,8 @@ emt_err_t test_pack_afn05f29()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4353,15 +4353,15 @@ emt_err_t test_pack_afn05f29()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn05f35()
+err_t test_pack_afn05f35()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -4370,7 +4370,7 @@ emt_err_t test_pack_afn05f35()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4402,8 +4402,8 @@ emt_err_t test_pack_afn05f35()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4412,12 +4412,12 @@ emt_err_t test_pack_afn05f35()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 
-emt_err_t test_pack_afn09f1_s2m()
+err_t test_pack_afn09f1_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4431,7 +4431,7 @@ emt_err_t test_pack_afn09f1_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4507,7 +4507,7 @@ emt_err_t test_pack_afn09f1_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4517,10 +4517,10 @@ emt_err_t test_pack_afn09f1_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f2_s2m()
+err_t test_pack_afn09f2_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4534,7 +4534,7 @@ emt_err_t test_pack_afn09f2_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4587,7 +4587,7 @@ emt_err_t test_pack_afn09f2_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4597,10 +4597,10 @@ emt_err_t test_pack_afn09f2_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f3_s2m()
+err_t test_pack_afn09f3_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4614,7 +4614,7 @@ emt_err_t test_pack_afn09f3_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4671,7 +4671,7 @@ emt_err_t test_pack_afn09f3_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4681,10 +4681,10 @@ emt_err_t test_pack_afn09f3_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f4_s2m()
+err_t test_pack_afn09f4_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4698,7 +4698,7 @@ emt_err_t test_pack_afn09f4_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4729,7 +4729,7 @@ emt_err_t test_pack_afn09f4_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4739,10 +4739,10 @@ emt_err_t test_pack_afn09f4_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f5_s2m()
+err_t test_pack_afn09f5_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4756,7 +4756,7 @@ emt_err_t test_pack_afn09f5_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4793,7 +4793,7 @@ emt_err_t test_pack_afn09f5_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4803,10 +4803,10 @@ emt_err_t test_pack_afn09f5_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f6_s2m()
+err_t test_pack_afn09f6_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4820,7 +4820,7 @@ emt_err_t test_pack_afn09f6_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4851,7 +4851,7 @@ emt_err_t test_pack_afn09f6_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4861,11 +4861,11 @@ emt_err_t test_pack_afn09f6_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
-emt_err_t test_pack_afn09f7_s2m()
+err_t test_pack_afn09f7_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4879,7 +4879,7 @@ emt_err_t test_pack_afn09f7_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4916,7 +4916,7 @@ emt_err_t test_pack_afn09f7_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4926,11 +4926,11 @@ emt_err_t test_pack_afn09f7_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
-emt_err_t test_pack_afn09f8_s2m()
+err_t test_pack_afn09f8_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -4944,7 +4944,7 @@ emt_err_t test_pack_afn09f8_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -4981,7 +4981,7 @@ emt_err_t test_pack_afn09f8_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -4991,10 +4991,10 @@ emt_err_t test_pack_afn09f8_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf02_s2m_auto()
+err_t test_pack_afn0cf02_s2m_auto()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -5008,7 +5008,7 @@ emt_err_t test_pack_afn0cf02_s2m_auto()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5045,7 +5045,7 @@ emt_err_t test_pack_afn0cf02_s2m_auto()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5055,15 +5055,15 @@ emt_err_t test_pack_afn0cf02_s2m_auto()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf02_s2m()
+err_t test_pack_afn0cf02_s2m()
 {
     /* 1 定义变量 */ 
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -5072,7 +5072,7 @@ emt_err_t test_pack_afn0cf02_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5107,8 +5107,8 @@ emt_err_t test_pack_afn0cf02_s2m()
     pscmPacket->sData[0].uApp.sTmlClock.ucSecond = 12;
    
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5116,15 +5116,15 @@ emt_err_t test_pack_afn0cf02_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf03_s2m()
+err_t test_pack_afn0cf03_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     //uint16_t  i;
 
     /* 2 环境初始化 */
@@ -5133,7 +5133,7 @@ emt_err_t test_pack_afn0cf03_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5168,8 +5168,8 @@ emt_err_t test_pack_afn0cf03_s2m()
     pscmPacket->sData[0].uApp.sTmlParaStat.bParaStatus[231] = 1;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5177,15 +5177,15 @@ emt_err_t test_pack_afn0cf03_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf04_s2m()
+err_t test_pack_afn0cf04_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    // uint16_t  i;
 
     /* 2 环境初始化 */
@@ -5194,7 +5194,7 @@ emt_err_t test_pack_afn0cf04_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5224,8 +5224,8 @@ emt_err_t test_pack_afn0cf04_s2m()
     pscmPacket->sData[0].uApp.sTmlUpComStat.bUp  = true;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5233,15 +5233,15 @@ emt_err_t test_pack_afn0cf04_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf05_s2m()
+err_t test_pack_afn0cf05_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     int32_t i;
   
     /* 2 环境初始化 */
@@ -5250,7 +5250,7 @@ emt_err_t test_pack_afn0cf05_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5345,8 +5345,8 @@ emt_err_t test_pack_afn0cf05_s2m()
     pscmPacket->sData[0].uApp.sTmlCtrlStat.sGroup[7].bElecTimeSta[4] = true;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5354,15 +5354,15 @@ emt_err_t test_pack_afn0cf05_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf06_s2m()
+err_t test_pack_afn0cf06_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     int32_t i;
   
     /* 2 环境初始化 */
@@ -5371,7 +5371,7 @@ emt_err_t test_pack_afn0cf06_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5484,8 +5484,8 @@ emt_err_t test_pack_afn0cf06_s2m()
     pscmPacket->sData[0].uApp.sTmlCurCtrlStat.sGroup[7].bMonthCtrlSta = 0;
     pscmPacket->sData[0].uApp.sTmlCurCtrlStat.sGroup[7].bBuyCtrlSta = MT_AFN0CF06_BUY_CTRL_STAT;
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5493,15 +5493,15 @@ emt_err_t test_pack_afn0cf06_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf07_s2m()
+err_t test_pack_afn0cf07_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
   
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -5509,7 +5509,7 @@ emt_err_t test_pack_afn0cf07_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5539,8 +5539,8 @@ emt_err_t test_pack_afn0cf07_s2m()
     pscmPacket->sData[0].uApp.sTmlEcValue.ucEc2 = 55;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5548,15 +5548,15 @@ emt_err_t test_pack_afn0cf07_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf08_s2m()
+err_t test_pack_afn0cf08_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     int32_t i;
   
     /* 2 环境初始化 */
@@ -5565,7 +5565,7 @@ emt_err_t test_pack_afn0cf08_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5603,8 +5603,8 @@ emt_err_t test_pack_afn0cf08_s2m()
     pscmPacket->sData[0].uApp.sTmlErcSta.bErc[0]  = true;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5612,10 +5612,10 @@ emt_err_t test_pack_afn0cf08_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf17_s2m()
+err_t test_pack_afn0cf17_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -5629,7 +5629,7 @@ emt_err_t test_pack_afn0cf17_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5657,7 +5657,7 @@ emt_err_t test_pack_afn0cf17_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5667,10 +5667,10 @@ emt_err_t test_pack_afn0cf17_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf18_s2m()
+err_t test_pack_afn0cf18_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -5684,7 +5684,7 @@ emt_err_t test_pack_afn0cf18_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5712,7 +5712,7 @@ emt_err_t test_pack_afn0cf18_s2m()
     
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5722,15 +5722,15 @@ emt_err_t test_pack_afn0cf18_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf31_s2m()
+err_t test_pack_afn0cf31_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -5738,7 +5738,7 @@ emt_err_t test_pack_afn0cf31_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5855,8 +5855,8 @@ emt_err_t test_pack_afn0cf31_s2m()
   #endif  
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5864,15 +5864,15 @@ emt_err_t test_pack_afn0cf31_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf57_s2m()
+err_t test_pack_afn0cf57_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -5880,7 +5880,7 @@ emt_err_t test_pack_afn0cf57_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -5958,8 +5958,8 @@ emt_err_t test_pack_afn0cf57_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -5967,15 +5967,15 @@ emt_err_t test_pack_afn0cf57_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf58_s2m()
+err_t test_pack_afn0cf58_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -5983,7 +5983,7 @@ emt_err_t test_pack_afn0cf58_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6071,8 +6071,8 @@ emt_err_t test_pack_afn0cf58_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6080,10 +6080,10 @@ emt_err_t test_pack_afn0cf58_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf73_s2m()
+err_t test_pack_afn0cf73_s2m()
 {
    /* 1 定义变量 */ 
    eCmErr eRet;
@@ -6097,7 +6097,7 @@ emt_err_t test_pack_afn0cf73_s2m()
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6125,7 +6125,7 @@ emt_err_t test_pack_afn0cf73_s2m()
 
     /* 4 调用函数 */
     eRet = ecm_3761_pack(pscmPacket, (uint8_t*)g_ucOutBuf, &usBuflen);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6135,15 +6135,15 @@ emt_err_t test_pack_afn0cf73_s2m()
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf129_s2m()
+err_t test_pack_afn0cf129_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6151,7 +6151,7 @@ emt_err_t test_pack_afn0cf129_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6191,8 +6191,8 @@ emt_err_t test_pack_afn0cf129_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6200,15 +6200,15 @@ emt_err_t test_pack_afn0cf129_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf130_s2m()
+err_t test_pack_afn0cf130_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6216,7 +6216,7 @@ emt_err_t test_pack_afn0cf130_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6256,8 +6256,8 @@ emt_err_t test_pack_afn0cf130_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6265,15 +6265,15 @@ emt_err_t test_pack_afn0cf130_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf166_s2m()
+err_t test_pack_afn0cf166_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6281,7 +6281,7 @@ emt_err_t test_pack_afn0cf166_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6327,8 +6327,8 @@ emt_err_t test_pack_afn0cf166_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6336,15 +6336,15 @@ emt_err_t test_pack_afn0cf166_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0cf167_s2m()
+err_t test_pack_afn0cf167_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6352,7 +6352,7 @@ emt_err_t test_pack_afn0cf167_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6394,8 +6394,8 @@ emt_err_t test_pack_afn0cf167_s2m()
     
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6403,15 +6403,15 @@ emt_err_t test_pack_afn0cf167_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df97_s2m()
+err_t test_pack_afn0df97_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6419,7 +6419,7 @@ emt_err_t test_pack_afn0df97_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6462,8 +6462,8 @@ emt_err_t test_pack_afn0df97_s2m()
 
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6471,15 +6471,15 @@ emt_err_t test_pack_afn0df97_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df101_s2m()
+err_t test_pack_afn0df101_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6487,7 +6487,7 @@ emt_err_t test_pack_afn0df101_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6529,8 +6529,8 @@ emt_err_t test_pack_afn0df101_s2m()
     pscmPacket->sData[0].uApp.sTmlCurveValue.dValue[5] = 3000.0;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6538,15 +6538,15 @@ emt_err_t test_pack_afn0df101_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df105_s2m()
+err_t test_pack_afn0df105_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6554,7 +6554,7 @@ emt_err_t test_pack_afn0df105_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6596,8 +6596,8 @@ emt_err_t test_pack_afn0df105_s2m()
     pscmPacket->sData[0].uApp.sTmlCurveFactor.fFactor[5] = 567.8;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6605,15 +6605,15 @@ emt_err_t test_pack_afn0df105_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df109_s2m()
+err_t test_pack_afn0df109_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6621,7 +6621,7 @@ emt_err_t test_pack_afn0df109_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6680,8 +6680,8 @@ emt_err_t test_pack_afn0df109_s2m()
     pscmPacket->sData[0].uApp.sTmlCurvePhase.sPhase[5].fPhaseC = 567.8;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6689,15 +6689,15 @@ emt_err_t test_pack_afn0df109_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df113_s2m()
+err_t test_pack_afn0df113_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6705,7 +6705,7 @@ emt_err_t test_pack_afn0df113_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6749,8 +6749,8 @@ emt_err_t test_pack_afn0df113_s2m()
     pscmPacket->sData[0].uApp.sTmlIHarmTime.sHarmTime[17].sTime.ucmm = 59;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6758,15 +6758,15 @@ emt_err_t test_pack_afn0df113_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df116_s2m()
+err_t test_pack_afn0df116_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6774,7 +6774,7 @@ emt_err_t test_pack_afn0df116_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6818,8 +6818,8 @@ emt_err_t test_pack_afn0df116_s2m()
     pscmPacket->sData[0].uApp.sTmlUHarmTime.sHarmTime[17].sTime.ucmm = 59;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6827,15 +6827,15 @@ emt_err_t test_pack_afn0df116_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df121_s2m()
+err_t test_pack_afn0df121_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6843,7 +6843,7 @@ emt_err_t test_pack_afn0df121_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6887,8 +6887,8 @@ emt_err_t test_pack_afn0df121_s2m()
     
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6896,15 +6896,15 @@ emt_err_t test_pack_afn0df121_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df169_s2m()
+err_t test_pack_afn0df169_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6912,7 +6912,7 @@ emt_err_t test_pack_afn0df169_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -6952,8 +6952,8 @@ emt_err_t test_pack_afn0df169_s2m()
     pscmPacket->sData[0].uApp.sTmlValue.dValueC = 0.0001;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -6961,15 +6961,15 @@ emt_err_t test_pack_afn0df169_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df170_s2m()
+err_t test_pack_afn0df170_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -6977,7 +6977,7 @@ emt_err_t test_pack_afn0df170_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7020,8 +7020,8 @@ emt_err_t test_pack_afn0df170_s2m()
     pscmPacket->sData[0].uApp.sTmlReactiveValue.dValue[2] = 0.01;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7029,15 +7029,15 @@ emt_err_t test_pack_afn0df170_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df171_s2m()
+err_t test_pack_afn0df171_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7045,7 +7045,7 @@ emt_err_t test_pack_afn0df171_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7088,8 +7088,8 @@ emt_err_t test_pack_afn0df171_s2m()
     pscmPacket->sData[0].uApp.sTmlActiveValue.dValue[2] = 0.0001;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7097,15 +7097,15 @@ emt_err_t test_pack_afn0df171_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df177_s2m()
+err_t test_pack_afn0df177_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7113,7 +7113,7 @@ emt_err_t test_pack_afn0df177_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7155,8 +7155,8 @@ emt_err_t test_pack_afn0df177_s2m()
     pscmPacket->sData[0].uApp.sTmlActiveValueM.dValue[2] = 0.0001;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7164,15 +7164,15 @@ emt_err_t test_pack_afn0df177_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df178_s2m()
+err_t test_pack_afn0df178_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7180,7 +7180,7 @@ emt_err_t test_pack_afn0df178_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7222,8 +7222,8 @@ emt_err_t test_pack_afn0df178_s2m()
     pscmPacket->sData[0].uApp.sTmlReactiveValueM.dValue[2] = 0.01;
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7231,15 +7231,15 @@ emt_err_t test_pack_afn0df178_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df185_s2m()
+err_t test_pack_afn0df185_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7247,7 +7247,7 @@ emt_err_t test_pack_afn0df185_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7302,8 +7302,8 @@ emt_err_t test_pack_afn0df185_s2m()
     pscmPacket->sData[0].uApp.sTmlMaxTime.sMaxClock[2].sClock.ucmm = 32;    
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7311,15 +7311,15 @@ emt_err_t test_pack_afn0df185_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df215_s2m()
+err_t test_pack_afn0df215_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7327,7 +7327,7 @@ emt_err_t test_pack_afn0df215_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7374,8 +7374,8 @@ emt_err_t test_pack_afn0df215_s2m()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7383,15 +7383,15 @@ emt_err_t test_pack_afn0df215_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df216_s2m()
+err_t test_pack_afn0df216_s2m()
 {
     /* 1 定义变量 */ 
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
     
     /* 2 环境初始化 */
     sCmInit  sInit;
@@ -7399,7 +7399,7 @@ emt_err_t test_pack_afn0df216_s2m()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7450,8 +7450,8 @@ emt_err_t test_pack_afn0df216_s2m()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7459,14 +7459,14 @@ emt_err_t test_pack_afn0df216_s2m()
     
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn05f37()
+err_t test_pack_afn05f37()
 {
     eCmErr eRet;
     uint16_t usBuflen = 0;
-    smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+    pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7475,7 +7475,7 @@ emt_err_t test_pack_afn05f37()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7507,8 +7507,8 @@ emt_err_t test_pack_afn05f37()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7517,16 +7517,16 @@ emt_err_t test_pack_afn05f37()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 
-emt_err_t test_pack_afn05f38()
+err_t test_pack_afn05f38()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7535,7 +7535,7 @@ emt_err_t test_pack_afn05f38()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7567,8 +7567,8 @@ emt_err_t test_pack_afn05f38()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7577,15 +7577,15 @@ emt_err_t test_pack_afn05f38()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f1_m2s()
+err_t test_pack_afn09f1_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7594,7 +7594,7 @@ emt_err_t test_pack_afn09f1_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7626,8 +7626,8 @@ emt_err_t test_pack_afn09f1_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7636,15 +7636,15 @@ emt_err_t test_pack_afn09f1_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f2_m2s()
+err_t test_pack_afn09f2_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7653,7 +7653,7 @@ emt_err_t test_pack_afn09f2_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7704,8 +7704,8 @@ emt_err_t test_pack_afn09f2_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7714,15 +7714,15 @@ emt_err_t test_pack_afn09f2_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f3_m2s()
+err_t test_pack_afn09f3_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7731,7 +7731,7 @@ emt_err_t test_pack_afn09f3_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7782,8 +7782,8 @@ emt_err_t test_pack_afn09f3_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7792,15 +7792,15 @@ emt_err_t test_pack_afn09f3_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f4_m2s()
+err_t test_pack_afn09f4_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7809,7 +7809,7 @@ emt_err_t test_pack_afn09f4_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7844,8 +7844,8 @@ emt_err_t test_pack_afn09f4_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7854,15 +7854,15 @@ emt_err_t test_pack_afn09f4_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f5_m2s()
+err_t test_pack_afn09f5_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7871,7 +7871,7 @@ emt_err_t test_pack_afn09f5_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7902,8 +7902,8 @@ emt_err_t test_pack_afn09f5_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7912,15 +7912,15 @@ emt_err_t test_pack_afn09f5_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f6_m2s()
+err_t test_pack_afn09f6_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7929,7 +7929,7 @@ emt_err_t test_pack_afn09f6_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -7960,8 +7960,8 @@ emt_err_t test_pack_afn09f6_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -7970,14 +7970,14 @@ emt_err_t test_pack_afn09f6_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn09f7_m2s()
+err_t test_pack_afn09f7_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -7986,7 +7986,7 @@ emt_err_t test_pack_afn09f7_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8017,8 +8017,8 @@ emt_err_t test_pack_afn09f7_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8027,15 +8027,15 @@ emt_err_t test_pack_afn09f7_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn09f8_m2s()
+err_t test_pack_afn09f8_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8044,7 +8044,7 @@ emt_err_t test_pack_afn09f8_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8075,8 +8075,8 @@ emt_err_t test_pack_afn09f8_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8085,15 +8085,15 @@ emt_err_t test_pack_afn09f8_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af10_m2s()
+err_t test_pack_afn0af10_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 ????? */
@@ -8102,7 +8102,7 @@ emt_err_t test_pack_afn0af10_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("?????\n");
         return eRet;
@@ -8146,8 +8146,8 @@ emt_err_t test_pack_afn0af10_m2s()
 
 
     /* 4 ???? */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8156,14 +8156,14 @@ emt_err_t test_pack_afn0af10_m2s()
     /* 5 ???? */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
-emt_err_t test_pack_afn0af38_m2s()
+err_t test_pack_afn0af38_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8172,7 +8172,7 @@ emt_err_t test_pack_afn0af38_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8225,8 +8225,8 @@ emt_err_t test_pack_afn0af38_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8235,15 +8235,15 @@ emt_err_t test_pack_afn0af38_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af39_m2s()
+err_t test_pack_afn0af39_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8252,7 +8252,7 @@ emt_err_t test_pack_afn0af39_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8300,8 +8300,8 @@ emt_err_t test_pack_afn0af39_m2s()
     pscmPacket->sData[0].uApp.sAsk1Cfg_Q.ucSmall[15] = 16;
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8310,15 +8310,15 @@ emt_err_t test_pack_afn0af39_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af65_m2s()
+err_t test_pack_afn0af65_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8327,7 +8327,7 @@ emt_err_t test_pack_afn0af65_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8358,8 +8358,8 @@ emt_err_t test_pack_afn0af65_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8368,15 +8368,15 @@ emt_err_t test_pack_afn0af65_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af66_m2s()
+err_t test_pack_afn0af66_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8385,7 +8385,7 @@ emt_err_t test_pack_afn0af66_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8416,8 +8416,8 @@ emt_err_t test_pack_afn0af66_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8426,15 +8426,15 @@ emt_err_t test_pack_afn0af66_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af67_m2s()
+err_t test_pack_afn0af67_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8443,7 +8443,7 @@ emt_err_t test_pack_afn0af67_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8474,8 +8474,8 @@ emt_err_t test_pack_afn0af67_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8484,15 +8484,15 @@ emt_err_t test_pack_afn0af67_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0af68_m2s()
+err_t test_pack_afn0af68_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8501,7 +8501,7 @@ emt_err_t test_pack_afn0af68_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8532,8 +8532,8 @@ emt_err_t test_pack_afn0af68_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8542,14 +8542,14 @@ emt_err_t test_pack_afn0af68_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
-emt_err_t test_pack_afn05f39()
+err_t test_pack_afn05f39()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8558,7 +8558,7 @@ emt_err_t test_pack_afn05f39()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8590,8 +8590,8 @@ emt_err_t test_pack_afn05f39()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8600,15 +8600,15 @@ emt_err_t test_pack_afn05f39()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf02_m2s()
+err_t test_pack_afn0cf02_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8617,7 +8617,7 @@ emt_err_t test_pack_afn0cf02_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8644,8 +8644,8 @@ emt_err_t test_pack_afn0cf02_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8654,15 +8654,15 @@ emt_err_t test_pack_afn0cf02_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf03_m2s()
+err_t test_pack_afn0cf03_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8671,7 +8671,7 @@ emt_err_t test_pack_afn0cf03_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8698,8 +8698,8 @@ emt_err_t test_pack_afn0cf03_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8708,15 +8708,15 @@ emt_err_t test_pack_afn0cf03_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf04_m2s()
+err_t test_pack_afn0cf04_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8725,7 +8725,7 @@ emt_err_t test_pack_afn0cf04_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8752,8 +8752,8 @@ emt_err_t test_pack_afn0cf04_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8762,15 +8762,15 @@ emt_err_t test_pack_afn0cf04_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf05_m2s()
+err_t test_pack_afn0cf05_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8779,7 +8779,7 @@ emt_err_t test_pack_afn0cf05_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8806,8 +8806,8 @@ emt_err_t test_pack_afn0cf05_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8816,15 +8816,15 @@ emt_err_t test_pack_afn0cf05_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf06_m2s()
+err_t test_pack_afn0cf06_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8833,7 +8833,7 @@ emt_err_t test_pack_afn0cf06_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8860,8 +8860,8 @@ emt_err_t test_pack_afn0cf06_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8870,15 +8870,15 @@ emt_err_t test_pack_afn0cf06_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf07_m2s()
+err_t test_pack_afn0cf07_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8887,7 +8887,7 @@ emt_err_t test_pack_afn0cf07_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8914,8 +8914,8 @@ emt_err_t test_pack_afn0cf07_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8924,15 +8924,15 @@ emt_err_t test_pack_afn0cf07_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf08_m2s()
+err_t test_pack_afn0cf08_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8941,7 +8941,7 @@ emt_err_t test_pack_afn0cf08_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -8968,8 +8968,8 @@ emt_err_t test_pack_afn0cf08_m2s()
 
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -8978,15 +8978,15 @@ emt_err_t test_pack_afn0cf08_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf25()
+err_t test_pack_afn0cf25()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -8995,7 +8995,7 @@ emt_err_t test_pack_afn0cf25()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9046,8 +9046,8 @@ emt_err_t test_pack_afn0cf25()
     
 
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9056,15 +9056,15 @@ emt_err_t test_pack_afn0cf25()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf31_m2s()
+err_t test_pack_afn0cf31_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9073,7 +9073,7 @@ emt_err_t test_pack_afn0cf31_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9100,8 +9100,8 @@ emt_err_t test_pack_afn0cf31_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9110,15 +9110,15 @@ emt_err_t test_pack_afn0cf31_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf57_m2s()
+err_t test_pack_afn0cf57_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9127,7 +9127,7 @@ emt_err_t test_pack_afn0cf57_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9154,8 +9154,8 @@ emt_err_t test_pack_afn0cf57_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9164,15 +9164,15 @@ emt_err_t test_pack_afn0cf57_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf58_m2s()
+err_t test_pack_afn0cf58_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9181,7 +9181,7 @@ emt_err_t test_pack_afn0cf58_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9208,8 +9208,8 @@ emt_err_t test_pack_afn0cf58_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9218,15 +9218,15 @@ emt_err_t test_pack_afn0cf58_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf73_m2s()
+err_t test_pack_afn0cf73_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9235,7 +9235,7 @@ emt_err_t test_pack_afn0cf73_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9262,8 +9262,8 @@ emt_err_t test_pack_afn0cf73_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9272,14 +9272,14 @@ emt_err_t test_pack_afn0cf73_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
-emt_err_t test_pack_afn0cf129_m2s()
+err_t test_pack_afn0cf129_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9288,7 +9288,7 @@ emt_err_t test_pack_afn0cf129_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9315,8 +9315,8 @@ emt_err_t test_pack_afn0cf129_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9325,15 +9325,15 @@ emt_err_t test_pack_afn0cf129_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf130_m2s()
+err_t test_pack_afn0cf130_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9342,7 +9342,7 @@ emt_err_t test_pack_afn0cf130_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9369,8 +9369,8 @@ emt_err_t test_pack_afn0cf130_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9379,15 +9379,15 @@ emt_err_t test_pack_afn0cf130_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf166_m2s()
+err_t test_pack_afn0cf166_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9396,7 +9396,7 @@ emt_err_t test_pack_afn0cf166_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9423,8 +9423,8 @@ emt_err_t test_pack_afn0cf166_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9433,15 +9433,15 @@ emt_err_t test_pack_afn0cf166_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0cf167_m2s()
+err_t test_pack_afn0cf167_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9450,7 +9450,7 @@ emt_err_t test_pack_afn0cf167_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9477,8 +9477,8 @@ emt_err_t test_pack_afn0cf167_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9487,15 +9487,15 @@ emt_err_t test_pack_afn0cf167_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df28_m2s()
+err_t test_pack_afn0df28_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9504,7 +9504,7 @@ emt_err_t test_pack_afn0df28_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9535,8 +9535,8 @@ emt_err_t test_pack_afn0df28_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9545,15 +9545,15 @@ emt_err_t test_pack_afn0df28_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df36_m2s()
+err_t test_pack_afn0df36_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9562,7 +9562,7 @@ emt_err_t test_pack_afn0df36_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9589,8 +9589,8 @@ emt_err_t test_pack_afn0df36_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9599,14 +9599,14 @@ emt_err_t test_pack_afn0df36_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
-emt_err_t test_pack_afn0df97_m2s()
+err_t test_pack_afn0df97_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9615,7 +9615,7 @@ emt_err_t test_pack_afn0df97_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9642,8 +9642,8 @@ emt_err_t test_pack_afn0df97_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9652,15 +9652,15 @@ emt_err_t test_pack_afn0df97_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df101_m2s()
+err_t test_pack_afn0df101_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9669,7 +9669,7 @@ emt_err_t test_pack_afn0df101_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9696,8 +9696,8 @@ emt_err_t test_pack_afn0df101_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9706,15 +9706,15 @@ emt_err_t test_pack_afn0df101_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df105_m2s()
+err_t test_pack_afn0df105_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9723,7 +9723,7 @@ emt_err_t test_pack_afn0df105_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9750,8 +9750,8 @@ emt_err_t test_pack_afn0df105_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9760,15 +9760,15 @@ emt_err_t test_pack_afn0df105_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df109_m2s()
+err_t test_pack_afn0df109_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9777,7 +9777,7 @@ emt_err_t test_pack_afn0df109_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9804,8 +9804,8 @@ emt_err_t test_pack_afn0df109_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9814,15 +9814,15 @@ emt_err_t test_pack_afn0df109_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df113_m2s()
+err_t test_pack_afn0df113_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9831,7 +9831,7 @@ emt_err_t test_pack_afn0df113_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9858,8 +9858,8 @@ emt_err_t test_pack_afn0df113_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9868,15 +9868,15 @@ emt_err_t test_pack_afn0df113_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df116_m2s()
+err_t test_pack_afn0df116_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9885,7 +9885,7 @@ emt_err_t test_pack_afn0df116_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9912,8 +9912,8 @@ emt_err_t test_pack_afn0df116_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9922,15 +9922,15 @@ emt_err_t test_pack_afn0df116_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
-emt_err_t test_pack_afn0df121_m2s()
+err_t test_pack_afn0df121_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9939,7 +9939,7 @@ emt_err_t test_pack_afn0df121_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -9966,8 +9966,8 @@ emt_err_t test_pack_afn0df121_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -9976,14 +9976,14 @@ emt_err_t test_pack_afn0df121_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df169_m2s()
+err_t test_pack_afn0df169_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -9992,7 +9992,7 @@ emt_err_t test_pack_afn0df169_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10019,8 +10019,8 @@ emt_err_t test_pack_afn0df169_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10029,14 +10029,14 @@ emt_err_t test_pack_afn0df169_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df170_m2s()
+err_t test_pack_afn0df170_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10045,7 +10045,7 @@ emt_err_t test_pack_afn0df170_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10072,8 +10072,8 @@ emt_err_t test_pack_afn0df170_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10082,14 +10082,14 @@ emt_err_t test_pack_afn0df170_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df171_m2s()
+err_t test_pack_afn0df171_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10098,7 +10098,7 @@ emt_err_t test_pack_afn0df171_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10125,8 +10125,8 @@ emt_err_t test_pack_afn0df171_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10135,14 +10135,14 @@ emt_err_t test_pack_afn0df171_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df177_m2s()
+err_t test_pack_afn0df177_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10151,7 +10151,7 @@ emt_err_t test_pack_afn0df177_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10178,8 +10178,8 @@ emt_err_t test_pack_afn0df177_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10188,14 +10188,14 @@ emt_err_t test_pack_afn0df177_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df178_m2s()
+err_t test_pack_afn0df178_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10204,7 +10204,7 @@ emt_err_t test_pack_afn0df178_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10231,8 +10231,8 @@ emt_err_t test_pack_afn0df178_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10241,14 +10241,14 @@ emt_err_t test_pack_afn0df178_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df185_m2s()
+err_t test_pack_afn0df185_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10257,7 +10257,7 @@ emt_err_t test_pack_afn0df185_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10284,8 +10284,8 @@ emt_err_t test_pack_afn0df185_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10294,14 +10294,14 @@ emt_err_t test_pack_afn0df185_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df215_m2s()
+err_t test_pack_afn0df215_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10310,7 +10310,7 @@ emt_err_t test_pack_afn0df215_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10337,8 +10337,8 @@ emt_err_t test_pack_afn0df215_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10347,14 +10347,14 @@ emt_err_t test_pack_afn0df215_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
-emt_err_t test_pack_afn0df216_m2s()
+err_t test_pack_afn0df216_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10363,7 +10363,7 @@ emt_err_t test_pack_afn0df216_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10390,8 +10390,8 @@ emt_err_t test_pack_afn0df216_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10400,17 +10400,17 @@ emt_err_t test_pack_afn0df216_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 // 请求一般事件 命令测试例
 
-emt_err_t test_pack_afn0ef1_m2s()
+err_t test_pack_afn0ef1_m2s()
 {
    eCmErr eRet;
    uint16_t usBuflen = 0;
-   smt_pack_t *pscmPacket = (smt_pack_t*)g_ucPackMem;
+   pack_t *pscmPacket = (pack_t*)g_ucPackMem;
    
 
     /* 2 环境初始化 */
@@ -10419,7 +10419,7 @@ emt_err_t test_pack_afn0ef1_m2s()
     //sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
     eRet = ecm_3761_init(&sInit);
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         printf("初始化失败\n");
         return eRet;
@@ -10446,8 +10446,8 @@ emt_err_t test_pack_afn0ef1_m2s()
      
     
     /* 4 调用函数 */
-    eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
-    if(eRet != MT_OK)
+    eRet = pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
+    if(eRet != MT_ERR_OK)
     {
         printf("ecm_3761_pack error %d\n", eRet);
         return eRet;
@@ -10456,12 +10456,12 @@ emt_err_t test_pack_afn0ef1_m2s()
     /* 5 输出结果 */ 
     printf_buffer_color((char*)g_ucOutBuf, usBuflen);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 
-typedef emt_err_t(*ptest_pack)();
+typedef err_t(*ptest_pack)();
 
 typedef struct
 {
@@ -10664,7 +10664,7 @@ void test_pack(int iTest)
     ptest_pack   pTest;
     int i = 0;
     int count = 0;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     count = sizeof(g_test_pack)/sizeof(sTestPack);
     
 
@@ -10677,7 +10677,7 @@ void test_pack(int iTest)
             if(pTest!= NULL)
             {
                 eRet = pTest();
-                if(eRet != MT_OK)
+                if(eRet != MT_ERR_OK)
                 {
                     show_mt_error(eRet);
                 }
@@ -10710,7 +10710,7 @@ void test_pack_down(int iTest)
     ptest_pack   pTest;
     int i = 0;
     int count = 0;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     count = sizeof(g_test_pack_down)/sizeof(sTestPack);
     
 
@@ -10723,7 +10723,7 @@ void test_pack_down(int iTest)
             if(pTest!= NULL)
             {
                 eRet = pTest();
-                if(eRet != MT_OK)
+                if(eRet != MT_ERR_OK)
                 {
                     show_mt_error(eRet);
                 }
@@ -10747,15 +10747,15 @@ void print_td_d(sMtTd_d *psTd_d)
     }
 }
 
-void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
+void show_app_sub_data(dir_t eDir,cmd_t emtCmd, umt_app_t *puAppData)
 {
     int     i   = 0;
     int     j   = 0;
-    emt_err_t eRet = MT_OK;
-    emt_err_t eRet2 = MT_OK;
+    err_t eRet = MT_ERR_OK;
+    err_t eRet2 = MT_ERR_OK;
 
     sMtCmdInfor sCmdInfo;
-    emt_cmd_t   eCmd = CMD_AFN_F_UNKOWN;
+    cmd_t   eCmd = CMD_AFN_F_UNKOWN;
     const char *pStr = NULL;
     
     switch(emtCmd)
@@ -10773,14 +10773,14 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                 eRet = eMtGetCmdInfor(psOnebyOne->sOne[i].eCmd, MT_DIR_S2M, &sCmdInfo);
                 
                 
-                if(MT_OK == eRet)
+                if(MT_ERR_OK == eRet)
                 {
                    pStr =  sCmdInfo.pName; 
                 }
                 else
                 {
                     eRet2 = eMtGetCmdInfor(psOnebyOne->sOne[i].eCmd, MT_DIR_M2S, &sCmdInfo);
-                    if(eRet2 == MT_OK)
+                    if(eRet2 == MT_ERR_OK)
                     {
                         pStr =  sCmdInfo.pName; 
                     }
@@ -10899,7 +10899,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                   eCmd = pData->sOne[i].eCmd[j];
                   printf("sOne[%d] eCmd[%d] = 0x%04X\t",i, j, eCmd);
                   eRet = eMtGetCmdInfor(eCmd, MT_DIR_M2S, &sCmdInfo);
-                  if(eRet == MT_OK)
+                  if(eRet == MT_ERR_OK)
                   {
                      printf("%s\n", sCmdInfo.pName);
                   }
@@ -10927,7 +10927,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                   eCmd = pData->sOne[i].eCmd[j];
                   printf("sOne[%d] eCmd[%d] = 0x%04X\t",i, j, eCmd);
                   eRet = eMtGetCmdInfor(eCmd, MT_DIR_M2S, &sCmdInfo);
-                  if(eRet == MT_OK)
+                  if(eRet == MT_ERR_OK)
                   {
                      printf("%s\n", sCmdInfo.pName);
                   }
@@ -11001,7 +11001,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                   eCmd = pData->sCmdPn[i].eCmd;
                   printf("eCmd:0x%04X\t", eCmd);
                   eRet = eMtGetCmdInfor(eCmd, MT_DIR_M2S, &sCmdInfo);
-                  if(eRet == MT_OK)
+                  if(eRet == MT_ERR_OK)
                   {
                      printf("%s\n", sCmdInfo.pName);
                   }
@@ -11307,7 +11307,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                 {
                     printf("%d: cmd = 0x%04X\t", i+1, pData->eCfgCmd[i]);
                     eRet = eMtGetCmdInfor(pData->eCfgCmd[i], MT_DIR_M2S, &sCmdInfo);  
-                    if(MT_OK == eRet)
+                    if(MT_ERR_OK == eRet)
                     {
                         printf("%s\n", sCmdInfo.pName);
                     }
@@ -11331,7 +11331,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                 {
                     printf("%d: cmd = 0x%04X\t", i+1, pData->eCfgCmd[i]);
                     eRet = eMtGetCmdInfor(pData->eCfgCmd[i], MT_DIR_M2S, &sCmdInfo);  
-                    if(MT_OK == eRet)
+                    if(MT_ERR_OK == eRet)
                     {
                         printf("%s\n", sCmdInfo.pName);
                     }
@@ -11353,7 +11353,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                 {
                     printf("%d: cmd = 0x%04X\t", i+1, pData->eCfgCmd[i]);
                     eRet = eMtGetCmdInfor(pData->eCfgCmd[i], MT_DIR_M2S, &sCmdInfo);  
-                    if(MT_OK == eRet)
+                    if(MT_ERR_OK == eRet)
                     {
                         printf("%s\n", sCmdInfo.pName);
                     }
@@ -11375,7 +11375,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
                 {
                     printf("%d: cmd = 0x%04X\t", i+1, pData->eCfgCmd[i]);
                     eRet = eMtGetCmdInfor(pData->eCfgCmd[i], MT_DIR_M2S, &sCmdInfo);  
-                    if(MT_OK == eRet)
+                    if(MT_ERR_OK == eRet)
                     {
                         printf("%s\n", sCmdInfo.pName);
                     }
@@ -12673,7 +12673,7 @@ void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
+void show_app_data_adp(dir_t eDir, sCmSub *pSub)
 {
     if(!pSub)
     {
@@ -12681,10 +12681,10 @@ void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
     }
 
     sMtCmdInfor    sCmdInfor;
-    emt_err_t      eRet      = (emt_err_t)MT_OK;    
-   // pMtFunc      pFunc     = NULL;
+    err_t      eRet      = (err_t)MT_ERR_OK;    
+   // trans_func_t      pFunc     = NULL;
     char *         pStr      = NULL;
-    emt_cmd_t         emtCmd  ;
+    cmd_t         emtCmd  ;
 
     pStr = NULL;
     
@@ -12693,7 +12693,7 @@ void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
    printf("sCmd  = %04X\t", emtCmd);
    show_sub_name("子命令ID\t");
    eRet = eMtGetCmdInfor(emtCmd, eDir, &sCmdInfor);
-   if(eRet != MT_OK)
+   if(eRet != MT_ERR_OK)
    {
         show_error("错误的命令类型!");
         return;
@@ -12755,7 +12755,7 @@ void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
 
     char buf[1024] = {0};
     umt_app_t *pmtAppData = (umt_app_t *)buf;
-    emt_trans_appdata_cm2mt(emtCmd, &(pSub->uAppData), pmtAppData);
+    trans_appdata_cm2mt(emtCmd, &(pSub->uAppData), pmtAppData);
     show_app_sub_data(eDir, emtCmd, pmtAppData);
 }
 
@@ -12778,7 +12778,7 @@ void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void show_app_data(emt_dir_t eDir, smt_data_t *pSub)
+void show_app_data(dir_t eDir, data_t *pSub)
 {
    if(!pSub)
    {
@@ -12787,8 +12787,8 @@ void show_app_data(emt_dir_t eDir, smt_data_t *pSub)
 
 
     sMtCmdInfor    sCmdInfor;
-    emt_err_t         eRet  = MT_OK;    
-    // pMtFunc   pFunc      = NULL;
+    err_t         eRet  = MT_ERR_OK;    
+    // trans_func_t   pFunc      = NULL;
     //char *         pStr   = NULL;
 
    
@@ -12796,7 +12796,7 @@ void show_app_data(emt_dir_t eDir, smt_data_t *pSub)
    printf("sCmd  = %04X\t", pSub->eCmd);
    show_sub_name("子命令ID\t");
    eRet = eMtGetCmdInfor(pSub->eCmd, eDir, &sCmdInfor);
-   if(eRet != MT_OK)
+   if(eRet != MT_ERR_OK)
    {
         show_error("错误的命令类型!");
         return;
@@ -12877,7 +12877,7 @@ void show_pack_adp(sCmPacket * psUnpack)
     char strTmp[128] = {0};
     int i = 0;
     int nSubNum = 0;
-    emt_dir_t eDir = MT_DIR_M2S;
+    dir_t eDir = MT_DIR_M2S;
 
     // 输出地址信息
     show_main_name("address:\n");
@@ -12925,7 +12925,7 @@ void show_pack_adp(sCmPacket * psUnpack)
 
 
 
-void show_pack(smt_pack_t *psUnpack)
+void show_pack(pack_t *psUnpack)
 {
     if(!psUnpack)
     {
@@ -12939,7 +12939,7 @@ void show_pack(smt_pack_t *psUnpack)
     char strTmp[128] = {0};
     int i = 0;
     int nSubNum = 0;
-    emt_dir_t eDir;
+    dir_t eDir;
 
     // 输出地址信息
     show_main_name("address:\n");
@@ -13237,7 +13237,7 @@ void test_unpack_adp(int nstart, int argc, char *argv[])
     int32_t  i, j = 0;
     uint16_t usLen = argc - nstart  ;
     uint8_t* pInBuf = NULL;
-    smt_init_t  sInit = {MT_ROLE_UNKOWN};
+    init_t  sInit = {MT_ROLE_UNKOWN};
    // printf("argc = %d , nstart = %d, usLen = %d------------",argc, nstart, usLen);
    printf("unpack len = %d\n", usLen);
 
@@ -13259,14 +13259,14 @@ void test_unpack_adp(int nstart, int argc, char *argv[])
     // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    emt_init(&sInit);
+    init(&sInit);
     
     //调用解析函数
-    emt_err_t eRet = ecm_3761_unpack(pInBuf, usLen, psUnpack);
+    err_t eRet = ecm_3761_unpack(pInBuf, usLen, psUnpack);
 
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_unpack() error code = %d\n", eRet);
+        printf("unpack() error code = %d\n", eRet);
         show_mt_error(eRet);
     }
     else
@@ -13285,14 +13285,14 @@ void unpack_analyse(int nstart, int argc, char *argv[])
     int32_t  i, j = 0;
     uint16_t usLen = argc - nstart ;
     uint8_t* pInBuf = NULL;
-    emt_err_t eRet = (emt_err_t)MT_OK;
-    smt_init_t  sInit = {MT_ROLE_UNKOWN};
-    smt_unpack_common_t sUnpackCommon;
+    err_t eRet = (err_t)MT_ERR_OK;
+    init_t  sInit = {MT_ROLE_UNKOWN};
+    unpack_common_t sUnpackCommon;
     uint8_t  ucTemp = 0;
     char buf[64] = {0};
     const char *str = NULL;
     sMtCmdInfor    sCmdInfor;
-    emt_dir_t eDir;
+    dir_t eDir;
 
    
     for(i = nstart; i < argc; i++)
@@ -13305,13 +13305,13 @@ void unpack_analyse(int nstart, int argc, char *argv[])
      // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    emt_init(&sInit);
+    init(&sInit);
 
     // 
-    eRet = emt_unpack_common(&sUnpackCommon,pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = unpack_common(&sUnpackCommon,pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
-        printf("emt_unpack_common() error code = %d\n", eRet);
+        printf("unpack_common() error code = %d\n", eRet);
         return;
     }
     
@@ -13529,7 +13529,7 @@ void unpack_analyse(int nstart, int argc, char *argv[])
     ucTemp = sUnpackCommon.sfComHead.A.acRegionCode[5];
     printf("[%02X]\t\t", ucTemp);
 
-    emt_afn_t eAfn = (emt_afn_t)ucTemp;
+    afn_t eAfn = (afn_t)ucTemp;
     switch(ucTemp)
     {
         case AFN_00_CONF:
@@ -13686,17 +13686,17 @@ void unpack_analyse(int nstart, int argc, char *argv[])
     printf("%d\n",  sDaDt.ucDT2);
 
 
-    sMtPnFn sPnFn;
-    eRet =  emt_dadt_to_pnfn(&sDaDt, &sPnFn);
+    pnfn_t sPnFn;
+    eRet =  dadt_to_pnfn(&sDaDt, &sPnFn);
     sMtCmdPn sCmdPn[64];
     uint8_t    ucNumCmdPn = 0;
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
         show_item_value("标识错误\n");
     }
     else
     {             
-        eRet = emt_pnfn_to_cmdpn(eAfn, &sPnFn, 1,   (sMtCmdPn*)&sCmdPn, &ucNumCmdPn);
+        eRet = pnfn_to_cmdpn(eAfn, &sPnFn, 1,   (sMtCmdPn*)&sCmdPn, &ucNumCmdPn);
 
         for(i = 0; i < ucNumCmdPn; i++)
         {
@@ -13707,7 +13707,7 @@ void unpack_analyse(int nstart, int argc, char *argv[])
             show_sub_name("\t\tcmd:\t\t");
             printf("%04X\t",  sCmdPn[i].eCmd);
             eRet = eMtGetCmdInfor(sCmdPn[i].eCmd, eDir, &sCmdInfor);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                show_item_value("未知命令\n");
             }
@@ -13732,7 +13732,7 @@ void test_unpack(int nstart, int argc, char *argv[])
     int32_t  i, j = 0;
     uint16_t usLen = argc - nstart ;
     uint8_t* pInBuf = NULL;
-    smt_init_t  sInit = {MT_ROLE_UNKOWN};
+    init_t  sInit = {MT_ROLE_UNKOWN};
 
     // printf("\nargc = %d , nstart = %d, usLen = %d------------",argc, nstart, usLen);
     // 解决命令行输入的参数
@@ -13747,10 +13747,10 @@ void test_unpack(int nstart, int argc, char *argv[])
 
 
     
-    //smt_pack_t *psUnpack = (smt_pack_t *)g_ucOutBuf;
+    //pack_t *psUnpack = (pack_t *)g_ucOutBuf;
 
-    //smt_pack_t *psUnpack = (smt_pack_t *)malloc(BUF_LEN_MAX);
-    smt_pack_t *psUnpack = (smt_pack_t *)malloc(5* 1024);
+    //pack_t *psUnpack = (pack_t *)malloc(BUF_LEN_MAX);
+    pack_t *psUnpack = (pack_t *)malloc(5* 1024);
     //char buf[5*1024] = {0};
     
     //printf_buffer_color((char*)pInBuf, usLen);
@@ -13759,14 +13759,14 @@ void test_unpack(int nstart, int argc, char *argv[])
     // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    emt_init(&sInit);
+    init(&sInit);
 
     //调用解析函数
-    emt_err_t eRet = emt_unpack(psUnpack, pInBuf, usLen);
+    err_t eRet = unpack(psUnpack, pInBuf, usLen);
 
-    if(eRet != MT_OK)
+    if(eRet != MT_ERR_OK)
     {
-        printf("emt_unpack() error code = %d\n", eRet);
+        printf("unpack() error code = %d\n", eRet);
         show_mt_error(eRet);
     }
     else
@@ -13839,7 +13839,7 @@ int main(int argc, char *argv[])
             case 'e':
                 {
                     int iErr = (int)strtol(optarg, NULL, 10);
-                    show_mt_error((emt_err_t)iErr);
+                    show_mt_error((err_t)iErr);
                 }
               break;
 

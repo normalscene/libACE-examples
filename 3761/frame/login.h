@@ -61,7 +61,7 @@ public:
 
 		eRet = ecm_3761_init(&sInit);
 
-		if(eRet != MT_OK)
+		if(eRet != MT_ERR_OK)
 		{
 			printf("初始化失败\n");
 			return 0;
@@ -82,7 +82,7 @@ public:
 
 		/* 4 调用函数 */
 		eRet = ecm_3761_pack(&pack, buf, &len);
-		if(eRet != MT_OK)
+		if(eRet != MT_ERR_OK)
 		{
 			printf("ecm_3761_pack error %d\n", eRet);
 			return 0;

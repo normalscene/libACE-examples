@@ -47,14 +47,14 @@
     修改内容   : 新生成函数
 
 *****************************************************************************/
-const char * smtGetErr(emt_err_t eErr)
+const char * smtGetErr(err_t eErr)
 {
     const char *pStr = NULL;
 
     switch(eErr)
     {
-        case MT_OK:
-            pStr = "MT_OK";
+        case MT_ERR_OK:
+            pStr = "MT_ERR_OK";
             break;
             
         case MT_ERR_NULL:
@@ -195,14 +195,14 @@ if(pBuf != NULL)\
  *
 {*////
 bool      g_bMtInit = false;             // 协议是否初始化
-emt_role_t   g_eMtRole = MT_ROLE_UNKOWN;    // 身份，主站或是从站
+role_t   g_eMtRole = MT_ROLE_UNKOWN;    // 身份，主站或是从站
 uint8_t     g_ucMtPermitDelayMinutes = 0;  // 允许时延
 uint8_t     g_aucPw[MT_PW_LEN] = {0};
-smt_ec_t     g_tEC;                         // 事件计数器 仅终端上支持
+ec_t     g_tEC;                         // 事件计数器 仅终端上支持
 
 #if MT_CFG_ENCRYPT
-    peMtEncryptFunc   g_peMtEncryptFunc = NULL;  // 加密接口
-    peMtDecryptFunc   g_peMtDecryptFunc = NULL;  // 解密接口
+    encrept_func_t   g_peMtEncryptFunc = NULL;  // 加密接口
+    decrept_func_t   g_peMtDecryptFunc = NULL;  // 解密接口
 #endif
 ///*}
     
@@ -1543,9 +1543,9 @@ const sMtCmdInfor gmt_cmdinfor[] =
 ////*}
 
 /*****************************************************************************
- 函 数 名  : emt_init
+ 函 数 名  : init
  功能描述  : 协议初始化
- 输入参数  : smt_init_t* sInit  
+ 输入参数  : init_t* sInit  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -1557,17 +1557,17 @@ const sMtCmdInfor gmt_cmdinfor[] =
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_init(smt_init_t* psInit)
+err_t init(init_t* psInit)
 {
     if(g_bMtInit == true)
     {
-        return MT_OK;
+        return MT_ERR_OK;
     }
 
     if(!psInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_init() pointer is null!");
+        DEBUG("init() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -1575,7 +1575,7 @@ emt_err_t emt_init(smt_init_t* psInit)
     if(MT_ROLE_MASTER != psInit->eRole && MT_ROLE_CONTOR != psInit->eRole)
     {
         #ifdef MT_DBG
-        DEBUG("emt_init() para error!");
+        DEBUG("init() para error!");
         #endif
         return MT_ERR_PARA;
     }
@@ -1601,7 +1601,7 @@ emt_err_t emt_init(smt_init_t* psInit)
 #endif
     
     g_bMtInit = true;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -1640,7 +1640,7 @@ bool   bmt_is_0xEE(uint8_t* pData, uint16_t usLen)
 }
 
 /*****************************************************************************
- 函 数 名  : vmt_set_0xEE
+ 函 数 名  : set_0xEE
  功能描述  : 将usLen的数据pData的内容都设置为0xEE
  输入参数  : uint8_t* pData  
              uint16_t usLen  
@@ -1655,7 +1655,7 @@ bool   bmt_is_0xEE(uint8_t* pData, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void   vmt_set_0xEE(uint8_t* pData, uint16_t usLen) 
+void   set_0xEE(uint8_t* pData, uint16_t usLen) 
 {
     int32_t i = 0;
     
@@ -1692,7 +1692,7 @@ bool   bmt_is_none(uint8_t* pData, uint16_t usLen)
 }
 
 /*****************************************************************************
- 函 数 名  : vmt_set_none
+ 函 数 名  : set_none
  功能描述  : 将某数据项设置为缺省
  输入参数  : uint8_t* pData  
              uint16_t usLen  
@@ -1707,16 +1707,16 @@ bool   bmt_is_none(uint8_t* pData, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void   vmt_set_none(uint8_t* pData, uint16_t usLen)
+void   set_none(uint8_t* pData, uint16_t usLen)
 {
-    vmt_set_0xEE(pData, usLen);
+    set_0xEE(pData, usLen);
 }
 
 /*****************************************************************************
  函 数 名  : eMtGetCmdInfor
  功能描述  : 通过命令类型和报文方向获得该命令对应的相关信息
- 输入参数  : emt_cmd_t eCmd          
-             emt_dir_t eDir         
+ 输入参数  : cmd_t eCmd          
+             dir_t eDir         
              sMtCmdInfor *psInfor  
  输出参数  : 无
  返 回 值  : 
@@ -1729,7 +1729,7 @@ void   vmt_set_none(uint8_t* pData, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor *psInfor)
+err_t eMtGetCmdInfor(cmd_t eCmd, dir_t eDir, sMtCmdInfor *psInfor)
 {
     int32_t i   = 0;
     int32_t Num = 0;
@@ -1758,7 +1758,7 @@ emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor *psInfor)
             psInfor->ePn   = gmt_cmdinfor[i].ePn;
             psInfor->pFunc = gmt_cmdinfor[i].pFunc;
             psInfor->pName = gmt_cmdinfor[i].pName;
-            return MT_OK;
+            return MT_ERR_OK;
         }
     }
 
@@ -1769,10 +1769,10 @@ emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor *psInfor)
 }
 
 /*****************************************************************************
- 函 数 名  : emtGetPrm
+ 函 数 名  : get_prm
  功能描述  : 获得某类型的报文的主动性
- 输入参数  : emt_dir_t eDir  
-             emt_afn_t eAfn  
+ 输入参数  : dir_t eDir  
+             afn_t eAfn  
              bool bAuto   
  输出参数  : 无
  返 回 值  : 
@@ -1785,9 +1785,9 @@ emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor *psInfor)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto)
+prm_t get_prm(dir_t eDir, afn_t eAfn, bool bAuto)
 {
-    emt_prm_t ePrm;
+    prm_t ePrm;
     
     switch(eAfn)
     {
@@ -1926,7 +1926,7 @@ emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto)
     return ePrm;
 }
 /*****************************************************************************
- 函 数 名  : emt_is_valid_pack
+ 函 数 名  : is_valid_pack
  功能描述  : 判断一个帧是否是一个有效的3761.1的报文
              判断一个以0x68 开头以0x16结尾的一段buffer是否是一个完整有效的376.1报文
  输入参数  : uint8_t  *pOutBuf  
@@ -1942,12 +1942,12 @@ emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
+err_t is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
 {
     if(!pOutBuf)
     {
        #ifdef MT_DBG
-       DEBUG("emt_is_valid_pack() pointer is null!");
+       DEBUG("is_valid_pack() pointer is null!");
        #endif
        return MT_ERR_NULL;
     }
@@ -1958,13 +1958,13 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     uint16_t usProtoLen  = 0; //实际应该的协议数据长度
     uint16_t usUserLen   = 0;     
 
-    smt_fcomhead_t *pfComHead = NULL;
-    pfComHead = (smt_fcomhead_t *)pOutBuf;
+    fcomhead_t *pfComHead = NULL;
+    pfComHead = (fcomhead_t *)pOutBuf;
 
     if(0x68 != pfComHead->f68 || 0x68 != pfComHead->s68)
     {
         #ifdef MT_DBG
-        DEBUG("emt_is_valid_pack() MT_ERR_0x68!");
+        DEBUG("is_valid_pack() MT_ERR_0x68!");
         #endif
         return MT_ERR_0x68;
     }
@@ -1972,7 +1972,7 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     if(2 != pfComHead->p10)
     {       
         #ifdef MT_DBG
-        DEBUG("emt_is_valid_pack() MT_ERR_PROTO!");
+        DEBUG("is_valid_pack() MT_ERR_PROTO!");
         #endif
         return MT_ERR_PROTO;
     }
@@ -1982,7 +1982,7 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     // 帧中的实现校验和
     ucCheckSumP =  *(uint8_t*)((uint8_t*)&(pfComHead->C) + usUserLen);
     #ifdef MT_DBG
-    DEBUG("emt_is_valid_pack() usUserLen = %d", usUserLen);
+    DEBUG("is_valid_pack() usUserLen = %d", usUserLen);
     #endif
    
     // 计算出来的校验和
@@ -1991,7 +1991,7 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     if(ucCheckSumC != ucCheckSumP)
     {
         #ifdef MT_DBG
-        DEBUG("emt_is_valid_pack() MT_ERR_CS! CS_PACK = %02X CS_CAL = %02X", ucCheckSumP, ucCheckSumC);
+        DEBUG("is_valid_pack() MT_ERR_CS! CS_PACK = %02X CS_CAL = %02X", ucCheckSumP, ucCheckSumC);
         #endif
         return MT_ERR_CS;
     }
@@ -2001,7 +2001,7 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     if(usLen < usProtoLen)
     {   
         #ifdef MT_DBG
-        DEBUG("emt_is_valid_pack() MT_ERR_UNCOMP!");
+        DEBUG("is_valid_pack() MT_ERR_UNCOMP!");
         #endif
         return MT_ERR_UNCOMP;
     }
@@ -2011,16 +2011,16 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     if(uc0x16 != 0x16)
     {
         #ifdef MT_DBG
-        DEBUG("emt_is_valid_pack() MT_ERR_0x16!");
+        DEBUG("is_valid_pack() MT_ERR_0x16!");
         #endif
         return MT_ERR_0x16;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : vmt_set_ec
+ 函 数 名  : set_ec
  功能描述  : 设置事件计数器
  输入参数  : uint8_t ucEC1  
              uint8_t ucEC2  
@@ -2035,14 +2035,14 @@ emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void  vmt_set_ec(uint8_t ucEC1, uint8_t ucEC2)
+void  set_ec(uint8_t ucEC1, uint8_t ucEC2)
 {
     g_tEC.ucEC1 = ucEC1;
     g_tEC.ucEC2 = ucEC2;
 }  
 
 /*****************************************************************************
- 函 数 名  : vmt_set_pw
+ 函 数 名  : set_pw
  功能描述  : 以字符串方式设置登录密码
              如果长度不足16, 后边自动以'0'补足
  输入参数  : char *pPw  
@@ -2057,7 +2057,7 @@ void  vmt_set_ec(uint8_t ucEC1, uint8_t ucEC2)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void  vmt_set_pw(const char *pPw)
+void  set_pw(const char *pPw)
 {
     if(!pPw)
     {
@@ -2080,7 +2080,7 @@ void  vmt_set_pw(const char *pPw)
 }
 
 /*****************************************************************************
- 函 数 名  : vmt_set_pw_buf
+ 函 数 名  : set_pw_buf
  功能描述  : 以buffer的方式设置PW
  输入参数  : uint8_t* buf  
  输出参数  : 无
@@ -2094,7 +2094,7 @@ void  vmt_set_pw(const char *pPw)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void vmt_set_pw_buf(uint8_t* buf)
+void set_pw_buf(uint8_t* buf)
 {
     if(!buf)
     {
@@ -2105,7 +2105,7 @@ void vmt_set_pw_buf(uint8_t* buf)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_whoami
+ 函 数 名  : whoami
  功能描述  : 获得当前使用该接口的身份，主站还是从站
  输入参数  : 无
  输出参数  : 无
@@ -2119,13 +2119,13 @@ void vmt_set_pw_buf(uint8_t* buf)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_role_t emt_whoami()
+role_t whoami()
 {
     return g_eMtRole; 
 }
 
 /*****************************************************************************
- 函 数 名  : emt_find_valid_pack
+ 函 数 名  : find_valid_pack
  功能描述  : 从帧缓冲区中找到第一个有效的帧的位置及长度
  输入参数  : 无
  输出参数  : 无
@@ -2139,17 +2139,17 @@ emt_role_t emt_whoami()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen)
+err_t find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen)
 {
     if(!pinBuf || !pusFirstOff || !pusFirstLen)
     {
         #ifdef MT_DBG
-        DEBUG("emt_find_valid_pack() pointer is null!");
+        DEBUG("find_valid_pack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
     
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     int i = 0, j = 0;
     uint16_t usValidLen = 0;
 
@@ -2165,13 +2165,13 @@ emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirs
                     if(pinBuf[j] == 0x16)
                     {    
                         usValidLen = j + 1;
-                        eRet = emt_is_valid_pack((uint8_t*)(pinBuf + i), usValidLen);
+                        eRet = is_valid_pack((uint8_t*)(pinBuf + i), usValidLen);
 
-                        if(MT_OK == eRet)
+                        if(MT_ERR_OK == eRet)
                         {
                             *pusFirstOff = i;
                             *pusFirstLen = usValidLen;
-                            return MT_OK;
+                            return MT_ERR_OK;
                         }
                     }
                 }
@@ -2187,8 +2187,8 @@ emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirs
 /*****************************************************************************
  函 数 名  : bmt_have_ec
  功能描述  : 此类报文中是否应该含有ec字段
- 输入参数  : emt_afn_t eAFN 
-             emt_dir_t eDir  
+ 输入参数  : afn_t eAFN 
+             dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2200,7 +2200,7 @@ emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirs
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir)
+bool   bmt_have_ec(afn_t eAFN, dir_t eDir)
 {   
     if((AFN_00_CONF == eAFN) ||    // 确认否认报文 上下行都有EC
        (AFN_02_LINK != eAFN  &&
@@ -2216,8 +2216,8 @@ bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir)
 /*****************************************************************************
  函 数 名  : bmt_have_pw
  功能描述  : 此报文中是否应该还有pw字段
- 输入参数  : emt_afn_t eAFN    
-             emt_dir_t eDir 
+ 输入参数  : afn_t eAFN    
+             dir_t eDir 
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2229,7 +2229,7 @@ bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir)
+bool   bmt_have_pw(afn_t eAFN, dir_t eDir)
 {
     if(((MT_DIR_M2S == eDir)  &&
         (AFN_01_RSET == eAFN  ||
@@ -2248,8 +2248,8 @@ bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir)
 /*****************************************************************************
  函 数 名  : bmt_have_tp
  功能描述  : 此报文(从 eRole 发送的报文)中是否应该还有tp字段
- 输入参数  : emt_afn_t eAFN    
-             emt_dir_t eDir 
+ 输入参数  : afn_t eAFN    
+             dir_t eDir 
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2261,7 +2261,7 @@ bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool  bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir)
+bool  bmt_have_tp(afn_t eAFN, dir_t eDir)
 {
     if(AFN_02_LINK == eAFN &&  MT_DIR_S2M == eDir)  // 除了这种情况的所有报文中
     {
@@ -2284,8 +2284,8 @@ bool  bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir)
 /*****************************************************************************
  函 数 名  : bmt_need_con
  功能描述  : 此报文是否需要确认
- 输入参数  : emt_afn_t eAFN  
-             emt_dir_t eDir  
+ 输入参数  : afn_t eAFN  
+             dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2297,7 +2297,7 @@ bool  bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_need_con(emt_afn_t eAFN, emt_dir_t eDir)
+bool   bmt_need_con(afn_t eAFN, dir_t eDir)
 {
   // 该报文是否需要从动站确认
     if((MT_DIR_M2S == eDir) &&
@@ -2458,7 +2458,7 @@ bool bmt_in_pn8(uint16_t usPn, uint16_t *pusPn8)
 /*****************************************************************************
  函 数 名  : uc_get_cmdfn
  功能描述  : 获得命令的FN
- 输入参数  : emt_cmd_t eCmd  
+ 输入参数  : cmd_t eCmd  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2470,7 +2470,7 @@ bool bmt_in_pn8(uint16_t usPn, uint16_t *pusPn8)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-uint8_t  uc_get_cmdfn(emt_cmd_t eCmd)
+uint8_t  uc_get_cmdfn(cmd_t eCmd)
 {
     uint8_t ucFn;
     ucFn = (uint8_t)(eCmd & 0xFF);
@@ -2478,9 +2478,9 @@ uint8_t  uc_get_cmdfn(emt_cmd_t eCmd)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_get_afn
+ 函 数 名  : get_afn
  功能描述  : 通过命令字获取命令对应的AFN
- 输入参数  : emt_cmd_t eCmd  
+ 输入参数  : cmd_t eCmd  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2492,14 +2492,14 @@ uint8_t  uc_get_cmdfn(emt_cmd_t eCmd)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_afn_t emt_get_afn(emt_cmd_t eCmd)
+afn_t get_afn(cmd_t eCmd)
 {
-    emt_afn_t eAfn;
+    afn_t eAfn;
     uint32_t ulCmd = 0;
     uint8_t  ucAfn = 0;
     ulCmd = (uint32_t)eCmd;   
     ucAfn = (uint8_t)((ulCmd & 0x0000FF00) >> 8);
-    eAfn  = (emt_afn_t)ucAfn;
+    eAfn  = (afn_t)ucAfn;
     switch(eAfn)
     {
         case AFN_00_CONF:
@@ -2878,9 +2878,9 @@ bool bmt_same_team_fn(uint8_t  *pUcFn8, uint8_t* pucDt2)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_pnfn_to_dadt
+ 函 数 名  : pnfn_to_dadt
  功能描述  : 数据单元标识转换函数
- 输入参数  : sMtPnFn* psPnFn  
+ 输入参数  : pnfn_t* psPnFn  
              sMtDaDt* psDaDt  
  输出参数  : 无
  返 回 值  : 
@@ -2893,7 +2893,7 @@ bool bmt_same_team_fn(uint8_t  *pUcFn8, uint8_t* pucDt2)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
+err_t pnfn_to_dadt(pnfn_t* psPnFn, sMtDaDt* psDaDt)
 {
     int32_t  i           = 0;
     uint8_t  ucDa1       = 0;
@@ -2909,7 +2909,7 @@ emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
     if(!psPnFn || !psDaDt)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pnfn_to_dadt() para pointer is null !");
+        DEBUG("pnfn_to_dadt() para pointer is null !");
         #endif
         return MT_ERR_NULL;
     }
@@ -2919,7 +2919,7 @@ emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
     if(false == bSameTeam)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pnfn_to_dadt() Pn is not in a same team!");
+        DEBUG("pnfn_to_dadt() Pn is not in a same team!");
         #endif
         return MT_ERR_TEAM;
     }
@@ -2929,7 +2929,7 @@ emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
     if(false == bSameTeam)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pnfn_to_dadt() Fn is not in a same team!");
+        DEBUG("pnfn_to_dadt() Fn is not in a same team!");
         #endif
         return MT_ERR_TEAM;
     }
@@ -2968,14 +2968,14 @@ emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
     psDaDt->ucDT1 = ucDt1;
     psDaDt->ucDT2 = ucDt2;
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_dadt_to_pnfn
+ 函 数 名  : dadt_to_pnfn
  功能描述  : 数据标识单元转换函数
  输入参数  : sMtDaDt* psDaDt  
-             sMtPnFn* psPnFn  
+             pnfn_t* psPnFn  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2987,7 +2987,7 @@ emt_err_t emt_pnfn_to_dadt(sMtPnFn* psPnFn, sMtDaDt* psDaDt)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
+err_t dadt_to_pnfn(sMtDaDt* psDaDt, pnfn_t* psPnFn)
 {
     int32_t  i      = 0;
     uint16_t usPn   = 0;
@@ -2998,14 +2998,14 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
     if(!psPnFn || !psDaDt)
     {
         #ifdef MT_DBG
-        DEBUG("emt_dadt_to_pnfn() para pointer is null!");
+        DEBUG("dadt_to_pnfn() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
 
     #if 0
     #ifdef MT_DBG
-    DEBUG("[in]emt_dadt_to_pnfn()");
+    DEBUG("[in]dadt_to_pnfn()");
     DEBUG("ucDA1 = 0x%X", psDaDt->ucDA1);
     DEBUG("ucDA2 = 0x%X", psDaDt->ucDA2);
     DEBUG("ucDT1 = 0x%X", psDaDt->ucDT1);
@@ -3014,13 +3014,13 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
     #endif 
     
     // 数据区初始化
-    memset(psPnFn, 0x00, sizeof(sMtPnFn));
+    memset(psPnFn, 0x00, sizeof(pnfn_t));
     
     // Fn
     if(psDaDt->ucDT2 > 30)
     {
         #ifdef MT_DBG
-        DEBUG("emt_dadt_to_pnfn() para out of range! ucDT2 = %d", psDaDt->ucDT2);
+        DEBUG("dadt_to_pnfn() para out of range! ucDT2 = %d", psDaDt->ucDT2);
         #endif
         return MT_ERR_OUTRNG;
     }
@@ -3055,7 +3055,7 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
         else
         {
            #ifdef MT_DBG
-           DEBUG("emt_dadt_to_pnfn() para err!");
+           DEBUG("dadt_to_pnfn() para err!");
            #endif
            return MT_ERR_PARA;  
         }
@@ -3081,7 +3081,7 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
 
     #if 0
     #ifdef MT_DBG
-    DEBUG("[out]emt_dadt_to_pnfn()");
+    DEBUG("[out]dadt_to_pnfn()");
     bool bP0 = bmt_is_p0(psPnFn->usPn);
     if(bP0 == true)
     {
@@ -3116,11 +3116,11 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
     #endif
     #endif
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_add_cmdpn
+ 函 数 名  : add_cmdpn
  功能描述  : 向现*pucNumCmdPn个sMtCmdPn数组添加一个新的
              如果已经存在一个同样的命令与PN组,则不添加
              否则添加后最后,并计数自增
@@ -3138,12 +3138,12 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmdPn)
+err_t add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmdPn)
 {
     if(!psCmdPn || !pucNumCmdPn)
     {
         #ifdef MT_DBG
-        DEBUG("emt_add_cmdpn() para pointer is null!");
+        DEBUG("add_cmdpn() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -3158,7 +3158,7 @@ emt_err_t emt_add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmd
         {
             if(sNewCmdPn.usPn == psCmdPn[i].usPn)
             {
-                return MT_OK;
+                return MT_ERR_OK;
             }
         }
     }
@@ -3169,14 +3169,14 @@ emt_err_t emt_add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmd
 
     *pucNumCmdPn = (ucN + 1);
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
- 函 数 名  : emt_pnfn_to_cmdpn
+ 函 数 名  : pnfn_to_cmdpn
  功能描述  : 实现ucNumPnFn 个sMtPnFn结构数组 到 sMtCmdPn 结构数据的转换 
              并输出转换后数组个数
- 输入参数  : emt_afn_t eAfn         
-             sMtPnFn* psPnFn     
+ 输入参数  : afn_t eAfn         
+             pnfn_t* psPnFn     
              uint8_t ucNumPnFn     
             
  输出参数  : sMtCmdPn* psCmdPn   
@@ -3191,12 +3191,12 @@ emt_err_t emt_add_cmdpn(sMtCmdPn* psCmdPn,sMtCmdPn sNewCmdPn, uint8_t *pucNumCmd
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn)
+err_t pnfn_to_cmdpn(afn_t eAfn, pnfn_t* psPnFn, uint8_t ucNumPnFn,   sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn)
 {
     if(!psPnFn || !psCmdPn || !pucNumCmdPn)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pnfn_to_cmdpn() para pointer is null!");
+        DEBUG("pnfn_to_cmdpn() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -3207,8 +3207,8 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
     int32_t   i     = 0;
     int32_t   j     = 0;
     int32_t   k     = 0;
-    emt_cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
-    emt_err_t  eRet  = MT_OK;
+    cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
+    err_t  eRet  = MT_ERR_OK;
     sMtDaDt sDaDt;
     sMtCmdPn sNew;
     
@@ -3236,7 +3236,7 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
             
          default:
             #ifdef MT_DBG
-            DEBUG("emt_pnfn_to_cmdpn() para err!");
+            DEBUG("pnfn_to_cmdpn() para err!");
             #endif
             return MT_ERR_PARA;  
             //break;
@@ -3245,11 +3245,11 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
 
     for(i = 0; i < ucNumPnFn; i++)
     {
-        eRet = emt_pnfn_to_dadt(&(psPnFn[i]), &sDaDt);
-        if(MT_OK != eRet)
+        eRet = pnfn_to_dadt(&(psPnFn[i]), &sDaDt);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_pnfn_to_cmdpn() emt_pnfn_to_dadt  err %d", eRet);
+            DEBUG("pnfn_to_cmdpn() pnfn_to_dadt  err %d", eRet);
             #endif
             return eRet;  
         }
@@ -3265,9 +3265,9 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
                 {
                     ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                     usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                    eCmd  = (emt_cmd_t)usCmd;
+                    eCmd  = (cmd_t)usCmd;
                     sNew.eCmd = eCmd;
-                    (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
+                    (void)add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                 }
             }
         }
@@ -3284,9 +3284,9 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
                         {
                             ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                             usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                            eCmd  = (emt_cmd_t)usCmd;
+                            eCmd  = (cmd_t)usCmd;
                             sNew.eCmd = eCmd;
-                            (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
+                            (void)add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                         }
                     }
                 }
@@ -3294,15 +3294,15 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
         }
     }
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_cmdpn_to_pnfn
+ 函 数 名  : cmdpn_to_pnfn
  功能描述  : 实现将ucNumCmdPn个sMtCmdPn数组 转换成sMtPnFn数组
              并输出转换后的个数pucNumPnFn
- 输入参数  : emt_afn_t eAfn        
-             sMtPnFn* psPnFn    
+ 输入参数  : afn_t eAfn        
+             pnfn_t* psPnFn    
              uint8_t *pucNumPnFn  
              sMtCmdPn* psCmdPn  
              uint8_t  ucNumCmdPn  
@@ -3317,7 +3317,7 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn)
+err_t cmdpn_to_pnfn(afn_t eAfn, pnfn_t* psPnFn, uint8_t *pucNumPnFn, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn)
 {
 
     if(!psPnFn || !psCmdPn || !pucNumPnFn)
@@ -3344,20 +3344,20 @@ emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn
     bool    bFind        = false;
     bool    bInFn8       = false;
     //bool    bInPn8       = false;
-    emt_cmd_t  eCmd         = CMD_AFN_F_UNKOWN;
-    emt_afn_t  eCmdAfn      = AFN_NULL;
+    cmd_t  eCmd         = CMD_AFN_F_UNKOWN;
+    afn_t  eCmdAfn      = AFN_NULL;
 
     for(i = 0; i < ucNumCmdPn; i++)
     {
         eCmd    = psCmdPn[i].eCmd;
         usPn    = psCmdPn[i].usPn;
         ucFn    = uc_get_cmdfn(eCmd); 
-        eCmdAfn = emt_get_afn(eCmd);
+        eCmdAfn = get_afn(eCmd);
 
         if(eCmdAfn != eAfn)  
         {
             #ifdef MT_DBG
-            DEBUG("emt_cmdpn_to_pnfn() cmd is not is a same Afn");
+            DEBUG("cmdpn_to_pnfn() cmd is not is a same Afn");
             #endif
             return MT_ERR_TEAM;
         }
@@ -3428,14 +3428,14 @@ emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn
     }
     
     *pucNumPnFn = ucNumPnFn;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_dadt_to_cmdpn
+ 函 数 名  : dadt_to_cmdpn
  功能描述  : 实现ucNumDaDt 个sMtDaDt结构数组 到 sMtCmdPn 结构数据的转换 
              并输出转换后的个数
- 输入参数  : emt_afn_t eAfn         
+ 输入参数  : afn_t eAfn         
              sMtDaDt* psDaDt     
              uint8_t ucNumDaDt     
              sMtCmdPn* psCmdPn   
@@ -3451,12 +3451,12 @@ emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn)
+err_t dadt_to_cmdpn(afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, sMtCmdPn* psCmdPn, uint8_t *pucNumCmdPn)
 {
     if(!psDaDt || !psCmdPn || !pucNumCmdPn)
     {
         #ifdef MT_DBG
-        DEBUG("emt_dadt_to_cmdpn() para pointer is null!");
+        DEBUG("dadt_to_cmdpn() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -3467,7 +3467,7 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
     int32_t   i     = 0;
     int32_t   j     = 0;
     int32_t   k     = 0;
-    emt_cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
+    cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
     sMtDaDt sDaDt;
     sMtCmdPn sNew;
     
@@ -3495,7 +3495,7 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
             
          default:
             #ifdef MT_DBG
-            DEBUG("emt_pnfn_to_cmdpn() para err!");
+            DEBUG("pnfn_to_cmdpn() para err!");
             #endif
             return MT_ERR_PARA;  
             //break;
@@ -3520,9 +3520,9 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
                 {
                     ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                     usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                    eCmd  = (emt_cmd_t)usCmd;
+                    eCmd  = (cmd_t)usCmd;
                     sNew.eCmd = eCmd;
-                    (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
+                    (void)add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                 }
             }
         }
@@ -3539,9 +3539,9 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
                         {
                             ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                             usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                            eCmd  = (emt_cmd_t)usCmd;
+                            eCmd  = (cmd_t)usCmd;
                             sNew.eCmd = eCmd;
-                            (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
+                            (void)add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                         }
                     }
                 }
@@ -3549,14 +3549,14 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
         }
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_cmdpn_to_dadt
+ 函 数 名  : cmdpn_to_dadt
  功能描述  : 实现将ucNumCmdPn个sMtCmdPn数组 转换成sMtDaDt数组
              并输出转换后的个数pucNumDaDt
- 输入参数  : emt_afn_t eAfn        
+ 输入参数  : afn_t eAfn        
              sMtDaDt* psDaDt    
              uint8_t *pucNumDaDt  
              sMtCmdPn* psCmdPn  
@@ -3572,26 +3572,26 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_cmdpn_to_dadt(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn)
+err_t cmdpn_to_dadt(afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt, sMtCmdPn* psCmdPn, uint8_t  ucNumCmdPn)
 {
     if(!psDaDt || !psCmdPn || !pucNumDaDt)
     {
         #ifdef MT_DBG
-        DEBUG("emt_cmdpn_to_dadt() para pointer is null!");
+        DEBUG("cmdpn_to_dadt() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
     
-    sMtPnFn *psPnFn   = NULL; 
+    pnfn_t *psPnFn   = NULL; 
     uint8_t   ucNumPnFn = 0;
     int32_t   i         = 0;
-    emt_err_t  eRet      = MT_OK;
+    err_t  eRet      = MT_ERR_OK;
     
-    psPnFn = (sMtPnFn*)malloc(sizeof(sMtPnFn)*(ucNumCmdPn+1));
+    psPnFn = (pnfn_t*)malloc(sizeof(pnfn_t)*(ucNumCmdPn+1));
     if(!psPnFn)
     {
         #ifdef MT_DBG
-        DEBUG("emt_cmdpn_to_dadt() MT_ERR_IO");
+        DEBUG("cmdpn_to_dadt() MT_ERR_IO");
         #endif
         return MT_ERR_IO;
     }
@@ -3607,11 +3607,11 @@ emt_err_t emt_cmdpn_to_dadt(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt
     #endif
     #endif
     
-    eRet = emt_cmdpn_to_pnfn(eAfn, psPnFn, &ucNumPnFn, psCmdPn, ucNumCmdPn);
-    if(MT_OK != eRet)
+    eRet = cmdpn_to_pnfn(eAfn, psPnFn, &ucNumPnFn, psCmdPn, ucNumCmdPn);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_cmdpn_to_dadt() emt_cmdpn_to_pnfn() error = %d", eRet);
+        DEBUG("cmdpn_to_dadt() cmdpn_to_pnfn() error = %d", eRet);
         #endif
         MT_FREE(psPnFn);
         return eRet;
@@ -3635,11 +3635,11 @@ emt_err_t emt_cmdpn_to_dadt(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt
 
     for(i = 0; i < ucNumPnFn; i++)
     {
-        eRet = emt_pnfn_to_dadt(&(psPnFn[i]), &(psDaDt[i]));
-        if(MT_OK != eRet)
+        eRet = pnfn_to_dadt(&(psPnFn[i]), &(psDaDt[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_cmdpn_to_dadt() emt_pnfn_to_dadt() error = %d", eRet);
+            DEBUG("cmdpn_to_dadt() pnfn_to_dadt() error = %d", eRet);
             #endif
             MT_FREE(psPnFn);
             return eRet;
@@ -3648,7 +3648,7 @@ emt_err_t emt_cmdpn_to_dadt(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t *pucNumDaDt
 
     *pucNumDaDt = ucNumPnFn;
     MT_FREE(psPnFn);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : bMtGetFloatSign
@@ -3773,7 +3773,7 @@ void   vMtSetDoubleSign(double *pdVal, int sign)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_OneByOne(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     sMtOneByOne_f *psOneByOne_f = (sMtOneByOne_f *)psFrame;
     sMtOnebyOne   *psOneByOne_u = (sMtOnebyOne   *)psUser;
@@ -3782,21 +3782,21 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     int32_t       k         = 0;
     int32_t       fi        = 0;
     int32_t       pi        = 0;
-    emt_err_t      eRet      = MT_OK;
+    err_t      eRet      = MT_ERR_OK;
     int32_t       nNum      = 0;  
     int32_t       nDaDtNum  = 0;      // 封装packbase的信息标识与64个数据单元组的总个数
     int32_t       nDaDtPos  = 0;      // 每次应放入packbase的信息标识组的索引
     uint16_t      usCMD     = 0;
     uint16_t      usPn      = 0;
     uint8_t       ucFn      = 0;
-    emt_cmd_t      eCmd      = CMD_AFN_F_UNKOWN;
-    emt_afn_t      eAFN      = AFN_NULL;
-    emt_afn_t      eAFNCmd   = AFN_NULL;
+    cmd_t      eCmd      = CMD_AFN_F_UNKOWN;
+    afn_t      eAFN      = AFN_NULL;
+    afn_t      eAFNCmd   = AFN_NULL;
     bool        bOK       = false;
     bool        bFindDaDt = false;  // 是否找到之前存在的组
     bool        bP0       = false;
     int32_t       nCyc      = 0;
-    sMtPnFn     sPnFn;
+    pnfn_t     sPnFn;
     uint8_t*      pMem      = NULL;
     sMtFnPnErr* psFnPnErr = NULL;
     #define     MT_TEAM_MAX  (50)   // 可能的最大组数
@@ -3809,7 +3809,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    memset(&(sPnFn), 0x00, sizeof(sMtPnFn));
+    memset(&(sPnFn), 0x00, sizeof(pnfn_t));
 
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -3827,16 +3827,16 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             return MT_ERR_OUTRNG;
         }
 
-        eAFN = (emt_afn_t)psOneByOne_f->ucAFN;
+        eAFN = (afn_t)psOneByOne_f->ucAFN;
         psOneByOne_u->eAFN = eAFN;
         for(i = 0; i < nNum; i++)
         {
             bOK = psOneByOne_f->sOne[i].ucErr == 0 ? true : false;
-            eRet = emt_dadt_to_pnfn(&(psOneByOne_f->sOne[i].sDaDt), &sPnFn);
-            if(eRet != MT_OK)
+            eRet = dadt_to_pnfn(&(psOneByOne_f->sOne[i].sDaDt), &sPnFn);
+            if(eRet != MT_ERR_OK)
             {   
                 #ifdef MT_DBG
-                DEBUG("Error:emt_dadt_to_pnfn() error = %d %s\n", eRet, smtGetErr(eRet));
+                DEBUG("Error:dadt_to_pnfn() error = %d %s\n", eRet, smtGetErr(eRet));
                 #endif
                 return eRet;
             }
@@ -3861,7 +3861,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                         if(MT_FN_NONE != sPnFn.ucFn[fi])
                         { 
                             usCMD = (uint16_t)((eAFN << 8) | sPnFn.ucFn[fi]);
-                            eCmd  = (emt_cmd_t)usCMD; 
+                            eCmd  = (cmd_t)usCMD; 
                             psOneByOne_u->sOne[j].bOk = bOK;
                             psOneByOne_u->sOne[j].usPn = sPnFn.usPn[pi];
                             psOneByOne_u->sOne[j].eCmd = eCmd;
@@ -3896,7 +3896,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         for(i = 0; i < psOneByOne_u->ucNum; i++)
         {
             // 判断该命令是否属于AFN的子命令
-            eAFNCmd = emt_get_afn(psOneByOne_u->sOne[i].eCmd);
+            eAFNCmd = get_afn(psOneByOne_u->sOne[i].eCmd);
             if(eAFNCmd != eAFN)  
             {
                 #ifdef MT_DBG
@@ -4000,11 +4000,11 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         //sMtFnPnErr 实现 sMtOne_f 转换
         for(i = 0; i < nDaDtNum; i++)
         {
-            eRet = emt_pnfn_to_dadt(&psFnPnErr[i].sPnFn, &(psOneByOne_f->sOne[i].sDaDt));
-            if(eRet != MT_OK)
+            eRet = pnfn_to_dadt(&psFnPnErr[i].sPnFn, &(psOneByOne_f->sOne[i].sDaDt));
+            if(eRet != MT_ERR_OK)
             {
                 #ifdef MT_DBG
-                DEBUG("Error:emt_pnfn_to_dadt() error = %d %s\n", eRet, smtGetErr(eRet));
+                DEBUG("Error:pnfn_to_dadt() error = %d %s\n", eRet, smtGetErr(eRet));
                 #endif
                 return eRet;
             }
@@ -4019,7 +4019,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(uint8_t) + sizeof(sMtOne_f) * nDaDtNum;
  
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -4027,7 +4027,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : 中继站工作状态控制 
  对应AFN   : AFN_03_RELY 
  对应命令  : CMD_AFN_3_F1_RELAY_CTRL
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4042,12 +4042,12 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn03f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn03f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
 
     // 计算在帧侧的字节长度
     *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -4055,7 +4055,7 @@ emt_err_t emtTrans_afn03f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  功能描述  : F1：终端上行通信口通信参数设置 
              CMD_AFN_4_F1_TML_UP_CFG  
              CMD_AFN_A_F1_TML_UP_CFG 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4070,7 +4070,7 @@ emt_err_t emtTrans_afn03f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -4113,7 +4113,7 @@ emt_err_t emtTrans_afn04f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 
         #if 0
         #ifdef MT_DBG
-        printf("emt_trans_Afn04F1_ConUpPortPara() user to frame\n");
+        printf("trans_Afn04F1_ConUpPortPara() user to frame\n");
         printf("ucRTS = %d\n", psAfn04F1_f->ucRTS);
         printf("ucRTM = %d\n", psAfn04F1_f->ucRTM);
         printf("ucHeartBeat = %d\n", psAfn04F1_f->ucHeartBeat);
@@ -4154,13 +4154,13 @@ emt_err_t emtTrans_afn04f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
     
     *pusfLen = sizeof(sMtAfn04F1_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f2
  功能描述  :  F2：终端上行通信口无线中继转发设置 CMD_AFN_4_F2_TML_WIRELESS_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4175,7 +4175,7 @@ emt_err_t emtTrans_afn04f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f2(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -4244,13 +4244,13 @@ emt_err_t emtTrans_afn04f2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usfLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f3
  功能描述  : F3：主站IP地址和端口 CMD_AFN_4_F3_MST_IP_PORT CMD_AFN_A_F3_MST_IP_PORT
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4265,7 +4265,7 @@ emt_err_t emtTrans_afn04f2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -4317,13 +4317,13 @@ emt_err_t emtTrans_afn04f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
     
     *pusfLen = sizeof(sMtAfn04F3_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f4
  功能描述  : F4：主站电话号码和短信中心号码 CMD_AFN_4_F4_MST_PHONE_SMS CMD_AFN_A_F4_MST_PHONE_SMS
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4338,16 +4338,16 @@ emt_err_t emtTrans_afn04f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F4_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f5
  功能描述  : F5：终端上行通信消息认证参数设置 CMD_AFN_4_F5_TML_UP_AUTH CMD_AFN_A_F5_TML_UP_AUTH
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4362,16 +4362,16 @@ emt_err_t emtTrans_afn04f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f5(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F5_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f6
  功能描述  : F6：终端组地址设置 CMD_AFN_4_F6_TEAM_ADDR CMD_AFN_A_F6_TEAM_ADDR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4386,10 +4386,10 @@ emt_err_t emtTrans_afn04f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f6(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F6_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }   
 
 /*****************************************************************************
@@ -4397,7 +4397,7 @@ emt_err_t emtTrans_afn04f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  功能描述  : F6：终端组地址设置 
              CMD_AFN_4_F7_TML_IP_PORT
              CMD_AFN_A_F7_TML_IP_PORT
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4412,10 +4412,10 @@ emt_err_t emtTrans_afn04f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f7(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F7_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }   
 
 /*****************************************************************************
@@ -4423,7 +4423,7 @@ emt_err_t emtTrans_afn04f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  功能描述  : F8：终端上行通信工作方式（以太专网或虚拟专网） 
              CMD_AFN_4_F8_TML_UP_WAY 
              CMD_AFN_A_F8_TML_UP_WAY
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4438,10 +4438,10 @@ emt_err_t emtTrans_afn04f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f8(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F8_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }     
 
 /*****************************************************************************
@@ -4449,7 +4449,7 @@ emt_err_t emtTrans_afn04f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  功能描述  : F9：终端事件记录配置设置 
              CMD_AFN_4_F9_TML_EVENT_CFG 
              CMD_AFN_A_F9_TML_EVENT_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4464,10 +4464,10 @@ emt_err_t emtTrans_afn04f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f9(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F9_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }     
 
 /*****************************************************************************
@@ -4475,7 +4475,7 @@ emt_err_t emtTrans_afn04f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  功能描述  : F10：终端电能表/交流采样装置配置参数 
              CMD_AFN_4_F10_TML_POWER_CFG 
              CMD_AFN_A_F10_TML_POWER_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -4490,7 +4490,7 @@ emt_err_t emtTrans_afn04f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -4532,7 +4532,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].usMeterID), sizeof(uint16_t));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].usMeterID), sizeof(uint16_t));
             }
 
             // usPn
@@ -4551,7 +4551,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].usPn), sizeof(uint16_t));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].usPn), sizeof(uint16_t));
             }
 
             // sBaudPort
@@ -4617,7 +4617,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sBaudPort), sizeof(sMtBaudPort_f));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sBaudPort), sizeof(sMtBaudPort_f));
             }  
 
             // ucProto
@@ -4658,19 +4658,19 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].ucProto), sizeof(uint8_t));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].ucProto), sizeof(uint8_t));
             }
 
             // acMeterAddr
             if(true == psAfn04F10->sOne[i].bacMeterAddr)
             {
-                (void)emt_trans_XX_6(MT_TRANS_U2F, 
+                (void)trans_XX_6(MT_TRANS_U2F, 
                                        (psAfn04F10->sOne[i].acMeterAddr),
                                        &(psAfn04F10_f->sOne[i].acMeterAddr));  
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acMeterAddr), sizeof(sMtFmt_XX_6));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acMeterAddr), sizeof(sMtFmt_XX_6));
             }
 
             // acPwd
@@ -4680,7 +4680,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acPwd), 6);
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acPwd), 6);
             }
 
             // ucPayRateNum
@@ -4699,7 +4699,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].ucPayRateNum), sizeof(uint8_t));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].ucPayRateNum), sizeof(uint8_t));
             }
 
             // sDigit
@@ -4732,19 +4732,19 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sDigit), sizeof(sMtDigitNum_f));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sDigit), sizeof(sMtDigitNum_f));
             }
 
             // acGathrAddr
             if(true == psAfn04F10->sOne[i].bacGathrAddr)
             {
-                (void)emt_trans_XX_6(MT_TRANS_U2F, 
+                (void)trans_XX_6(MT_TRANS_U2F, 
                                        (psAfn04F10->sOne[i].acGathrAddr),
                                        &(psAfn04F10_f->sOne[i].acGathrAddr));  
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acGathrAddr), sizeof(sMtFmt_XX_6));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].acGathrAddr), sizeof(sMtFmt_XX_6));
             }
 
             // sUserClass
@@ -4776,7 +4776,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
             else
             {
-                vmt_set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sUserClass), sizeof(sMtUserClass_f));
+                set_none((uint8_t*)&(psAfn04F10_f->sOne[i].sUserClass), sizeof(sMtUserClass_f));
             }
         }
     }
@@ -4908,7 +4908,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             else
             {
                 psAfn04F10->sOne[i].bacMeterAddr = true;
-                (void)emt_trans_XX_6(MT_TRANS_F2U, 
+                (void)trans_XX_6(MT_TRANS_F2U, 
                                      (psAfn04F10->sOne[i].acMeterAddr),
                                      &(psAfn04F10_f->sOne[i].acMeterAddr));  
             }
@@ -4989,7 +4989,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             else
             {
                 psAfn04F10->sOne[i].bacGathrAddr = true;
-                (void)emt_trans_XX_6(MT_TRANS_F2U, 
+                (void)trans_XX_6(MT_TRANS_F2U, 
                                      (psAfn04F10->sOne[i].acGathrAddr),
                                      &(psAfn04F10_f->sOne[i].acGathrAddr));  
             }
@@ -5035,7 +5035,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(sMtTmlPowerCfgOne_f)* usCfgNum + sizeof(uint16_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }     
 
 /*****************************************************************************
@@ -5043,7 +5043,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F11：终端脉冲配置参数 
              CMD_AFN_4_F11_TML_PULSE_CFG 
              CMD_AFN_A_F11_TML_PULSE_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5058,7 +5058,7 @@ emt_err_t emtTrans_afn04f10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f11(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f11(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5087,7 +5087,7 @@ emt_err_t emtTrans_afn04f11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(sMtAfn04F11_f)* ucNum + sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5095,7 +5095,7 @@ emt_err_t emtTrans_afn04f11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F12：终端状态量输入参数
              CMD_AFN_4_F12_TML_STATE_INPUT 
              CMD_AFN_A_F12_TML_STATE_INPUT
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5110,10 +5110,10 @@ emt_err_t emtTrans_afn04f11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f12(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F12_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5121,7 +5121,7 @@ emt_err_t emtTrans_afn04f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F13：终端电压/电流模拟量配置参数
              CMD_AFN_4_F13_TML_SIMULA_CFG 
              CMD_AFN_A_F13_TML_SIMULA_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5136,7 +5136,7 @@ emt_err_t emtTrans_afn04f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f13(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f13(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5165,7 +5165,7 @@ emt_err_t emtTrans_afn04f13(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(sMtAfn04F13_f)* ucNum + sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5173,7 +5173,7 @@ emt_err_t emtTrans_afn04f13(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F14：终端总加组配置参数
              CMD_AFN_4_F14_TML_GRUP_TOTL 
              CMD_AFN_A_F14_TML_GRUP_TOTL
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5188,7 +5188,7 @@ emt_err_t emtTrans_afn04f13(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f14(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f14(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5248,7 +5248,7 @@ emt_err_t emtTrans_afn04f14(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5256,7 +5256,7 @@ emt_err_t emtTrans_afn04f14(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F15：有功总电能量差动越限事件参数设置
              CMD_AFN_4_F15_HAVE_DIFF_EVENT 
              CMD_AFN_A_F15_HAVE_DIFF_EVENT
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5271,7 +5271,7 @@ emt_err_t emtTrans_afn04f14(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f15(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f15(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5315,7 +5315,7 @@ emt_err_t emtTrans_afn04f15(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5323,7 +5323,7 @@ emt_err_t emtTrans_afn04f15(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F16：虚拟专网用户名、密码
              CMD_AFN_4_F16_VPN_USER_PWD 
              CMD_AFN_A_F16_VPN_USER_PWD
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5338,10 +5338,10 @@ emt_err_t emtTrans_afn04f15(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f16(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f16(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04F16_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -5350,7 +5350,7 @@ emt_err_t emtTrans_afn04f16(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F17：终端保安定值
              CMD_AFN_4_F17_TML_SAFE_VALUE
              CMD_AFN_A_F17_TML_SAFE_VALUE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5365,10 +5365,10 @@ emt_err_t emtTrans_afn04f16(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f17(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f17(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet = emt_trans_sXXX(eTrans, (float*)psUser, (sMtsXXX*)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet = trans_sXXX(eTrans, (float*)psUser, (sMtsXXX*)psFrame);
     *pusfLen = sizeof(sMtsXXX);
     return eRet;
 }
@@ -5378,7 +5378,7 @@ emt_err_t emtTrans_afn04f17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F18：终端功控时段
              CMD_AFN_4_F18_TML_PCTRL_PERD
              CMD_AFN_A_F18_TML_PCTRL_PERD
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5393,10 +5393,10 @@ emt_err_t emtTrans_afn04f17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f18(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f18(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtPCtrl_f);  
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5404,7 +5404,7 @@ emt_err_t emtTrans_afn04f18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F19：终端时段功控定值浮动系数
              CMD_AFN_4_F19_TML_PCTRL_FACTOR
              CMD_AFN_A_F19_TML_PCTRL_FACTOR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5419,10 +5419,10 @@ emt_err_t emtTrans_afn04f18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f19(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f19(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet = emt_trans_sXX(eTrans, (sMtsXX*)psUser, (sMtsXX_f*)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet = trans_sXX(eTrans, (sMtsXX*)psUser, (sMtsXX_f*)psFrame);
     *pusfLen = sizeof(sMtsXX_f);
     return eRet;
 }
@@ -5432,7 +5432,7 @@ emt_err_t emtTrans_afn04f19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F20：终端月电能量控定值浮动系数
              CMD_AFN_4_F20_TML_MONTH_FACTOR
              CMD_AFN_A_F20_TML_MONTH_FACTOR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5447,10 +5447,10 @@ emt_err_t emtTrans_afn04f19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f20(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f20(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet = emt_trans_sXX(eTrans, (sMtsXX*)psUser, (sMtsXX_f*)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet = trans_sXX(eTrans, (sMtsXX*)psUser, (sMtsXX_f*)psFrame);
     *pusfLen = sizeof(sMtsXX_f);
     return eRet;
 }
@@ -5460,7 +5460,7 @@ emt_err_t emtTrans_afn04f20(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F21：终端电能量费率时段和费率数
              CMD_AFN_4_F21_TML_POWER_FACTOR
              CMD_AFN_A_F21_TML_POWER_FACTOR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5475,7 +5475,7 @@ emt_err_t emtTrans_afn04f20(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f21(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f21(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5550,7 +5550,7 @@ emt_err_t emtTrans_afn04f21(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5558,7 +5558,7 @@ emt_err_t emtTrans_afn04f21(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F22：终端电能量费率
              CMD_AFN_4_F22_TML_POWER_RATE
              CMD_AFN_A_F22_TML_POWER_RATE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5573,7 +5573,7 @@ emt_err_t emtTrans_afn04f21(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f22(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5585,7 +5585,7 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     int32_t         i     = 0;
     uint8_t         ucM   = 0;
-    emt_err_t        eRet  = MT_OK;
+    err_t        eRet  = MT_ERR_OK;
     sMtAfn04f22   *pUsr = (sMtAfn04f22*)psUser;
     sMtAfn04f22_f *pFrm = (sMtAfn04f22_f*)psFrame;
 
@@ -5606,13 +5606,13 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         pFrm->ucM = ucM;
         for(i = 0; i < ucM; i++)
         {
-           eRet = emt_trans_sX7(eTrans, 
+           eRet = trans_sX7(eTrans, 
                                 (sMtFmt_sX7*)&(pUsr->sPayRate[i]), 
                                 (sMtFmt_sX7_f*)&(pFrm->sPayRate[i]));
-           if(MT_OK != eRet)
+           if(MT_ERR_OK != eRet)
            {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sX7() err %d", eRet);
+                DEBUG("trans_sX7() err %d", eRet);
                 #endif
                 return eRet;
            }
@@ -5634,13 +5634,13 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         pUsr->ucM = ucM;
         for(i = 0; i < ucM; i++)
         {
-           eRet = emt_trans_sX7(eTrans, 
+           eRet = trans_sX7(eTrans, 
                                 (sMtFmt_sX7*)&(pUsr->sPayRate[i]), 
                                 (sMtFmt_sX7_f*)&(pFrm->sPayRate[i]));
-           if(MT_OK != eRet)
+           if(MT_ERR_OK != eRet)
            {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sX7() err %d", eRet);
+                DEBUG("trans_sX7() err %d", eRet);
                 #endif
                 return eRet;
            }
@@ -5652,7 +5652,7 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5660,7 +5660,7 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F23：终端催费告警参数
              CMD_AFN_4_F23_TML_WARNING_CFG
              CMD_AFN_A_F23_TML_WARNING_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5675,10 +5675,10 @@ emt_err_t emtTrans_afn04f22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f23(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f23(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04f23_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5686,7 +5686,7 @@ emt_err_t emtTrans_afn04f23(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F25：测量点基本参数
              CMD_AFN_4_F25_MP_BASE_CFG
              CMD_AFN_A_F25_MP_BASE_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5701,10 +5701,10 @@ emt_err_t emtTrans_afn04f23(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04f25_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5712,7 +5712,7 @@ emt_err_t emtTrans_afn04f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F26：测量点限值参数
              CMD_AFN_4_F26_MP_LIMIT_CFG
              CMD_AFN_A_F26_MP_LIMIT_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5727,10 +5727,10 @@ emt_err_t emtTrans_afn04f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f26(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f26(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04f26_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5738,7 +5738,7 @@ emt_err_t emtTrans_afn04f26(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F27：测量点铜损、铁损参数 
              CMD_AFN_4_F27_MP_LOSS_CFG
              CMD_AFN_A_F27_MP_LOSS_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5753,10 +5753,10 @@ emt_err_t emtTrans_afn04f26(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f27(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f27(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn04f27_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5764,7 +5764,7 @@ emt_err_t emtTrans_afn04f27(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F28：测量点功率因数分段限值 
              CMD_AFN_4_F28_MP_PERIOD_FACTOR
              CMD_AFN_A_F28_MP_PERIOD_FACTOR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5779,10 +5779,10 @@ emt_err_t emtTrans_afn04f27(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f28(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f28(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = sizeof(sMtAfn04f28_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5790,7 +5790,7 @@ emt_err_t emtTrans_afn04f28(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F29：终端当地电能表显示号  
              CMD_AFN_4_F29_TML_METER_ID
              CMD_AFN_A_F29_TML_METER_ID
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5805,10 +5805,10 @@ emt_err_t emtTrans_afn04f28(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f29(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f29(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = sizeof(sMtAfn04f29_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -5816,7 +5816,7 @@ emt_err_t emtTrans_afn04f29(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F30：台区集中抄表停抄/投抄设置
              CMD_AFN_4_F30_TML_AUTO_READ
              CMD_AFN_A_F30_TML_AUTO_READ
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5831,17 +5831,17 @@ emt_err_t emtTrans_afn04f29(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f30(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f30(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = sizeof(sMtAfn04f30_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f31
  功能描述  : F31：载波从节点附属节点地址
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5856,7 +5856,7 @@ emt_err_t emtTrans_afn04f30(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5886,7 +5886,7 @@ emt_err_t emtTrans_afn04f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
 
      *pusfLen = sizeof(sMtFmt12) * ucN + 1;
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -5894,7 +5894,7 @@ emt_err_t emtTrans_afn04f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f33
  功能描述  : F33：终端抄表运行参数设置 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5909,7 +5909,7 @@ emt_err_t emtTrans_afn04f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f33(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f33(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -5956,14 +5956,14 @@ emt_err_t emtTrans_afn04f33(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f34
  功能描述  : F34：集中器下行通信模块的参数设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -5978,7 +5978,7 @@ emt_err_t emtTrans_afn04f33(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f34(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f34(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6006,14 +6006,14 @@ emt_err_t emtTrans_afn04f34(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = ucN * sizeof(sMtConDownCfgOne_f) + sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f35
  功能描述  : F35：台区集中抄表重点户设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6028,7 +6028,7 @@ emt_err_t emtTrans_afn04f34(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f35(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f35(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6059,7 +6059,7 @@ emt_err_t emtTrans_afn04f35(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = ucN * sizeof(sMtTmlReadVipOne_f) + sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
@@ -6068,7 +6068,7 @@ emt_err_t emtTrans_afn04f35(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F36：终端上行通信流量门限设置
              CMD_AFN_4_F36_TML_UP_LIMIT
              CMD_AFN_A_F36_TML_UP_LIMIT
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6083,10 +6083,10 @@ emt_err_t emtTrans_afn04f35(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f36(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f36(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(uint32_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -6094,7 +6094,7 @@ emt_err_t emtTrans_afn04f36(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F37：终端级联通信参数
              CMD_AFN_4_F37_TML_CASC_CFG
              CMD_AFN_A_F37_TML_CASC_CFG
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6109,7 +6109,7 @@ emt_err_t emtTrans_afn04f36(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f37(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f37(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6139,7 +6139,7 @@ emt_err_t emtTrans_afn04f37(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
      *pusfLen = ucN * sizeof(sMtCascOne_f) + 7 * sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -6147,7 +6147,7 @@ emt_err_t emtTrans_afn04f37(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F38：1类数据配置设置 （在终端支持的1类数据配置内）
              CMD_AFN_4_F38_CFG_ASK_1
              CMD_AFN_A_F38_CFG_ASK_1
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6162,7 +6162,7 @@ emt_err_t emtTrans_afn04f37(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6186,8 +6186,8 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     int32_t         i      = 0;
     int32_t         m      = 0;
     int32_t         n      = 0;
-    emt_cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
-    emt_err_t        eRet   = MT_OK;
+    cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
+    err_t        eRet   = MT_ERR_OK;
     sMtCmdInfor   sCmdInfor;
     
 
@@ -6344,11 +6344,11 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                     {
                         // 合成命令
                         usCmd = ((AFN_0C_ASK1 << 8) | (8 * n + i + 1));
-                        eCmd = (emt_cmd_t)usCmd;
+                        eCmd = (cmd_t)usCmd;
 
                         //判断命令是否合法
                         eRet = eMtGetCmdInfor(eCmd, MT_DIR_S2M, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
                             DEBUG("emtTrans_afn04f38() eCmd err = 0x%04X", eCmd);
@@ -6373,7 +6373,7 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -6381,7 +6381,7 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  : F39：2类数据配置设置（在终端支持的2类数据配置内）
              CMD_AFN_4_F39_CFG_ASK_2
              CMD_AFN_A_F39_CFG_ASK_2
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6396,7 +6396,7 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6420,8 +6420,8 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     int32_t         i      = 0;
     int32_t         m      = 0;
     int32_t         n      = 0;
-    emt_cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
-    emt_err_t        eRet   = MT_OK;
+    cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
+    err_t        eRet   = MT_ERR_OK;
     sMtCmdInfor   sCmdInfor;
     
 
@@ -6579,11 +6579,11 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                     {
                         // 合成命令
                         usCmd = ((AFN_0D_ASK2 << 8) | (8 * n + i + 1));
-                        eCmd = (emt_cmd_t)usCmd;
+                        eCmd = (cmd_t)usCmd;
 
                         //判断命令是否合法
                         eRet = eMtGetCmdInfor(eCmd, MT_DIR_S2M, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
                             DEBUG("emtTrans_afn04f39() eCmd err = 0x%04X", eCmd);
@@ -6608,13 +6608,13 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f41
  功能描述  : F41：时段功控定值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6629,16 +6629,16 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f41(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      //*pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f42
  功能描述  : F42：厂休功控参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6653,17 +6653,17 @@ emt_err_t emtTrans_afn04f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f42(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 6;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f42
  功能描述  : F43：功率控制的功率计算滑差时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6678,16 +6678,16 @@ emt_err_t emtTrans_afn04f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f43(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f43(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f44
  功能描述  : F44：营业报停控参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6702,16 +6702,16 @@ emt_err_t emtTrans_afn04f43(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f44(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f44(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 8;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f45
  功能描述  : F45：功控轮次设定
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6726,16 +6726,16 @@ emt_err_t emtTrans_afn04f44(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f45(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f45(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f46
  功能描述  : F46：月电量控定值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6750,16 +6750,16 @@ emt_err_t emtTrans_afn04f45(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f46(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f46(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 4;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f47
  功能描述  : F47：购电量（费）控参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6774,17 +6774,17 @@ emt_err_t emtTrans_afn04f46(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f47(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f47(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 17;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f48
  功能描述  : F48：电控轮次设定
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6799,16 +6799,16 @@ emt_err_t emtTrans_afn04f47(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f48(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f48(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f49
  功能描述  : F49：功控告警时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6823,16 +6823,16 @@ emt_err_t emtTrans_afn04f48(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f57
  功能描述  : F57：终端声音告警允许∕禁止设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6847,16 +6847,16 @@ emt_err_t emtTrans_afn04f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f57(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f57(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 3;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f58
  功能描述  : F58：终端自动保电参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6871,16 +6871,16 @@ emt_err_t emtTrans_afn04f57(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f58(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f58(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 4;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f59
  功能描述  : F59：电能表异常判别阈值设定
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6895,16 +6895,16 @@ emt_err_t emtTrans_afn04f58(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f59(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f59(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 4;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f60
  功能描述  : F60：谐波限值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6919,16 +6919,16 @@ emt_err_t emtTrans_afn04f59(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f60(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f60(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 2 * (4+19*2);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f61
  功能描述  : F61：直流模拟量接入参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6943,16 +6943,16 @@ emt_err_t emtTrans_afn04f60(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f61(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f61(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f65
  功能描述  : F65：定时上报1类数据任务设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -6967,7 +6967,7 @@ emt_err_t emtTrans_afn04f61(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f65(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -6979,7 +6979,7 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     uint8_t         ucTmp  = 0;
     uint8_t         ucN    = 0;
-    emt_err_t        eRet   = MT_OK;
+    err_t        eRet   = MT_ERR_OK;
     sMtAfn04f65     *psU    = (sMtAfn04f65*)psUser;
     sMtAfn04f65_f   *psF    = (sMtAfn04f65_f*)psFrame;
     
@@ -7028,11 +7028,11 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psF->ucPeriod = ucTmp;
 
         // sTime
-        eRet = emt_trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f65() emt_trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
+            DEBUG("emtTrans_afn04f65() trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
             #endif
             return eRet; 
         }
@@ -7050,11 +7050,11 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psF->ucR = ucTmp;
 
         // 命令标识
-        eRet = emt_cmdpn_to_dadt(AFN_0C_ASK1, &(psF->sDaDt[0]),  &(psF->ucN), &(psU->sCmdPn[0]), psU->ucN); 
-        if(MT_OK != eRet)
+        eRet = cmdpn_to_dadt(AFN_0C_ASK1, &(psF->sDaDt[0]),  &(psF->ucN), &(psU->sCmdPn[0]), psU->ucN); 
+        if(MT_ERR_OK != eRet)
         {           
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f65() emt_cmdpn_to_dadt() error = %d", eRet);
+            DEBUG("emtTrans_afn04f65() cmdpn_to_dadt() error = %d", eRet);
             #endif
             return eRet;
         }
@@ -7103,11 +7103,11 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psU->ucPeriod = ucTmp;
 
         // sTime
-        eRet = emt_trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f65() emt_trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
+            DEBUG("emtTrans_afn04f65() trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
             #endif
             return eRet; 
         }
@@ -7125,11 +7125,11 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psU->ucR = ucTmp;
 
         // 命令标识
-        eRet = emt_dadt_to_cmdpn(AFN_0C_ASK1, &(psF->sDaDt[0]),  psF->ucN, &(psU->sCmdPn[0]), &(ucN)); 
-        if(MT_OK != eRet)
+        eRet = dadt_to_cmdpn(AFN_0C_ASK1, &(psF->sDaDt[0]),  psF->ucN, &(psU->sCmdPn[0]), &(ucN)); 
+        if(MT_ERR_OK != eRet)
         {           
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f65() emt_dadt_to_cmdpn() error = %d", eRet);
+            DEBUG("emtTrans_afn04f65() dadt_to_cmdpn() error = %d", eRet);
             #endif
             return eRet;
         }     
@@ -7146,13 +7146,13 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(uint8_t) * 3 + sizeof(sMtFmt01_f) +  psF->ucN * sizeof(sMtDaDt);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f66
  功能描述  : F66：定时上报2类数据任务设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7167,7 +7167,7 @@ emt_err_t emtTrans_afn04f65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f66(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -7178,7 +7178,7 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     uint8_t         ucTmp  = 0;
-    emt_err_t        eRet   = MT_OK;
+    err_t        eRet   = MT_ERR_OK;
     sMtAfn04f66     *psU    = (sMtAfn04f66*)psUser;
     sMtAfn04f66_f   *psF    = (sMtAfn04f66_f*)psFrame;
         
@@ -7226,11 +7226,11 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psF->ucPeriod = ucTmp;
 
         // sTime
-        eRet = emt_trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f66() emt_trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
+            DEBUG("emtTrans_afn04f66() trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
             #endif
             return eRet; 
         }
@@ -7248,11 +7248,11 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psF->ucR = ucTmp;
 
         // 命令标识
-        eRet = emt_cmdpn_to_dadt(AFN_0D_ASK2, &(psF->sDaDt[0]),  &(psF->ucN), &(psU->sCmdPn[0]), psU->ucN); 
-        if(MT_OK != eRet)
+        eRet = cmdpn_to_dadt(AFN_0D_ASK2, &(psF->sDaDt[0]),  &(psF->ucN), &(psU->sCmdPn[0]), psU->ucN); 
+        if(MT_ERR_OK != eRet)
         {           
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f66() emt_cmdpn_to_dadt() error = %d", eRet);
+            DEBUG("emtTrans_afn04f66() cmdpn_to_dadt() error = %d", eRet);
             #endif
             return eRet;
         }
@@ -7301,11 +7301,11 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psU->ucPeriod = ucTmp;
 
         // sTime
-        eRet = emt_trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYWWMMDDhhmmss(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f66() emt_trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
+            DEBUG("emtTrans_afn04f66() trans_YYWWMMDDhhmmss is error eRet = %d", eRet);
             #endif
             return eRet; 
         }
@@ -7323,11 +7323,11 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         psU->ucR = ucTmp;
 
         // 命令标识
-        eRet = emt_dadt_to_cmdpn(AFN_0D_ASK2, &(psF->sDaDt[0]),  psF->ucN, &(psU->sCmdPn[0]), &(psU->ucN)); 
-        if(MT_OK != eRet)
+        eRet = dadt_to_cmdpn(AFN_0D_ASK2, &(psF->sDaDt[0]),  psF->ucN, &(psU->sCmdPn[0]), &(psU->ucN)); 
+        if(MT_ERR_OK != eRet)
         {           
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn04f66() emt_dadt_to_cmdpn() error = %d", eRet);
+            DEBUG("emtTrans_afn04f66() dadt_to_cmdpn() error = %d", eRet);
             #endif
             return eRet;
         }     
@@ -7338,13 +7338,13 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(uint8_t) * 3 + sizeof(sMtFmt01_f) +  psF->ucN * sizeof(sMtDaDt);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f67
  功能描述  : F67：定时上报1类数据任务启动/停止设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7359,7 +7359,7 @@ emt_err_t emtTrans_afn04f66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f67(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f67(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -7413,13 +7413,13 @@ emt_err_t emtTrans_afn04f67(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
       
     *pusfLen = sizeof(sMtAfn04f67_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f68
  功能描述  : F68：定时上报2类数据任务启动/停止设置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7434,7 +7434,7 @@ emt_err_t emtTrans_afn04f67(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f68(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f68(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -7488,14 +7488,14 @@ emt_err_t emtTrans_afn04f68(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
       
     *pusfLen = sizeof(sMtAfn04f68_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f73
  功能描述  : F73：电容器参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7510,17 +7510,17 @@ emt_err_t emtTrans_afn04f68(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f73(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f73(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 16 * 3;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f74
  功能描述  : F74：电容器投切运行参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7535,16 +7535,16 @@ emt_err_t emtTrans_afn04f73(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f74(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f74(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 10;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f75
  功能描述  : F75：电容器保护参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7559,16 +7559,16 @@ emt_err_t emtTrans_afn04f74(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f75(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f75(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 16;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f76
  功能描述  : F76：电容器投切控制方式
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7583,17 +7583,17 @@ emt_err_t emtTrans_afn04f75(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f76(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f76(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f81
  功能描述  : F81：直流模拟量输入变比
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7608,16 +7608,16 @@ emt_err_t emtTrans_afn04f76(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f81(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f81(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 4;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f82
  功能描述  : F82：直流模拟量限值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7632,16 +7632,16 @@ emt_err_t emtTrans_afn04f81(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f82(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f82(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 4;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn04f83
  功能描述  : F83：直流模拟量冻结参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7656,16 +7656,16 @@ emt_err_t emtTrans_afn04f82(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn04f83(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn04f83(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
      *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f1
  功能描述  : F1：遥控跳闸
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7680,16 +7680,16 @@ emt_err_t emtTrans_afn04f83(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtRemoteTurnOff_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f9
  功能描述  : F9：时段功控投入
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7704,16 +7704,16 @@ emt_err_t emtTrans_afn05f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f9(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn05F9_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f12
  功能描述  : F12：当前功率下浮控投入
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7728,16 +7728,16 @@ emt_err_t emtTrans_afn05f9(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f12(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = sizeof(sMtAfn05F12_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f12
  功能描述  : F25：终端保电投入 CMD_AFN_5_F25_TML_PROTECT_GO
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7752,16 +7752,16 @@ emt_err_t emtTrans_afn05f12(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     *pusfLen = 1;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f31
  功能描述  : F31：对时命令
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7776,7 +7776,7 @@ emt_err_t emtTrans_afn05f25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -7786,7 +7786,7 @@ emt_err_t emtTrans_afn05f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    emt_err_t              eRet = MT_OK;
+    err_t              eRet = MT_ERR_OK;
     sMtYYWWMMDDhhmmss   *psU = (sMtYYWWMMDDhhmmss*)psUser;
     sMtYYWWMMDDhhmmss_f *psF = (sMtYYWWMMDDhhmmss_f*)psFrame;
 
@@ -7806,24 +7806,24 @@ emt_err_t emtTrans_afn05f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_PARA;
     }
 
-    eRet = emt_trans_YYWWMMDDhhmmss(eTrans, psU, psF);
-    if(MT_OK != eRet)
+    eRet = trans_YYWWMMDDhhmmss(eTrans, psU, psF);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYWWMMDDhhmmss() para error = %d", eRet);
+        DEBUG("trans_YYWWMMDDhhmmss() para error = %d", eRet);
         #endif
         return eRet;
     }
     
  // 计算在帧侧的字节长度
  *pusfLen = sizeof(sMtYYWWMMDDhhmmss_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f32
  功能描述  : F32：中文信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7838,7 +7838,7 @@ emt_err_t emtTrans_afn05f31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f32(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -7848,7 +7848,7 @@ emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    //emt_err_t        eRet  = MT_OK;
+    //err_t        eRet  = MT_ERR_OK;
     uint8_t         ucLen = 0;
     sMtAfn05F32   *psU  = (sMtAfn05F32*)psUser;
     sMtAfn05F32_f *psF  = (sMtAfn05F32_f*)psFrame;
@@ -7872,13 +7872,13 @@ emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(uint8_t) * (2 + ucLen);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f41
  功能描述  : F41：电容器控制投入
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7893,17 +7893,17 @@ emt_err_t emtTrans_afn05f32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f41(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f42
  功能描述  : F42：电容器控制切除
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7918,17 +7918,17 @@ emt_err_t emtTrans_afn05f41(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f42(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f49
  功能描述  : F49：命令指定通信端口暂停抄表
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7943,17 +7943,17 @@ emt_err_t emtTrans_afn05f42(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f50
  功能描述  : F50：命令指定通信端口恢复抄表
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7968,17 +7968,17 @@ emt_err_t emtTrans_afn05f49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f50(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f50(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f51
  功能描述  : F51：命令指定通信端口重新抄表
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -7993,17 +7993,17 @@ emt_err_t emtTrans_afn05f50(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f51(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f51(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f52
  功能描述  : F52：初始化指定通信端口下的全部中继路由信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8018,17 +8018,17 @@ emt_err_t emtTrans_afn05f51(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f52(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f52(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn05f53
  功能描述  : F53：删除指定通信端口下的全部电表
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8043,17 +8043,17 @@ emt_err_t emtTrans_afn05f52(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn05f53(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn05f53(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 2;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn06f1
  功能描述  : F1：身份认证请求
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8068,17 +8068,17 @@ emt_err_t emtTrans_afn05f53(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn06f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn06f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 16;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn06f2
  功能描述  : F2：身份认证响应
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8093,17 +8093,17 @@ emt_err_t emtTrans_afn06f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn06f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn06f2(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 16;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn06f3
  功能描述  : F3：取随机数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8118,17 +8118,17 @@ emt_err_t emtTrans_afn06f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn06f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn06f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 16;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn06f4
  功能描述  : F4：取随机数响应
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8143,17 +8143,17 @@ emt_err_t emtTrans_afn06f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn06f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn06f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = 16;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f1
  功能描述  : F1：终端版本信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8168,7 +8168,7 @@ emt_err_t emtTrans_afn06f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f1(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -8180,7 +8180,7 @@ emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  
     sMtAfn09F1_f * psF  = (sMtAfn09F1_f*)psFrame;
     sMtAfn09F1*    psU  = (sMtAfn09F1*)psUser;
-    emt_err_t         eRet = MT_OK; 
+    err_t         eRet = MT_ERR_OK; 
   
     if(MT_TRANS_U2F == eTrans)
     {
@@ -8190,20 +8190,20 @@ emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         memcpy(psF->ucInfoCodeCap, psU->ucInfoCodeCap, 11);
         memcpy(psF->ucProtolID, psU->ucProtolID, 4);
         memcpy(psF->ucHardWareID, psU->ucHardWareID, 4);
-        eRet = emt_trans_YYMMDD(eTrans, &(psU->sDateSoftware), &(psF->sDateSoftware));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDD(eTrans, &(psU->sDateSoftware), &(psF->sDateSoftware));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f1() emt_trans_YYMMDD() error = %d", eRet);
+            DEBUG("emtTrans_afn09f1() trans_YYMMDD() error = %d", eRet);
             #endif
             return eRet;
         }
 
-        eRet = emt_trans_YYMMDD(eTrans, &(psU->sDateHardware), &(psF->sDateHardware));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDD(eTrans, &(psU->sDateHardware), &(psF->sDateHardware));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f1() emt_trans_YYMMDD() error = %d", eRet);
+            DEBUG("emtTrans_afn09f1() trans_YYMMDD() error = %d", eRet);
             #endif
             return eRet;
         }
@@ -8216,20 +8216,20 @@ emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         memcpy(psU->ucInfoCodeCap, psF->ucInfoCodeCap, 11);
         memcpy(psU->ucProtolID, psF->ucProtolID, 4);
         memcpy(psU->ucHardWareID, psF->ucHardWareID, 4);
-        eRet = emt_trans_YYMMDD(eTrans, &(psU->sDateSoftware), &(psF->sDateSoftware));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDD(eTrans, &(psU->sDateSoftware), &(psF->sDateSoftware));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f1() emt_trans_YYMMDD() error = %d", eRet);
+            DEBUG("emtTrans_afn09f1() trans_YYMMDD() error = %d", eRet);
             #endif
             return eRet;
         }
 
-        eRet = emt_trans_YYMMDD(eTrans, &(psU->sDateHardware), &(psF->sDateHardware));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDD(eTrans, &(psU->sDateHardware), &(psF->sDateHardware));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f1() emt_trans_YYMMDD() error = %d", eRet);
+            DEBUG("emtTrans_afn09f1() trans_YYMMDD() error = %d", eRet);
             #endif
             return eRet;
         }
@@ -8240,13 +8240,13 @@ emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(sMtAfn09F1_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f2
  功能描述  : F2：终端支持的输入、输出及通信端口配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8261,7 +8261,7 @@ emt_err_t emtTrans_afn09f1(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f2(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -8721,13 +8721,13 @@ emt_err_t emtTrans_afn09f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = 17 +  sizeof(sMtPortOne_f) * ucN;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f3
  功能描述  : F3：终端支持的其他配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -8742,7 +8742,7 @@ emt_err_t emtTrans_afn09f2(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f3(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -8757,7 +8757,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     uint8_t          ucTmp = 0;
     uint16_t         usTmp = 0;
     int32_t          i     = 0;
-    emt_err_t         eRet  = MT_OK;
+    err_t         eRet  = MT_ERR_OK;
     
   
     if(MT_TRANS_U2F == eTrans)
@@ -8811,11 +8811,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         psF->ucTeam = ucTmp;
 
         // eFrezMp
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezMp), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezMp), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -8823,11 +8823,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         psF->eFrezMp = ucTmp;
 
         // eFrezP
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezP), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezP), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -8835,11 +8835,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         psF->eFrezP = ucTmp;
         
         // eFrezQ
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezQ), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezQ), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -8847,11 +8847,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         psF->eFrezQ = ucTmp;
         
         // eFrezPt
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezPt), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezPt), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -8859,11 +8859,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         psF->eFrezPt = ucTmp;
         
         // eFrezQt
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezQt), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezQt), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -9020,11 +9020,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 
         // eFrezMp
         ucTmp = psF->eFrezMp;
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezMp), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezMp), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -9032,11 +9032,11 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 
         // eFrezP
         ucTmp = psF->eFrezP;
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezP), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezP), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -9044,33 +9044,33 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         
         // eFrezQ
         ucTmp = psF->eFrezQ;
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezQ), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezQ), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
         
         // eFrezPt
         ucTmp = psF->eFrezPt;
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezPt), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezPt), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
                 
         // eFrezQt
         ucTmp = psF->eFrezQt;
-        eRet = emt_trans_fmt_freeze(eTrans, &(psU->eFrezQt), &ucTmp);
-        if(MT_OK != eRet)
+        eRet = trans_fmt_freeze(eTrans, &(psU->eFrezQt), &ucTmp);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn09f3() emt_trans_fmt_freeze() error %d", eRet);
+            DEBUG("emtTrans_afn09f3() trans_fmt_freeze() error %d", eRet);
             #endif 
             return eRet;
         }
@@ -9178,13 +9178,13 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(sMtAfn09F3_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f4_ast
  功能描述  : F4：终端支持的参数配置 辅助函数
- 输入参数  : emt_cmd_t eCmd      
+ 输入参数  : cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9198,7 +9198,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
+err_t emtTrans_afn09f4_ast(trans_t eTrans, cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9293,18 +9293,18 @@ emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
         pArray[ucN] |=  (0x01 << ucSift);
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f4
  功能描述  : F4：终端支持的参数配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
  输出参数  : 无
- 返 回 值  : emt_err_t
+ 返 回 值  : err_t
  调用函数  : emtTrans_afn09f4_ast
  被调函数  : 
  
@@ -9314,7 +9314,7 @@ emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f4(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -9326,8 +9326,8 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  
     sMtAfn09F4_f * psF    = (sMtAfn09F4_f*)psFrame;
     sMtAfn09F4*    psU    = (sMtAfn09F4*)psUser;
-    emt_err_t         eRet   = MT_OK;
-    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
+    err_t         eRet   = MT_ERR_OK;
+    cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9343,7 +9343,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         {
             eCmd = psU->eCfgCmd[i];
             eRet = emtTrans_afn09f4_ast(eTrans, eCmd, pFlag, &ucNTmp);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn09f4() emtTrans_afn09f4_ast() error %d", eRet);
@@ -9369,9 +9369,9 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0400);
+                   eCmd = (cmd_t)((8 * i + j + 1) | 0x0400);
                    eRet = emtTrans_afn09f4_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
-                   if(MT_OK != eRet)
+                   if(MT_ERR_OK != eRet)
                    {
                        #ifdef MT_DBG
                        DEBUG("emtTrans_afn09f4() emtTrans_afn09f4_ast() error %d", eRet);
@@ -9392,13 +9392,13 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 1);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f5_ast
  功能描述  : F5：终端支持的控制配置 辅助函数
- 输入参数  : emt_cmd_t eCmd      
+ 输入参数  : cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9412,7 +9412,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
+err_t emtTrans_afn09f5_ast(trans_t eTrans, cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9480,18 +9480,18 @@ emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
         pArray[ucN] |=  (0x01 << ucSift);
     }
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f5
  功能描述  : F5：终端支持的控制配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
  输出参数  : 无
- 返 回 值  : emt_err_t
+ 返 回 值  : err_t
  调用函数  : emtTrans_afn09f5_ast
  被调函数  : 
  
@@ -9501,7 +9501,7 @@ emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f5(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -9513,8 +9513,8 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  
     sMtAfn09F5_f * psF    = (sMtAfn09F5_f*)psFrame;
     sMtAfn09F5*    psU    = (sMtAfn09F5*)psUser;
-    emt_err_t         eRet   = MT_OK;
-    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
+    err_t         eRet   = MT_ERR_OK;
+    cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9530,7 +9530,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         {
             eCmd = psU->eCfgCmd[i];
             eRet = emtTrans_afn09f5_ast(eTrans, eCmd, pFlag, &ucNTmp);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn09f5() emtTrans_afn09f5_ast() error %d", eRet);
@@ -9557,10 +9557,10 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0500);
+                   eCmd = (cmd_t)((8 * i + j + 1) | 0x0500);
                    printf("cmd = %X\n", eCmd);
                    eRet = emtTrans_afn09f5_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
-                   if(MT_OK != eRet)
+                   if(MT_ERR_OK != eRet)
                    {
                        #ifdef MT_DBG
                        DEBUG("emtTrans_afn09f5() emtTrans_afn09f5_ast() error %d", eRet);
@@ -9581,13 +9581,13 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 1);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f6_ast
  功能描述  : F6：终端支持的1类数据配置 辅助函数
- 输入参数  : emt_cmd_t eCmd      
+ 输入参数  : cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9601,7 +9601,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
+err_t emtTrans_afn09f6_ast(trans_t eTrans, cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9752,19 +9752,19 @@ emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
         *pucTeam     = ucN + 1;
         pArray[ucN] |=  (0x01 << ucSift);
     }
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f6
  功能描述  : F6：终端支持的1类数据配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
  输出参数  : 无
- 返 回 值  : emt_err_t
+ 返 回 值  : err_t
  调用函数  : emtTrans_afn09f5_ast
  被调函数  : 
  
@@ -9774,7 +9774,7 @@ emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f6(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -9786,8 +9786,8 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  
     sMtAfn09F6_f * psF    = (sMtAfn09F6_f*)psFrame;
     sMtAfn09F6*    psU    = (sMtAfn09F6*)psUser;
-    emt_err_t         eRet   = MT_OK;
-    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
+    err_t         eRet   = MT_ERR_OK;
+    cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9803,7 +9803,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         {
             eCmd = psU->eCfgCmd[i];
             eRet = emtTrans_afn09f6_ast(eTrans, eCmd, pFlag, &ucNTmp);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn09f6() emtTrans_afn09f6_ast() error %d", eRet);
@@ -9839,9 +9839,9 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0C00);
+                   eCmd = (cmd_t)((8 * i + j + 1) | 0x0C00);
                    eRet = emtTrans_afn09f6_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
-                   if(MT_OK != eRet)
+                   if(MT_ERR_OK != eRet)
                    {
                        #ifdef MT_DBG
                        DEBUG("emtTrans_afn09f6() emtTrans_afn09f6_ast() error %d", eRet);
@@ -9862,13 +9862,13 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 2);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f7_ast
  功能描述  : F7：终端支持的2类数据配置 辅助函数
- 输入参数  : emt_cmd_t eCmd      
+ 输入参数  : cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9882,7 +9882,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
+err_t emtTrans_afn09f7_ast(trans_t eTrans, cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -10077,18 +10077,18 @@ emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
         *pucTeam     = ucN + 1;
         pArray[ucN] |=  (0x01 << ucSift);
     }
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f7
  功能描述  : F7：终端支持的2类数据配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
  输出参数  : 无
- 返 回 值  : emt_err_t
+ 返 回 值  : err_t
  调用函数  : emtTrans_afn09f5_ast
  被调函数  : 
  
@@ -10098,7 +10098,7 @@ emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArr
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f7(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -10110,8 +10110,8 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
  
     sMtAfn09F7_f * psF    = (sMtAfn09F7_f*)psFrame;
     sMtAfn09F7*    psU    = (sMtAfn09F7*)psUser;
-    emt_err_t         eRet   = MT_OK;
-    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
+    err_t         eRet   = MT_ERR_OK;
+    cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -10127,7 +10127,7 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
         {
             eCmd = psU->eCfgCmd[i];
             eRet = emtTrans_afn09f7_ast(eTrans, eCmd, pFlag, &ucNTmp);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn09f7() emtTrans_afn09f7_ast() error %d", eRet);
@@ -10163,9 +10163,9 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (emt_cmd_t)((8 * i + j) | 0x0D00);
+                   eCmd = (cmd_t)((8 * i + j) | 0x0D00);
                    eRet = emtTrans_afn09f7_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
-                   if(MT_OK != eRet)
+                   if(MT_ERR_OK != eRet)
                    {
                        #ifdef MT_DBG
                        DEBUG("emtTrans_afn09f7() emtTrans_afn09f7_ast() error %d", eRet);
@@ -10186,13 +10186,13 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 2);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f8
  功能描述  : F8：终端支持的事件记录配置
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10207,7 +10207,7 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn09f8(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -10284,13 +10284,13 @@ emt_err_t emtTrans_afn09f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 2);
-    return MT_OK;
+    return MT_ERR_OK;
 }   
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0af10
  功能描述  : F10：终端电能表/交流采样装置配置参数  查询命令参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10305,7 +10305,7 @@ emt_err_t emtTrans_afn09f8(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0af10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0af10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -10385,13 +10385,13 @@ emt_err_t emtTrans_afn0af10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(uint16_t) * (usN + 1);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0af38
  功能描述  : F38：1类数据配置设置 （在终端支持的1类数据配置内）  查询命令参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10406,7 +10406,7 @@ emt_err_t emtTrans_afn0af10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0af38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0af38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -10508,13 +10508,13 @@ emt_err_t emtTrans_afn0af38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     }
 
     *pusfLen = sizeof(uint8_t) * (ucN + 2);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0af39
  功能描述  : F39：2类数据配置设置 （在终端支持的2类数据配置内）  查询命令参数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10529,9 +10529,9 @@ emt_err_t emtTrans_afn0af38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0af39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0af39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     eRet = emtTrans_afn0af38(eTrans, psUser, psFrame,  pusfLen);
     return eRet;
 }
@@ -10541,7 +10541,7 @@ emt_err_t emtTrans_afn0af39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F02：终端日历时钟
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10556,10 +10556,10 @@ emt_err_t emtTrans_afn0af39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf02(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf02(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet = emt_trans_YYWWMMDDhhmmss(eTrans, (sMtUserClock *)psUser,(sMtFrmClock *)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet = trans_YYWWMMDDhhmmss(eTrans, (sMtUserClock *)psUser,(sMtFrmClock *)psFrame);
 
     *pusfLen = sizeof(sMtFrmClock);
     return eRet;
@@ -10570,7 +10570,7 @@ emt_err_t emtTrans_afn0cf02(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F03：终端参数状态
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10585,7 +10585,7 @@ emt_err_t emtTrans_afn0cf02(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf03(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf03(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -10630,7 +10630,7 @@ emt_err_t emtTrans_afn0cf03(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF03_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -10638,7 +10638,7 @@ emt_err_t emtTrans_afn0cf03(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F04：终端上行通信状态
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10653,7 +10653,7 @@ emt_err_t emtTrans_afn0cf03(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf04(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf04(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -10686,7 +10686,7 @@ emt_err_t emtTrans_afn0cf04(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF04_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -10694,7 +10694,7 @@ emt_err_t emtTrans_afn0cf04(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F05：终端通信状态
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10709,7 +10709,7 @@ emt_err_t emtTrans_afn0cf04(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf05(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf05(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -10888,7 +10888,7 @@ emt_err_t emtTrans_afn0cf05(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF05_f) + n * sizeof(sMtComGroupSta_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -10896,7 +10896,7 @@ emt_err_t emtTrans_afn0cf05(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F06：终端控制状态
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -10911,7 +10911,7 @@ emt_err_t emtTrans_afn0cf05(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf06(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -10945,11 +10945,11 @@ emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             if (psAfn0cF06->bGroup[i])
             {
                 // 计算当前功率定值
-                emt_trans_sXXX(eTrans,&(psAfn0cF06->sGroup[i].fCurPower)
+                trans_sXXX(eTrans,&(psAfn0cF06->sGroup[i].fCurPower)
                                 ,&(psAfn0cF06_f->sGroup[j].sCurPower));
 
                 // 计算当前功率下浮控浮浮动系数
-                emt_trans_sXX(eTrans, &(psAfn0cF06->sGroup[i].sPowerDrift)
+                trans_sXX(eTrans, &(psAfn0cF06->sGroup[i].sPowerDrift)
                     ,&(psAfn0cF06_f->sGroup[j].sPowerDrift));
 
                 // 功控跳闸输出状态
@@ -11023,11 +11023,11 @@ emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                 // 总加组状态
                 psAfn0cF06_f->ucGroupFlag |= (1 << i);
                  // 设置当前功率定值
-                emt_trans_sXXX(eTrans,&(psAfn0cF06->sGroup[i].fCurPower)
+                trans_sXXX(eTrans,&(psAfn0cF06->sGroup[i].fCurPower)
                                 ,&(psAfn0cF06_f->sGroup[j].sCurPower));
 
                 // 设置当前功率下浮控浮浮动系数
-                emt_trans_sXX(eTrans, &(psAfn0cF06->sGroup[i].sPowerDrift)
+                trans_sXX(eTrans, &(psAfn0cF06->sGroup[i].sPowerDrift)
                     ,&(psAfn0cF06_f->sGroup[j].sPowerDrift));
 
                 // 设置功控跳闸输出状态
@@ -11105,7 +11105,7 @@ emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF06_f) + n * sizeof(sMtCtrlGroupSta_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11113,7 +11113,7 @@ emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F07：终端事件计数器当前值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11128,7 +11128,7 @@ emt_err_t emtTrans_afn0cf06(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf07(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf07(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11163,7 +11163,7 @@ emt_err_t emtTrans_afn0cf07(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF07_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11171,7 +11171,7 @@ emt_err_t emtTrans_afn0cf07(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F08：终端事件标志状态
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11186,7 +11186,7 @@ emt_err_t emtTrans_afn0cf07(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf08(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf08(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11250,7 +11250,7 @@ emt_err_t emtTrans_afn0cf08(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF08_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11258,7 +11258,7 @@ emt_err_t emtTrans_afn0cf08(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F09：终端状态量及变位标志
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11273,7 +11273,7 @@ emt_err_t emtTrans_afn0cf08(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf09(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf09(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11301,7 +11301,7 @@ emt_err_t emtTrans_afn0cf09(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF09_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11309,7 +11309,7 @@ emt_err_t emtTrans_afn0cf09(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F10：终端与主站当日、月通信流量
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11324,7 +11324,7 @@ emt_err_t emtTrans_afn0cf09(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf10(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf10(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11352,7 +11352,7 @@ emt_err_t emtTrans_afn0cf10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF10_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11360,7 +11360,7 @@ emt_err_t emtTrans_afn0cf10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F11： 终端集中抄表状态信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11375,7 +11375,7 @@ emt_err_t emtTrans_afn0cf10(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf11(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf11(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11412,7 +11412,7 @@ emt_err_t emtTrans_afn0cf11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF11_f) + psMtAfn0cF11_f->ucBlockNum * sizeof(sMtDataBlock);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11420,7 +11420,7 @@ emt_err_t emtTrans_afn0cf11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F17：当前总加有功功率 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11439,7 +11439,7 @@ emt_err_t emtTrans_afn0cf11(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 实现功能
     
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf17(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11449,7 +11449,7 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     sMtAfn0cF17_f     *pF = (sMtAfn0cF17_f *)psFrame;
     sMtTotalPowerHave *pU = (sMtTotalPowerHave*)psUser;
 
@@ -11458,11 +11458,11 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     {
         // 暂时不做处理，只计算数据长度
         // added by liming 2013/11/04 实现实际功能
-        eRet = emt_trans_sXXX(eTrans, &(pU->fsXXX), pF);
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(pU->fsXXX), pF);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf17() emt_trans_sXXX() error! = %d", eRet);
+            DEBUG("emtTrans_afn0cf17() trans_sXXX() error! = %d", eRet);
             #endif
             return eRet;
         }
@@ -11474,11 +11474,11 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     {
         // 暂时不做处理，只计算数据长度
         // added by liming 2013/11/04 实现实际功能
-        eRet = emt_trans_sXXX(eTrans, &(pU->fsXXX), pF);
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(pU->fsXXX), pF);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf17() emt_trans_sXXX() error! = %d", eRet);
+            DEBUG("emtTrans_afn0cf17() trans_sXXX() error! = %d", eRet);
             #endif
             return eRet;
         }
@@ -11494,7 +11494,7 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF17_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11502,7 +11502,7 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F18：当前总加无功功率 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11521,7 +11521,7 @@ emt_err_t emtTrans_afn0cf17(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 实现功能
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf18(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11531,7 +11531,7 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    emt_err_t           eRet = MT_OK;
+    err_t           eRet = MT_ERR_OK;
     sMtAfn0cF18_f     *pF = (sMtAfn0cF18_f *)psFrame;
     sMtTotalPowerNone *pU = (sMtTotalPowerNone*)psUser;
 
@@ -11540,11 +11540,11 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     {
         // 暂时不做处理，只计算数据长度
         // added by liming 2013/11/04 实现实际功能
-        eRet = emt_trans_sXXX(eTrans, &(pU->fsXXX), pF);
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(pU->fsXXX), pF);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf18() emt_trans_sXXX() error! = %d", eRet);
+            DEBUG("emtTrans_afn0cf18() trans_sXXX() error! = %d", eRet);
             #endif
             return eRet;
         }
@@ -11556,11 +11556,11 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     {
         // 暂时不做处理，只计算数据长度
         // added by liming 2013/11/04 实现实际功能
-        eRet = emt_trans_sXXX(eTrans, &(pU->fsXXX), pF);
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(pU->fsXXX), pF);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf18() emt_trans_sXXX() error! = %d", eRet);
+            DEBUG("emtTrans_afn0cf18() trans_sXXX() error! = %d", eRet);
             #endif
             return eRet;
         }
@@ -11576,7 +11576,7 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF18_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11584,7 +11584,7 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F19：当日总加有功电能量(总、费率 1~M)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11599,7 +11599,7 @@ emt_err_t emtTrans_afn0cf18(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf19(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf19(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11629,7 +11629,7 @@ emt_err_t emtTrans_afn0cf19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF19_f) + psMtAfn0cF19_f->ucRateNum * sizeof(sMtFmt_sX7_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -11638,7 +11638,7 @@ emt_err_t emtTrans_afn0cf19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F20：当日总加无功电能量(总、费率 1~M)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11653,7 +11653,7 @@ emt_err_t emtTrans_afn0cf19(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf20(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf20(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11683,7 +11683,7 @@ emt_err_t emtTrans_afn0cf20(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF20_f) + psMtAfn0cF20_f->ucRateNum * sizeof(sMtFmt_sX7_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11691,7 +11691,7 @@ emt_err_t emtTrans_afn0cf20(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F21：当月总加有功电能量(总、费率 1~M)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11706,7 +11706,7 @@ emt_err_t emtTrans_afn0cf20(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf21(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf21(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf19(eTrans, psUser, psFrame, pusfLen);
 }
@@ -11716,7 +11716,7 @@ emt_err_t emtTrans_afn0cf21(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F22：当月总加无功电能量(总、费率 1~M)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11731,7 +11731,7 @@ emt_err_t emtTrans_afn0cf21(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf22(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf22(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf20(eTrans, psUser, psFrame, pusfLen);
 }
@@ -11741,7 +11741,7 @@ emt_err_t emtTrans_afn0cf22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F23：终端当前剩余电量(费)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11756,7 +11756,7 @@ emt_err_t emtTrans_afn0cf22(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf23(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf23(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11784,7 +11784,7 @@ emt_err_t emtTrans_afn0cf23(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF23_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11792,7 +11792,7 @@ emt_err_t emtTrans_afn0cf23(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F24：当前功率下浮控控后总加有功功率冻结值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11807,7 +11807,7 @@ emt_err_t emtTrans_afn0cf23(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf24(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf24(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -11835,7 +11835,7 @@ emt_err_t emtTrans_afn0cf24(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF24_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -11843,7 +11843,7 @@ emt_err_t emtTrans_afn0cf24(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F25：当前三相及总有/无功功率、功率因数，三相电压、电流、零序电流、视在功率
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -11858,7 +11858,7 @@ emt_err_t emtTrans_afn0cf24(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf25(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -11872,7 +11872,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     sMtAfn0cF25_f   *psAfn0cF25_f = (sMtAfn0cF25_f*)psFrame;
     bool             bNone        = false;
     uint16_t           usLen        = 0;
-    emt_err_t           eRet         = MT_OK;
+    err_t           eRet         = MT_ERR_OK;
 
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -11887,10 +11887,10 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bsReadTime = true;
-            eRet = emt_trans_YYMMDDhhmm(eTrans, &(psAfn0cF25->sReadTime),
+            eRet = trans_YYMMDDhhmm(eTrans, &(psAfn0cF25->sReadTime),
             &(psAfn0cF25_f->sReadTime));
             
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -11909,10 +11909,10 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfP = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fP),
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fP),
             &(psAfn0cF25_f->fP));
     
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -11930,10 +11930,10 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPa = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPa), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPa), 
             &(psAfn0cF25_f->fPa));
     
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -11951,9 +11951,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPb = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPb), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPb), 
             &(psAfn0cF25_f->fPb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -11971,9 +11971,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPc = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPc), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPc), 
             &(psAfn0cF25_f->fPc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -11991,9 +11991,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfQ = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQ), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQ), 
             &(psAfn0cF25_f->fQ));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12011,9 +12011,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfQa = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQa),
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQa),
             &(psAfn0cF25_f->fQa));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12031,9 +12031,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfQb = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQb), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQb), 
             &(psAfn0cF25_f->fQb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12051,9 +12051,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfQc = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQc), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQc), 
             &(psAfn0cF25_f->fQc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12072,9 +12072,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPf = true;
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPf), 
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPf), 
             &(psAfn0cF25_f->fPf));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12092,9 +12092,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPfa = true;
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfa),
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfa),
             &(psAfn0cF25_f->fPfa));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12112,9 +12112,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPfb = true;
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfb), 
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfb), 
             &(psAfn0cF25_f->fPfb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12132,9 +12132,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfPfc = true;
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfc), 
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfc), 
             &(psAfn0cF25_f->fPfc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12153,9 +12153,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfUa = true;
-            eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUa), 
+            eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUa), 
             &(psAfn0cF25_f->fUa));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12173,9 +12173,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfUb = true;
-            eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUb),
+            eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUb),
             &(psAfn0cF25_f->fUb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12193,9 +12193,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfUc = true;
-            eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUc), 
+            eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUc), 
             &(psAfn0cF25_f->fUc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12214,9 +12214,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfIa = true;
-            eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIa), 
+            eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIa), 
             &(psAfn0cF25_f->fIa));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12234,9 +12234,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfIb = true;
-            eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIb),
+            eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIb),
             &(psAfn0cF25_f->fIb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12254,9 +12254,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfIc = true;
-            eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIc), 
+            eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIc), 
             &(psAfn0cF25_f->fIc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12274,9 +12274,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfI0 = true;
-            eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fI0), 
+            eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fI0), 
             &(psAfn0cF25_f->fI0));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12295,9 +12295,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfS = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fS),
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fS),
             &(psAfn0cF25_f->fS));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12315,9 +12315,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfSa = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSa), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSa), 
             &(psAfn0cF25_f->fSa));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12335,9 +12335,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfSb = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSb), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSb), 
             &(psAfn0cF25_f->fSb));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12355,9 +12355,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         else
         {
             psAfn0cF25->bfSc = true;
-            eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSc), 
+            eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSc), 
             &(psAfn0cF25_f->fSc));
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12374,9 +12374,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bsReadTime;
            if(true == bNone)
            {
-               eRet = emt_trans_YYMMDDhhmm(eTrans, &(psAfn0cF25->sReadTime),
+               eRet = trans_YYMMDDhhmm(eTrans, &(psAfn0cF25->sReadTime),
                &(psAfn0cF25_f->sReadTime));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12386,7 +12386,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->sReadTime), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->sReadTime), usLen);
            }
    
            // fp
@@ -12394,9 +12394,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bfP;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fP),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fP),
                &(psAfn0cF25_f->fP));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12406,16 +12406,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fP), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fP), usLen);
            }
            
            // fpa
            bNone = psAfn0cF25->bfPa;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPa), 
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPa), 
                &(psAfn0cF25_f->fPa));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12425,16 +12425,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPa), usLen);
            }
            
            // fpb
            bNone = psAfn0cF25->bfPb;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPb), 
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPb), 
                &(psAfn0cF25_f->fPb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12444,16 +12444,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPb), usLen);
            }
    
            // fpc
            bNone = psAfn0cF25->bfPc;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPc), 
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fPc), 
                &(psAfn0cF25_f->fPc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12463,16 +12463,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPc), usLen);
            }
    
            // fQ
            bNone = psAfn0cF25->bfQ;
            if(true == bNone)
            {
-                eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQ), 
+                eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQ), 
                &(psAfn0cF25_f->fQ));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12482,16 +12482,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fQ), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fQ), usLen);
            }
            
            // fQa
            bNone = psAfn0cF25->bfQa;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQa),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQa),
                &(psAfn0cF25_f->fQa));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12501,16 +12501,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fQa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fQa), usLen);
            }
            
            // fQb
            bNone = psAfn0cF25->bfQb;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQb), 
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQb), 
                &(psAfn0cF25_f->fQb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12520,16 +12520,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fQb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fQb), usLen);
            }
    
            // fQc
            bNone = psAfn0cF25->bfQc;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQc), 
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fQc), 
                &(psAfn0cF25_f->fQc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12539,7 +12539,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fQc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fQc), usLen);
            }
    
            // Pf
@@ -12547,9 +12547,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bfPf;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPf), 
+               eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPf), 
                &(psAfn0cF25_f->fPf));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12559,16 +12559,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fQc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fQc), usLen);
            }
            
            // Pfa
            bNone = psAfn0cF25->bfPfa;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfa),
+               eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfa),
                &(psAfn0cF25_f->fPfa));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12578,16 +12578,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPfa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPfa), usLen);
            }
            
            // Pfb
            bNone = psAfn0cF25->bfPfb;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfb), 
+               eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfb), 
                &(psAfn0cF25_f->fPfb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12597,16 +12597,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPfb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPfb), usLen);
            }
    
            // Pfc
            bNone = psAfn0cF25->bfPfc;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF25->fPfc), 
+               eRet = trans_sXXX_X(eTrans, &(psAfn0cF25->fPfc), 
                &(psAfn0cF25_f->fPfc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12616,7 +12616,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fPfc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fPfc), usLen);
            }
    
            // fUa
@@ -12624,9 +12624,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bfUa;
            if(true == bNone)
            {
-               eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUa), 
+               eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUa), 
                &(psAfn0cF25_f->fUa));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12636,16 +12636,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fUa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fUa), usLen);
            }
            
            // fUb
            bNone = psAfn0cF25->bfUb;
            if(true == bNone)
            {
-               eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUb),
+               eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUb),
                &(psAfn0cF25_f->fUb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12655,16 +12655,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fUb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fUb), usLen);
            }
            
            // fUc
            bNone = psAfn0cF25->bfUc;
            if(true == bNone)
            {
-               eRet = emt_trans_XXX_X(eTrans, &(psAfn0cF25->fUc), 
+               eRet = trans_XXX_X(eTrans, &(psAfn0cF25->fUc), 
                &(psAfn0cF25_f->fUc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12674,7 +12674,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fUc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fUc), usLen);
            }
    
            // fIa
@@ -12682,9 +12682,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bfIa;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIa), 
+               eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIa), 
                &(psAfn0cF25_f->fIa));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12694,16 +12694,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fIa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fIa), usLen);
            }
            
            // fIb
            bNone = psAfn0cF25->bfIb;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIb),
+               eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIb),
                &(psAfn0cF25_f->fIb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12713,16 +12713,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fIb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fIb), usLen);
            }
            
            // fIc
            bNone = psAfn0cF25->bfIc;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIc),
+               eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fIc),
                &(psAfn0cF25_f->fIc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12732,16 +12732,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fIc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fIc), usLen);
            }
    
            // fI0
            bNone = psAfn0cF25->bfI0;
            if(true == bNone)
            {
-               eRet = emt_trans_sXXX_XXX(eTrans, &(psAfn0cF25->fI0),
+               eRet = trans_sXXX_XXX(eTrans, &(psAfn0cF25->fI0),
                &(psAfn0cF25_f->fI0));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12751,7 +12751,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fI0), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fI0), usLen);
            }
    
            // fS
@@ -12759,9 +12759,9 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            bNone = psAfn0cF25->bfS;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fS),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fS),
                &(psAfn0cF25_f->fS));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12771,16 +12771,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fS), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fS), usLen);
            }
            
            // fSa
            bNone = psAfn0cF25->bfSa;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSa),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSa),
                &(psAfn0cF25_f->fSa));
-                 if(MT_OK != eRet)
+                 if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12790,16 +12790,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fSa), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fSa), usLen);
            }
            
            // fSb
            bNone = psAfn0cF25->bfSb;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSb),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSb),
                &(psAfn0cF25_f->fSb));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12809,16 +12809,16 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fSb), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fSb), usLen);
            }
            
            // fpc
            bNone = psAfn0cF25->bfSc;
            if(true == bNone)
            {
-               eRet = emt_trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSc),
+               eRet = trans_sXX_XXXX(eTrans, &(psAfn0cF25->fSc),
                &(psAfn0cF25_f->fSc));
-               if(MT_OK != eRet)
+               if(MT_ERR_OK != eRet)
                {
                    #ifdef MT_DBG
                    DEBUG("emtTrans_afn0cf25() trans error %d ", eRet);
@@ -12828,7 +12828,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
            }
            else
            {
-               vmt_set_none((uint8_t*)&(psAfn0cF25_f->fSc), usLen);
+               set_none((uint8_t*)&(psAfn0cF25_f->fSc), usLen);
            }
            
     }
@@ -12842,7 +12842,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF25_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -12850,7 +12850,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F26： A、B、C三相断相统计数据及最近一次断相记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -12865,7 +12865,7 @@ emt_err_t emtTrans_afn0cf25(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf26(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf26(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -12893,7 +12893,7 @@ emt_err_t emtTrans_afn0cf26(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF26_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -12901,7 +12901,7 @@ emt_err_t emtTrans_afn0cf26(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F27：  电能表日历时钟、编程次数及其最近一次操作时?
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -12916,7 +12916,7 @@ emt_err_t emtTrans_afn0cf26(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf27(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf27(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -12944,7 +12944,7 @@ emt_err_t emtTrans_afn0cf27(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF27_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -12952,7 +12952,7 @@ emt_err_t emtTrans_afn0cf27(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F28：   电表运行状态字及其变位标志
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -12967,7 +12967,7 @@ emt_err_t emtTrans_afn0cf27(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf28(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf28(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -12995,7 +12995,7 @@ emt_err_t emtTrans_afn0cf28(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF28_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
@@ -13004,7 +13004,7 @@ emt_err_t emtTrans_afn0cf28(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F29：   当前铜损、铁损有功总电能示值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13019,7 +13019,7 @@ emt_err_t emtTrans_afn0cf28(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf29(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf29(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13047,7 +13047,7 @@ emt_err_t emtTrans_afn0cf29(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF29_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -13055,7 +13055,7 @@ emt_err_t emtTrans_afn0cf29(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  功能描述  :  格式转换函数
               请求1类数据（AFN=0CH）
               F30：   上一结算日铜损、铁损有功总电能示值
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13070,7 +13070,7 @@ emt_err_t emtTrans_afn0cf29(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf30(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf30(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13098,14 +13098,14 @@ emt_err_t emtTrans_afn0cf30(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF30_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf31
  功能描述  : F31：当前A、B、C三相正/反向有功电能示值、组合无功1/2电能示值
              CMD_AFN_C_F31_POWER_CUR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13120,7 +13120,7 @@ emt_err_t emtTrans_afn0cf30(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf31(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf31(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13132,176 +13132,176 @@ emt_err_t emtTrans_afn0cf31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
 
     sMtAfn0cf31     *psU  = (sMtAfn0cf31*)psUser;
     sMtAfn0cf31_f   *psF  = (sMtAfn0cf31_f*)psFrame;
-    emt_err_t          eRet  = MT_OK;
+    err_t          eRet  = MT_ERR_OK;
    
     // 终端抄表时间
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_YYMMDDhhmm error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_YYMMDDhhmm error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前A相 正/ 反有功电能示值、组合无功1 / 2电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                 &(psU->sPhaseA.dFrthHavePower),
                                 &(psF->sPhaseA.dFrthHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前A相反向有功电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                 &(psU->sPhaseA.dBackHavePower),
                                 &(psF->sPhaseA.dBackHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前A相组合无功1电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                                &(psU->sPhaseA.fComNonePower1),
                                &(psF->sPhaseA.fComNonePower1));
 
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
 
     // 当前A相组合无功2电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                                &(psU->sPhaseA.fComNonePower2),
                                &(psF->sPhaseA.fComNonePower2));
 
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
     
     // 当前B相 正/ 反有功电能示值、组合无功1 / 2电能示值
     // 当前B相正向有功电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                 &(psU->sPhaseB.dFrthHavePower),
                                 &(psF->sPhaseB.dFrthHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前B相反向有功电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                 &(psU->sPhaseB.dBackHavePower),
                                 &(psF->sPhaseB.dBackHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前B相组合无功1电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                               &(psU->sPhaseB.fComNonePower1),
                               &(psF->sPhaseB.fComNonePower1));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
 
     // 当前B相组合无功2电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                                &(psU->sPhaseB.fComNonePower2),
                                &(psF->sPhaseB.fComNonePower2));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
     
     // 当前C相 正/ 反有功电能示值、组合无功1 / 2电能示值
     // 当前C相正向有功电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                  &(psU->sPhaseC.dFrthHavePower),
                                  &(psF->sPhaseC.dFrthHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前C相反向有功电能示值
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, 
+    eRet = trans_XXXXXX_XXXX(eTrans, 
                                  &(psU->sPhaseC.dBackHavePower),
                                  &(psF->sPhaseC.dBackHavePower));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XXXX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XXXX error = %d", eRet);
         #endif
         return eRet; 
     }
 
     // 当前C相组合无功1电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                                &(psU->sPhaseC.fComNonePower1),
                                &(psF->sPhaseC.fComNonePower1));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
 
     // 当前C相组合无功2电能示值
-    eRet = emt_trans_XXXXXX_XX(eTrans,
+    eRet = trans_XXXXXX_XX(eTrans,
                                &(psU->sPhaseC.fComNonePower2),
                                &(psF->sPhaseC.fComNonePower2));
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf31() emt_trans_XXXXXX_XX error = %d", eRet);
+        DEBUG("emtTrans_afn0cf31() trans_XXXXXX_XX error = %d", eRet);
         #endif
         return eRet; 
     } 
         
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf31_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf32
  功能描述  : F32：上一结算日A、B、C三相正/反向有功电能示值、组合无功1/2电能示值
              CMD_AFN_C_F32_POWER_LAST
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13316,7 +13316,7 @@ emt_err_t emtTrans_afn0cf31(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf32(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf32(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
    return emtTrans_afn0cf31(eTrans, psUser, psFrame, pusfLen);
 }
@@ -13325,7 +13325,7 @@ emt_err_t emtTrans_afn0cf32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf33
  功能描述  : F33：当前正向有/ 无功电能示值、一/ 四象武功电能示值 (总、费率1  ~ M, 1 <= M  <= 12)
              CMD_AFN_C_F33_FRTH_POWR_P1P4_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13340,7 +13340,7 @@ emt_err_t emtTrans_afn0cf32(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf33(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf33(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13386,14 +13386,14 @@ emt_err_t emtTrans_afn0cf33(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf34
  功能描述  : F34：当前反向有/ 无功电能示值、二/ 三象无功电能示值 (总、费率1  ~ M, 1 <= M  <= 12)
              CMD_AFN_C_F34_BACK_POWR_P2P3_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13408,7 +13408,7 @@ emt_err_t emtTrans_afn0cf33(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf34(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf34(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13453,14 +13453,14 @@ emt_err_t emtTrans_afn0cf34(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf35
  功能描述  : F35：// 当月正向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F35_FRTH_DMND_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13475,7 +13475,7 @@ emt_err_t emtTrans_afn0cf34(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf35(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf35(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13520,14 +13520,14 @@ emt_err_t emtTrans_afn0cf35(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf36
  功能描述  : F36：当月反向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F36_BACK_DMND_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13542,7 +13542,7 @@ emt_err_t emtTrans_afn0cf35(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf36(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf36(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13587,14 +13587,14 @@ emt_err_t emtTrans_afn0cf36(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf37
  功能描述  : F37：上月（上一结算日）正向有/无功（组合无功1）电能示值、一/四象限无功电能示值（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F37_FRTH_POWR_P1P4_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13609,7 +13609,7 @@ emt_err_t emtTrans_afn0cf36(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf37(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf37(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13654,14 +13654,14 @@ emt_err_t emtTrans_afn0cf37(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf38
  功能描述  : F37：上月（上一结算日）反向有/无功（组合无功1）电能示值、一/四象限无功电能示值（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F38_BACK_POWR_P2P3_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13676,7 +13676,7 @@ emt_err_t emtTrans_afn0cf37(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf38(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf38(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13721,14 +13721,14 @@ emt_err_t emtTrans_afn0cf38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf39
  功能描述  : F39：上月（上一结算日）正向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F39_FRTH_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13743,7 +13743,7 @@ emt_err_t emtTrans_afn0cf38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf39(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf39(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13788,14 +13788,14 @@ emt_err_t emtTrans_afn0cf39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf40
  功能描述  : F40：上月（上一结算日）反向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
              CMD_AFN_C_F40_BACK_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13810,7 +13810,7 @@ emt_err_t emtTrans_afn0cf39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf40(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf40(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -13855,13 +13855,13 @@ emt_err_t emtTrans_afn0cf40(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf41
  功能描述  : 当日正向有功电能量（总、费率1～M） CMD_AFN_C_F41_FRTH_HAVE_POWR_D
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -13876,7 +13876,7 @@ emt_err_t emtTrans_afn0cf40(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf41(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -13923,7 +13923,7 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
                else
                {
                    psAfn0cF41->bdForthHavePowerMD[i] = true;
-                   emt_trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerMD[i]), &(psAfn0cF41_f->dForthHavePowerMD[i]));
+                   trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerMD[i]), &(psAfn0cF41_f->dForthHavePowerMD[i]));
                }
             }
         }
@@ -13938,7 +13938,7 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         else
         {
             psAfn0cF41->bdForthHavePowerD = true;
-            emt_trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerD), &(psAfn0cF41_f->dForthHavePowerD));
+            trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerD), &(psAfn0cF41_f->dForthHavePowerD));
         }
     }
     else if(MT_TRANS_U2F == eTrans)
@@ -13948,7 +13948,7 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen = sizeof(uint8_t);
         if(true == bNone)
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF41->ucM), usLen);
+            set_none((uint8_t*)&(psAfn0cF41->ucM), usLen);
         }
         else
         {
@@ -13964,11 +13964,11 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
                 usLen = sizeof(sMtFmt_XXXX_XXXX);
                 if(true == bNone)
                 {
-                  vmt_set_none((uint8_t*)&(psAfn0cF41_f->dForthHavePowerMD[i]), usLen);
+                  set_none((uint8_t*)&(psAfn0cF41_f->dForthHavePowerMD[i]), usLen);
                 }
                 else
                 {
-                    emt_trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerMD[i]), &(psAfn0cF41_f->dForthHavePowerMD[i])); 
+                    trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerMD[i]), &(psAfn0cF41_f->dForthHavePowerMD[i])); 
                 }
             }
         }
@@ -13977,11 +13977,11 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen = sizeof(sMtFmt_XXXX_XXXX);
         if(true == bNone)
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF41_f->dForthHavePowerD), usLen);
+            set_none((uint8_t*)&(psAfn0cF41_f->dForthHavePowerD), usLen);
         }
         else
         {
-            emt_trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerD), &(psAfn0cF41_f->dForthHavePowerD)); 
+            trans_XXXX_XXXX(eTrans, &(psAfn0cF41->dForthHavePowerD), &(psAfn0cF41_f->dForthHavePowerD)); 
         }
     }
     else
@@ -13994,13 +13994,13 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF41_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf42
  功能描述  : 当日正向无功电能量（总、费率1～M） CMD_AFN_C_F42_FRTH_NONE_POWR_D
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14015,7 +14015,7 @@ emt_err_t emtTrans_afn0cf41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf42(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf42(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14024,7 +14024,7 @@ emt_err_t emtTrans_afn0cf42(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf43
  功能描述  : 当日反向有功电能量（总、费率1～M）CMD_AFN_C_F43_BACK_HAVE_POWR_D
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14039,7 +14039,7 @@ emt_err_t emtTrans_afn0cf42(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf43(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf43(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14048,7 +14048,7 @@ emt_err_t emtTrans_afn0cf43(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf44
  功能描述  : 当日反向无功电能量（总、费率1～M）CMD_AFN_C_F44_BACK_NONE_POWR_D
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14063,7 +14063,7 @@ emt_err_t emtTrans_afn0cf43(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf44(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf44(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14072,7 +14072,7 @@ emt_err_t emtTrans_afn0cf44(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf45
  功能描述  : 当月正向有功电能量（总、费率1～M）CMD_AFN_C_F45_FRTH_HAVE_POWR_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14087,7 +14087,7 @@ emt_err_t emtTrans_afn0cf44(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf45(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf45(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14096,7 +14096,7 @@ emt_err_t emtTrans_afn0cf45(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf46
  功能描述  : 当月正向无功电能量（总、费率1～M）CMD_AFN_C_F46_FRTH_NONE_POWR_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14111,7 +14111,7 @@ emt_err_t emtTrans_afn0cf45(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf46(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf46(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14120,7 +14120,7 @@ emt_err_t emtTrans_afn0cf46(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf47
  功能描述  : 当月反向有功电能量（总、费率1～M）CMD_AFN_C_F47_BACK_HAVE_POWR_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14135,7 +14135,7 @@ emt_err_t emtTrans_afn0cf46(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf47(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf47(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14144,7 +14144,7 @@ emt_err_t emtTrans_afn0cf47(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf48
  功能描述  : 当月反向无功电能量（总、费率1～M）CMD_AFN_C_F48_BACK_NONE_POWR_M
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14159,7 +14159,7 @@ emt_err_t emtTrans_afn0cf47(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf48(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf48(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 数据结构一样, 用统一的转换函数
     return emtTrans_afn0cf41(eTrans, psUser, psFrame, pusfLen);
@@ -14169,7 +14169,7 @@ emt_err_t emtTrans_afn0cf48(emt_trans_t eTrans, void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf49
  功能描述  : F49：当前电压、电流相位角
              CMD_AFN_C_F49_CURT_PHASE_ANGLE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14184,7 +14184,7 @@ emt_err_t emtTrans_afn0cf48(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf49(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf49(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -14212,13 +14212,13 @@ emt_err_t emtTrans_afn0cf49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf49_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf57
  功能描述  : F57：当前A、B、C三相电压、电流2～N次谐波有效值 CMD_AFN_C_F57_CURT_HARM_VALUE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14233,7 +14233,7 @@ emt_err_t emtTrans_afn0cf49(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf57(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -14250,7 +14250,7 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     int32_t            nCycMax      = 0;
     int32_t            nOffset      = 0;
     uint8_t            ucN          = 0;
-    emt_err_t           eRet         = MT_OK;
+    err_t           eRet         = MT_ERR_OK;
     
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -14278,13 +14278,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sUa.bfXXX_X[i] = true;
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUa.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14304,13 +14304,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sUb.bfXXX_X[i] = true;
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUb.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14330,13 +14330,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sUc.bfXXX_X[i] = true;
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUc.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14356,13 +14356,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sIa.bfsXX_XX[i] = true;
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIa.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14382,13 +14382,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sIb.bfsXX_XX[i] = true;
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIb.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14408,13 +14408,13 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             else
             {
                 psAfn0cF57->sIc.bfsXX_XX[i] = true;
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIc.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14442,17 +14442,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sUa.bfXXX_X[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[i]), sizeof(sMtFmt_XXX_X));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[i]), sizeof(sMtFmt_XXX_X));
             }
             else
             {
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUa.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14467,17 +14467,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sUb.bfXXX_X[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_XXX_X));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_XXX_X));
             }
             else
             {
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUb.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14492,17 +14492,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sUc.bfXXX_X[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_XXX_X));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_XXX_X));
             }
             else
             {
-                eRet = emt_trans_XXX_X(eTrans, 
+                eRet = trans_XXX_X(eTrans, 
                                        &(psAfn0cF57->sUc.fXXX_X[i]), 
                                        (sMtFmt07*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_XXX_X() error = %d", eRet);
+                    DEBUG("trans_XXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14517,17 +14517,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sIa.bfsXX_XX[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
             }
             else
             {
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIa.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14542,17 +14542,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sIb.bfsXX_XX[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
             }
             else
             {
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIb.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14567,17 +14567,17 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             bNone = !(psAfn0cF57->sIc.bfsXX_XX[i]);
             if(true == bNone)
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
+                set_none((uint8_t*)&(psAfn0cF57_f->uHarm[nOffset + i]), sizeof(sMtFmt_sXX_XX));
             }
             else
             {
-                eRet = emt_trans_sXX_XX(eTrans, 
+                eRet = trans_sXX_XX(eTrans, 
                                        &(psAfn0cF57->sIc.fsXX_XX[i]), 
                                        (sMtFmt06*)&(psAfn0cF57_f->uHarm[nOffset + i]));
-                if(MT_OK != eRet)
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXX_XX() error = %d", eRet);
+                    DEBUG("trans_sXX_XX() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14594,14 +14594,14 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cF57_f) + 6 * sizeof(sMtFmt_sXX_XX) * (ucN - 1);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf58
  功能描述  : F58：当前A、B、C三相电压、电流2～N次谐波含有率
  对应命令  : CMD_AFN_C_F58_CURT_HARM_RATE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -14616,7 +14616,7 @@ emt_err_t emtTrans_afn0cf57(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf58(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -14630,7 +14630,7 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     sMtAfn0cF58_f   *psAfn0cF58_f = (sMtAfn0cF58_f*)psFrame;
     uint8_t            ucN          = 0;
     bool             bNone        = false;
-    emt_err_t           eRet         = MT_OK;
+    err_t           eRet         = MT_ERR_OK;
     uint8_t            i,j;
     
     // 帧侧转为用户侧
@@ -14648,13 +14648,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sUa.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14670,13 +14670,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sUa.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14691,13 +14691,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sUb.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14713,13 +14713,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sUb.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14734,13 +14734,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sUc.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14756,13 +14756,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sUc.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14777,13 +14777,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sIa.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14799,13 +14799,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sIa.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14820,13 +14820,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sIb.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14842,13 +14842,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sIb.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14863,13 +14863,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         }else
         {
             psAfn0cF58->sIc.sTotal.bfsXXX_X = true;
-            eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.sTotal.fsXXX_X)
+            eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
@@ -14885,13 +14885,13 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
             }else
             {
                 psAfn0cF58->sIc.bfsXXX_X[i] = true;
-                eRet  = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.fsXXX_X[i])
+                eRet  = trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.fsXXX_X[i])
                                           , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
@@ -14908,18 +14908,18 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // UA
         if (psAfn0cF58->sUa.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -14927,37 +14927,37 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
             if (psAfn0cF58->sUa.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUa.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
 
         // UB
         if (psAfn0cF58->sUb.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -14965,36 +14965,36 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
              if (psAfn0cF58->sUb.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUb.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
 
         // UC
         if (psAfn0cF58->sUc.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -15002,37 +15002,37 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
              if (psAfn0cF58->sUc.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sUc.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
 
         // IA
         if (psAfn0cF58->sIa.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -15040,38 +15040,38 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
             if (psAfn0cF58->sIa.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIa.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
 
         // IB
         if (psAfn0cF58->sIb.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -15079,38 +15079,38 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
             if (psAfn0cF58->sIb.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIb.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
 
         // IC
         if (psAfn0cF58->sIc.sTotal.bfsXXX_X == true) 
         {
-            eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.sTotal.fsXXX_X)
+            eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.sTotal.fsXXX_X)
                                       , &(psAfn0cF58_f->sXXX_X[j]));
 
-            if (MT_OK != eRet)
+            if (MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                DEBUG("trans_sXXX_X() error = %d", eRet);
                 #endif       
                 return eRet;
             }
         }else
         {
-            vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+            set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
         }
         j++;
         
@@ -15118,19 +15118,19 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         {
             if (psAfn0cF58->sIc.bfsXXX_X[i] == true) 
             {
-                eRet = emt_trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.fsXXX_X[i])
+                eRet = trans_sXXX_X(eTrans, &(psAfn0cF58->sIc.fsXXX_X[i])
                                          , &(psAfn0cF58_f->sXXX_X[j]));
 
-                if (MT_OK != eRet)
+                if (MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_trans_sXXX_X() error = %d", eRet);
+                    DEBUG("trans_sXXX_X() error = %d", eRet);
                     #endif       
                     return eRet;
                 }
             }else
             {
-                vmt_set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
+                set_none((uint8_t*)&(psAfn0cF58_f->sXXX_X[j]), sizeof(sMtFmt_sXXX_X));;
             }
         }
     }
@@ -15144,14 +15144,14 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen =sizeof(sMtAfn0cF58_f) + 6 * sizeof(sMtFmt_sXX_XX) * ucN;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf65
  功能描述  : F65：当前电容器投切状态
              CMD_AFN_C_F65_CURT_CAPA_SWITCH
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15166,7 +15166,7 @@ emt_err_t emtTrans_afn0cf58(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf65(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf65(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15194,14 +15194,14 @@ emt_err_t emtTrans_afn0cf65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf65_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf66
  功能描述  : F66：当前电容器累计补偿投入时间和次数
              CMD_AFN_C_F66_CURT_CAPA_TIME
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15216,7 +15216,7 @@ emt_err_t emtTrans_afn0cf65(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf66(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf66(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -15244,14 +15244,14 @@ emt_err_t emtTrans_afn0cf66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf66_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf67
  功能描述  : F67：当日、当月电容器累计补偿的无功电能量
              CMD_AFN_C_F67_CURT_CAPA_POWR
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15266,7 +15266,7 @@ emt_err_t emtTrans_afn0cf66(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf67(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf67(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15294,14 +15294,14 @@ emt_err_t emtTrans_afn0cf67(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf67_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf73
  功能描述  : F73：直流模拟量当前数据
              CMD_AFN_C_F73_DC_RLTM_DATA
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15316,7 +15316,7 @@ emt_err_t emtTrans_afn0cf67(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf73(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf73(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15326,8 +15326,8 @@ emt_err_t emtTrans_afn0cf73(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         return MT_ERR_NULL;
     }
 
-    emt_err_t mRet = MT_OK;
-    mRet = emt_trans_sXXX(eTrans, (float *)psUser, (sMtFmt02_f *)psFrame);
+    err_t mRet = MT_ERR_OK;
+    mRet = trans_sXXX(eTrans, (float *)psUser, (sMtFmt02_f *)psFrame);
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtFmt02_f);
@@ -15383,7 +15383,7 @@ int8_t emtGetFrzFreq(uint8_t ucFrzFreq)
  函 数 名  : emtTrans_afn0cf81
  功能描述  : F81：小时冻结总加有功功率
              CMD_AFN_C_F81_HFRZ_GRUP_RATE_HAVE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15398,7 +15398,7 @@ int8_t emtGetFrzFreq(uint8_t ucFrzFreq)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf81(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf81(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15436,14 +15436,14 @@ emt_err_t emtTrans_afn0cf81(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf81_f) + n * sizeof(sMtFmt02_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf82
  功能描述  : F82：小时冻结总加无功功率
              CMD_AFN_C_F82_HFRZ_GRUP_RATE_NONE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15458,7 +15458,7 @@ emt_err_t emtTrans_afn0cf81(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf82(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf82(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf81(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15467,7 +15467,7 @@ emt_err_t emtTrans_afn0cf82(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf83
  功能描述  : F83：小时冻结总加有功总电能量
              CMD_AFN_C_F83_HFRZ_GRUP_POWR_HAVE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15482,7 +15482,7 @@ emt_err_t emtTrans_afn0cf82(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf83(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf83(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15520,14 +15520,14 @@ emt_err_t emtTrans_afn0cf83(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf83_f) + n * sizeof(sMtFmt03_f);
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf84
  功能描述  : F84：小时冻结总加无功总电能量
              CMD_AFN_C_F84_HFRZ_GRUP_POWR_NONE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15542,7 +15542,7 @@ emt_err_t emtTrans_afn0cf83(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf84(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf84(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf83(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15551,7 +15551,7 @@ emt_err_t emtTrans_afn0cf84(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf89
  功能描述  : F89：小时冻结有功功率
              CMD_AFN_C_F89_HFRZ_RATE_HAVE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15566,7 +15566,7 @@ emt_err_t emtTrans_afn0cf84(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf89(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf89(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15605,14 +15605,14 @@ emt_err_t emtTrans_afn0cf89(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf89_f) + n * sizeof(sMtFmt09);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf90
  功能描述  : F90：小时冻结A相有功功率
              CMD_AFN_C_F90_HFRZ_RATE_HAVE_A
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15627,7 +15627,7 @@ emt_err_t emtTrans_afn0cf89(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf90(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf90(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15636,7 +15636,7 @@ emt_err_t emtTrans_afn0cf90(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf91
  功能描述  : F91：小时冻结B相有功功率
              CMD_AFN_C_F90_HFRZ_RATE_HAVE_B
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15651,7 +15651,7 @@ emt_err_t emtTrans_afn0cf90(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf91(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf91(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15660,7 +15660,7 @@ emt_err_t emtTrans_afn0cf91(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf92
  功能描述  : F92：小时冻结C 相有功功率
              CMD_AFN_C_F90_HFRZ_RATE_HAVE_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15675,7 +15675,7 @@ emt_err_t emtTrans_afn0cf91(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf92(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf92(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15684,7 +15684,7 @@ emt_err_t emtTrans_afn0cf92(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf93
  功能描述  : F93：小时冻结无功功率
              CMD_AFN_C_F93_HFRZ_RATE_NONE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15699,7 +15699,7 @@ emt_err_t emtTrans_afn0cf92(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf93(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf93(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15708,7 +15708,7 @@ emt_err_t emtTrans_afn0cf93(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf94
  功能描述  : F94：小时冻结A  相无功功率
              CMD_AFN_C_F94_HFRZ_RATE_NONE_A
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15723,7 +15723,7 @@ emt_err_t emtTrans_afn0cf93(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf94(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf94(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15732,7 +15732,7 @@ emt_err_t emtTrans_afn0cf94(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf95
  功能描述  : F95：小时冻结B  相无功功率
              CMD_AFN_C_F95_HFRZ_RATE_NONE_B
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15747,7 +15747,7 @@ emt_err_t emtTrans_afn0cf94(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf95(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf95(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15756,7 +15756,7 @@ emt_err_t emtTrans_afn0cf95(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf96
  功能描述  : F96：小时冻结C  相无功功率
              CMD_AFN_C_F96_HFRZ_RATE_NONE_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15771,7 +15771,7 @@ emt_err_t emtTrans_afn0cf95(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf96(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf96(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf89(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15780,7 +15780,7 @@ emt_err_t emtTrans_afn0cf96(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf97
  功能描述  : F97：小时冻结A 相电压
              CMD_AFN_C_F97_HFRZ_VOLT_A
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15795,7 +15795,7 @@ emt_err_t emtTrans_afn0cf96(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf97(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf97(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15834,14 +15834,14 @@ emt_err_t emtTrans_afn0cf97(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf97_f) + n * sizeof(sMtFmt07);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf98
  功能描述  : F98：小时冻结B  相电压
              CMD_AFN_C_F98_HFRZ_VOLT_B
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15856,7 +15856,7 @@ emt_err_t emtTrans_afn0cf97(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf98(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf98(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf97(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15865,7 +15865,7 @@ emt_err_t emtTrans_afn0cf98(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf99
  功能描述  : F99：小时冻结C  相电压
              CMD_AFN_C_F99_HFRZ_VOLT_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15880,7 +15880,7 @@ emt_err_t emtTrans_afn0cf98(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf99(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf99(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf97(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15889,7 +15889,7 @@ emt_err_t emtTrans_afn0cf99(emt_trans_t eTrans,void* psUser, void* psFrame, uint
  函 数 名  : emtTrans_afn0cf100
  功能描述  : F100：小时冻结有功功率
              CMD_AFN_C_F100_HFRZ_ELEC_A
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15904,7 +15904,7 @@ emt_err_t emtTrans_afn0cf99(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf100(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf100(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -15943,14 +15943,14 @@ emt_err_t emtTrans_afn0cf100(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf100_f) + n * sizeof(sMtFmt25);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf101
  功能描述  : F101：小时冻结B  相电流
              CMD_AFN_C_F101_HFRZ_ELEC_B
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15965,7 +15965,7 @@ emt_err_t emtTrans_afn0cf100(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf101(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf101(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf100(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15974,7 +15974,7 @@ emt_err_t emtTrans_afn0cf101(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf102
  功能描述  : F102：小时冻结C  相电流
              CMD_AFN_C_F102_HFRZ_ELEC_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -15989,7 +15989,7 @@ emt_err_t emtTrans_afn0cf101(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf102(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf102(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf100(eTrans, psUser, psFrame, pusfLen);
 }
@@ -15998,7 +15998,7 @@ emt_err_t emtTrans_afn0cf102(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf103
  功能描述  : F103：小时冻结零序电流
              CMD_AFN_C_F103_HFRZ_ELEC_ZERO
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16013,7 +16013,7 @@ emt_err_t emtTrans_afn0cf102(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf103(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf103(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf100(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16022,7 +16022,7 @@ emt_err_t emtTrans_afn0cf103(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf105
  功能描述  : F105：小时冻结正向有功总电能量
              CMD_AFN_C_F105_HFRZ_FRTH_HAVE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16037,7 +16037,7 @@ emt_err_t emtTrans_afn0cf103(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf105(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf105(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -16076,14 +16076,14 @@ emt_err_t emtTrans_afn0cf105(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf105_f) + n * sizeof(sMtFmt13);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf106
  功能描述  : F106：小时冻结正向无功总电能量
                  CMD_AFN_C_F106_HFRZ_FRTH_NONE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16098,7 +16098,7 @@ emt_err_t emtTrans_afn0cf105(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf106(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf106(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16107,7 +16107,7 @@ emt_err_t emtTrans_afn0cf106(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf107
  功能描述  : F107：小时冻结反向有功总电能量
               CMD_AFN_C_F107_HFRZ_BACK_HAVE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16122,7 +16122,7 @@ emt_err_t emtTrans_afn0cf106(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf107(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf107(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16131,7 +16131,7 @@ emt_err_t emtTrans_afn0cf107(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf108
  功能描述  : F107：小时冻结反向无功总电能量
                  CMD_AFN_C_F108_HFRZ_BACK_NONE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16146,7 +16146,7 @@ emt_err_t emtTrans_afn0cf107(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf108(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf108(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16155,7 +16155,7 @@ emt_err_t emtTrans_afn0cf108(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf109
  功能描述  : F109：小时冻结正向有功总电能示值
               CMD_AFN_C_F109_HFRZ_FRTH_HAVE_S
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16170,7 +16170,7 @@ emt_err_t emtTrans_afn0cf108(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf109(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf109(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -16209,14 +16209,14 @@ emt_err_t emtTrans_afn0cf109(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf109_f) + n * sizeof(sMtFmt11);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf110
  功能描述  : F110：小时冻结正向无功总电能示值
                  CMD_AFN_C_F110_HFRZ_FRTH_NONE_S
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16231,7 +16231,7 @@ emt_err_t emtTrans_afn0cf109(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf110(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf110(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf109(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16240,7 +16240,7 @@ emt_err_t emtTrans_afn0cf110(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf111
  功能描述  : F111：小时冻结反向有功总电能示值
               CMD_AFN_C_F111_HFRZ_BACK_HAVE_S
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16255,7 +16255,7 @@ emt_err_t emtTrans_afn0cf110(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf111(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf111(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf109(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16264,7 +16264,7 @@ emt_err_t emtTrans_afn0cf111(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf112
  功能描述  : F112：小时冻结反向无功总电能示值
                  CMD_AFN_C_F112_HFRZ_BACK_NONE_S
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16279,7 +16279,7 @@ emt_err_t emtTrans_afn0cf111(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf112(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf112(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf109(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16288,7 +16288,7 @@ emt_err_t emtTrans_afn0cf112(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf113
  功能描述  : F109：小时冻结总功率因数
              CMD_AFN_C_F113_HFRZ_FACT_TOTAL
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16303,7 +16303,7 @@ emt_err_t emtTrans_afn0cf112(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf113(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf113(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -16342,14 +16342,14 @@ emt_err_t emtTrans_afn0cf113(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf113_f) + n * sizeof(sMtFmt05);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf114
  功能描述  : F114：小时冻结A相功率因数
                  CMD_AFN_C_F114_HFRZ_FACT_A
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16364,7 +16364,7 @@ emt_err_t emtTrans_afn0cf113(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf114(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf114(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf113(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16373,7 +16373,7 @@ emt_err_t emtTrans_afn0cf114(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf115
  功能描述  : F115：小时冻结B相功率因数
              CMD_AFN_C_F115_HFRZ_FACT_B
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16388,7 +16388,7 @@ emt_err_t emtTrans_afn0cf114(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf115(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf115(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf113(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16397,7 +16397,7 @@ emt_err_t emtTrans_afn0cf115(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf116
  功能描述  : F116：小时冻结C相功率因数
                  CMD_AFN_C_F116_HFRZ_FACT_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16412,7 +16412,7 @@ emt_err_t emtTrans_afn0cf115(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf116(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf116(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf113(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16421,7 +16421,7 @@ emt_err_t emtTrans_afn0cf116(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf121
  功能描述  : F121：小时冻结直流模拟量
              CMD_AFN_C_F121_HFRZ_DC_VALUE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16436,7 +16436,7 @@ emt_err_t emtTrans_afn0cf116(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf121(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf121(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf81(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16445,7 +16445,7 @@ emt_err_t emtTrans_afn0cf121(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf129
  功能描述  : F109：当前正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F129_FRTH_HAVE_POWR_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16460,7 +16460,7 @@ emt_err_t emtTrans_afn0cf121(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf129(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -16472,23 +16472,23 @@ emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     
     sMtAfn0cf129_f *psMtAfn0cf129_f  = (sMtAfn0cf129_f *)psFrame;
     sMtAfn0cf129   *psMtAfn0cf129    = (sMtAfn0cf129 *)psUser;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     uint8_t i,ucM; 
     
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf129->sTime) ,&(psMtAfn0cf129_f->sTime));
-    if (MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf129->sTime) ,&(psMtAfn0cf129_f->sTime));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf129() emt_trans_YYMMDDhhmm is %d\n",eRet);
+        DEBUG("emtTrans_afn0cf129() trans_YYMMDDhhmm is %d\n",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf129->dTotalValue), &(psMtAfn0cf129_f->sTotalValue));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf129->dTotalValue), &(psMtAfn0cf129_f->sTotalValue));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf129() emt_trans_XXXXXX_XXXX is %d\n",eRet);
+        DEBUG("emtTrans_afn0cf129() trans_XXXXXX_XXXX is %d\n",eRet);
         #endif
         return eRet;
     }
@@ -16521,11 +16521,11 @@ emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 
     for (i = 0;i < ucM; i++)
     {
-        eRet = emt_trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf129->dValueItem[i]), &(psMtAfn0cf129_f->sValueItem[i]));
-        if (MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf129->dValueItem[i]), &(psMtAfn0cf129_f->sValueItem[i]));
+        if (MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf129() emt_trans_XXXXXX_XXXX is %d\n",eRet);
+            DEBUG("emtTrans_afn0cf129() trans_XXXXXX_XXXX is %d\n",eRet);
             #endif
             return eRet;
         }
@@ -16534,14 +16534,14 @@ emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf129_f) + (ucM - 1)* sizeof(sMtFmt14_f);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf130
  功能描述  : F130：当前正向无功（组合无功1）电能示值（总、费率1～M）
                  CMD_AFN_C_F130_FRTH_NONE_POWR_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16556,7 +16556,7 @@ emt_err_t emtTrans_afn0cf129(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf130(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
    if (!psUser || !psFrame || !pusfLen)
     {
@@ -16568,23 +16568,23 @@ emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 
     sMtAfn0cf130_f *psMtAfn0cf130_f  = (sMtAfn0cf130_f *)psFrame;
     sMtAfn0cf130   *psMatAfn0cf130     = (sMtAfn0cf130 *)psUser;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     uint8_t i,ucM;
     
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMatAfn0cf130->sTime) ,&(psMtAfn0cf130_f->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMatAfn0cf130->sTime) ,&(psMtAfn0cf130_f->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf130() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0cf130() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMatAfn0cf130->dTotalValue), &(psMtAfn0cf130_f->sTotalValue));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMatAfn0cf130->dTotalValue), &(psMtAfn0cf130_f->sTotalValue));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf130() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf130() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
@@ -16617,11 +16617,11 @@ emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     
     for (i = 0;i < ucM; i++)
     {
-        eRet = emt_trans_XXXXXX_XX(eTrans,&(psMatAfn0cf130->dValueItem[i]), &(psMtAfn0cf130_f->sValueItem[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans,&(psMatAfn0cf130->dValueItem[i]), &(psMtAfn0cf130_f->sValueItem[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0cf130() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0cf130() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;
         }
@@ -16629,14 +16629,14 @@ emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf130_f) + (ucM - 1)* sizeof(sMtFmt11_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf131
  功能描述  : F131：当前反向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F131_BACK_HAVE_POWR_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16651,7 +16651,7 @@ emt_err_t emtTrans_afn0cf130(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf131(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf131(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16660,7 +16660,7 @@ emt_err_t emtTrans_afn0cf131(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf132
  功能描述  : F132：当前反向无功（组合无功1）电能示值（总、费率1～M）
                  CMD_AFN_C_F132_BACK_NONE_POWR_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16675,7 +16675,7 @@ emt_err_t emtTrans_afn0cf131(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf132(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf132(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16684,7 +16684,7 @@ emt_err_t emtTrans_afn0cf132(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf133
  功能描述  : F133：当前一象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F133_NONE_POWR_P1_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16699,7 +16699,7 @@ emt_err_t emtTrans_afn0cf132(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf133(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf133(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16708,7 +16708,7 @@ emt_err_t emtTrans_afn0cf133(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf134
  功能描述  : F134：当前二象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F134_NONE_POWR_P2_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16723,7 +16723,7 @@ emt_err_t emtTrans_afn0cf133(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf134(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf134(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16732,7 +16732,7 @@ emt_err_t emtTrans_afn0cf134(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf135
  功能描述  : F135：当前三象限无功电能示值（总、费率1～M）
               CMD_AFN_C_F135_NONE_POWR_P3_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16747,7 +16747,7 @@ emt_err_t emtTrans_afn0cf134(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf135(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf135(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16756,7 +16756,7 @@ emt_err_t emtTrans_afn0cf135(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf136
  功能描述  : F136：当前四象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F136_NONE_POWR_P4_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16771,7 +16771,7 @@ emt_err_t emtTrans_afn0cf135(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf136(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf136(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16780,7 +16780,7 @@ emt_err_t emtTrans_afn0cf136(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf137
  功能描述  : F137：上月（上一结算日）正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F137_FRTH_HAVE_POWR_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16795,7 +16795,7 @@ emt_err_t emtTrans_afn0cf136(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf137(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf137(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16804,7 +16804,7 @@ emt_err_t emtTrans_afn0cf137(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf138
  功能描述  : F138：上月（上一结算日）正向无功（组合无功1）电能示值（总、费率1～M）
              CMD_AFN_C_F138_FRTH_NONE_POWR_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -16819,7 +16819,7 @@ emt_err_t emtTrans_afn0cf137(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf138(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf138(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16828,7 +16828,7 @@ emt_err_t emtTrans_afn0cf138(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf139
  功能描述  : F139：上月（上一结算日）反向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F139_BACK_HAVE_POWR_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16843,7 +16843,7 @@ emt_err_t emtTrans_afn0cf138(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf139(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf139(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16852,7 +16852,7 @@ emt_err_t emtTrans_afn0cf139(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf140
  功能描述  : F140：上月（上一结算日）反向无功（组合无功1）电能示值（总、费率1～M）
                  CMD_AFN_C_F140_BACK_NONE_POWR_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16867,7 +16867,7 @@ emt_err_t emtTrans_afn0cf139(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf140(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf140(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16876,7 +16876,7 @@ emt_err_t emtTrans_afn0cf140(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf141
  功能描述  : F141：上月（上一结算日）一象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F141_NONE_POWR_P1_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16891,7 +16891,7 @@ emt_err_t emtTrans_afn0cf140(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf141(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf141(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16900,7 +16900,7 @@ emt_err_t emtTrans_afn0cf141(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf142
  功能描述  : F142：上月（上一结算日）二象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F142_NONE_POWR_P2_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16915,7 +16915,7 @@ emt_err_t emtTrans_afn0cf141(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf142(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf142(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16924,7 +16924,7 @@ emt_err_t emtTrans_afn0cf142(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf143
  功能描述  : F143： 上月（上一结算日）三象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F143_NONE_POWR_P3_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16939,7 +16939,7 @@ emt_err_t emtTrans_afn0cf142(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf143(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf143(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16948,7 +16948,7 @@ emt_err_t emtTrans_afn0cf143(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf144
  功能描述  : F144： 上月（上一结算日）四象限无功电能示值（总、费率1～M）
                  CMD_AFN_C_F144_NONE_POWR_P4_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16963,7 +16963,7 @@ emt_err_t emtTrans_afn0cf143(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf144(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf144(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf130(eTrans, psUser, psFrame, pusfLen);
 }
@@ -16972,7 +16972,7 @@ emt_err_t emtTrans_afn0cf144(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf145
  功能描述  : F145：当月正向有功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F145_FRTH_HAVE_DMND_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -16987,7 +16987,7 @@ emt_err_t emtTrans_afn0cf144(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf145(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf145(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17017,14 +17017,14 @@ emt_err_t emtTrans_afn0cf145(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf145_f) + (psMtAfn0cf145_f->ucRateM + 1) * sizeof(sMtDmndClock);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf146
  功能描述  : F146： 当月正向无功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F146_FRTH_NONE_DMND_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17039,7 +17039,7 @@ emt_err_t emtTrans_afn0cf145(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf146(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf146(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17048,7 +17048,7 @@ emt_err_t emtTrans_afn0cf146(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf147
  功能描述  : F147： 当月反向有功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F147_BACK_HAVE_DMND_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -17063,7 +17063,7 @@ emt_err_t emtTrans_afn0cf146(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf147(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf147(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17072,7 +17072,7 @@ emt_err_t emtTrans_afn0cf147(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf148
  功能描述  : F148： 当月反向无功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F148_BACK_NONE_DMND_C
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17087,7 +17087,7 @@ emt_err_t emtTrans_afn0cf147(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf148(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf148(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17096,7 +17096,7 @@ emt_err_t emtTrans_afn0cf148(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf149
  功能描述  : F149： 上月（上一结算日）正向有功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F149_FRTH_HAVE_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17111,7 +17111,7 @@ emt_err_t emtTrans_afn0cf148(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf149(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf149(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17121,7 +17121,7 @@ emt_err_t emtTrans_afn0cf149(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf150
  功能描述  : F150： 上月（上一结算日）正向无功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F150_FRTH_NONE_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17136,7 +17136,7 @@ emt_err_t emtTrans_afn0cf149(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf150(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf150(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17145,7 +17145,7 @@ emt_err_t emtTrans_afn0cf150(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf151
  功能描述  : F151： 上月（上一结算日）反向有功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F151_BACK_HAVE_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17160,7 +17160,7 @@ emt_err_t emtTrans_afn0cf150(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf151(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf151(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17169,7 +17169,7 @@ emt_err_t emtTrans_afn0cf151(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf152
  功能描述  : F152： 上月（上一结算日）反向无功最大需量及发生时间（总、费率1～M）
                  CMD_AFN_C_F152_BACK_NONE_DMND_L
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -17184,7 +17184,7 @@ emt_err_t emtTrans_afn0cf151(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf152(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf152(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17193,7 +17193,7 @@ emt_err_t emtTrans_afn0cf152(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf153
  功能描述  : F153： 第一时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F153_FREZ_ZONE_1
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17208,7 +17208,7 @@ emt_err_t emtTrans_afn0cf152(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf153(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf153(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17217,7 +17217,7 @@ emt_err_t emtTrans_afn0cf153(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf154
  功能描述  : F154： 第二时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F154_FREZ_ZONE_2
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17232,7 +17232,7 @@ emt_err_t emtTrans_afn0cf153(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf154(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf154(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17241,7 +17241,7 @@ emt_err_t emtTrans_afn0cf154(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf155
  功能描述  : F155： 第三时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F155_FREZ_ZONE_3
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
               void* psUser     
               void* psFrame    
               uint16_t* pusfLen  
@@ -17256,7 +17256,7 @@ emt_err_t emtTrans_afn0cf154(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf155(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf155(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17266,7 +17266,7 @@ emt_err_t emtTrans_afn0cf155(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf156
  功能描述  : F156： 第四时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F156_FREZ_ZONE_4
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17281,7 +17281,7 @@ emt_err_t emtTrans_afn0cf155(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf156(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf156(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17290,7 +17290,7 @@ emt_err_t emtTrans_afn0cf156(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf157
  功能描述  : F157：第五时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F157_FREZ_ZONE_5
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17305,7 +17305,7 @@ emt_err_t emtTrans_afn0cf156(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf157(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf157(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17314,7 +17314,7 @@ emt_err_t emtTrans_afn0cf157(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf158
  功能描述  : F158：第六时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F158_FREZ_ZONE_6
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17329,7 +17329,7 @@ emt_err_t emtTrans_afn0cf157(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf158(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf158(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17338,7 +17338,7 @@ emt_err_t emtTrans_afn0cf158(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf159
  功能描述  : F159：第七时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F159_FREZ_ZONE_7
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17353,7 +17353,7 @@ emt_err_t emtTrans_afn0cf158(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf159(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf159(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17362,7 +17362,7 @@ emt_err_t emtTrans_afn0cf159(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf160
  功能描述  : F160：第八时区冻结正向有功电能示值（总、费率1～M）
                  CMD_AFN_C_F160_FREZ_ZONE_8
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17377,7 +17377,7 @@ emt_err_t emtTrans_afn0cf159(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf160(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf160(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     return emtTrans_afn0cf129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17386,7 +17386,7 @@ emt_err_t emtTrans_afn0cf160(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf161
  功能描述  : F161：电能表远程控制通断电状态及记录
                  CMD_AFN_C_F161_METR_REMOTE_CTRL
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17401,7 +17401,7 @@ emt_err_t emtTrans_afn0cf160(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf161(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf161(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17430,14 +17430,14 @@ emt_err_t emtTrans_afn0cf161(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf161_f);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf165
  功能描述  : F165：电能表开关操作次数及时间
                  CMD_AFN_C_F165_METR_SWITCH_RECD
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17452,7 +17452,7 @@ emt_err_t emtTrans_afn0cf161(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf165(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf165(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17464,49 +17464,49 @@ emt_err_t emtTrans_afn0cf165(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 
     sMtAfn0cf165   *psMtAfn0cf65   = (sMtAfn0cf165 *)psUser;
     sMtAfn0cf165_f *psMtAfn0cf65_f = (sMtAfn0cf165_f *)psFrame;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sTime) ,&(psMtAfn0cf65_f->sTime));
-    if (MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sTime) ,&(psMtAfn0cf65_f->sTime));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMMDDhhmm() is %d",eRet);
+        DEBUG("trans_YYMMDDhhmm() is %d",eRet);
         #endif
         return eRet; 
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sOne.sClock) ,&(psMtAfn0cf65_f->sOne.sClock));
-    if (MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sOne.sClock) ,&(psMtAfn0cf65_f->sOne.sClock));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMMDDhhmm() is %d",eRet);
+        DEBUG("trans_YYMMDDhhmm() is %d",eRet);
         #endif
         return eRet; 
     }
 
-    eRet = emt_trans_XXXX(eTrans,&(psMtAfn0cf65->sOne.usTimes) ,&(psMtAfn0cf65_f->sOne.sTimes));
-    if (MT_OK != eRet)
+    eRet = trans_XXXX(eTrans,&(psMtAfn0cf65->sOne.usTimes) ,&(psMtAfn0cf65_f->sOne.sTimes));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXX() is %d",eRet);
+        DEBUG("trans_XXXX() is %d",eRet);
         #endif
         return eRet; 
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sOther.sClock) ,&(psMtAfn0cf65_f->sOther.sClock));
-    if (MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf65->sOther.sClock) ,&(psMtAfn0cf65_f->sOther.sClock));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMMDDhhmm() is %d",eRet);
+        DEBUG("trans_YYMMDDhhmm() is %d",eRet);
         #endif
         return eRet; 
     }
 
-    eRet = emt_trans_XXXX(eTrans,&(psMtAfn0cf65->sOther.usTimes) ,&(psMtAfn0cf65_f->sOther.sTimes));
-    if (MT_OK != eRet)
+    eRet = trans_XXXX(eTrans,&(psMtAfn0cf65->sOther.usTimes) ,&(psMtAfn0cf65_f->sOther.sTimes));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXX() is %d",eRet);
+        DEBUG("trans_XXXX() is %d",eRet);
         #endif
         return eRet; 
     }
@@ -17520,7 +17520,7 @@ emt_err_t emtTrans_afn0cf165(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf166
  功能描述  : F166：电能表参数修改次数及时间
                  CMD_AFN_C_F166_METR_MODIFY_RECD
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17535,7 +17535,7 @@ emt_err_t emtTrans_afn0cf165(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf166(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf166(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0cf165(eTrans, psUser, psFrame, pusfLen);
 }
@@ -17544,7 +17544,7 @@ emt_err_t emtTrans_afn0cf166(emt_trans_t eTrans,void* psUser, void* psFrame, uin
  函 数 名  : emtTrans_afn0cf167
  功能描述  : F167：电能表购、用电信息
                  CMD_AFN_C_F167_METR_BUY_USE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17559,7 +17559,7 @@ emt_err_t emtTrans_afn0cf166(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf167(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf167(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17571,94 +17571,94 @@ emt_err_t emtTrans_afn0cf167(emt_trans_t eTrans,void* psUser, void* psFrame, uin
 
     sMtAfn0cf167   *psMtAfn0cf167   = (sMtAfn0cf167 *)psUser;
     sMtAfn0cf167_f *psMtAfn0cf167_f = (sMtAfn0cf167_f *)psFrame;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf167->sTime),&(psMtAfn0cf167_f->sTime));
-    if (MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans,&(psMtAfn0cf167->sTime),&(psMtAfn0cf167_f->sTime));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXX(eTrans,&(psMtAfn0cf167->usBuyTimes),&(psMtAfn0cf167_f->sBuyTimes));
-    if (MT_OK != eRet)
+    eRet = trans_XXXX(eTrans,&(psMtAfn0cf167->usBuyTimes),&(psMtAfn0cf167_f->sBuyTimes));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf167->dCashLeft),&(psMtAfn0cf167_f->sCashLeft));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf167->dCashLeft),&(psMtAfn0cf167_f->sCashLeft));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf167->dCashTotal),&(psMtAfn0cf167_f->sCashTotal));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans,&(psMtAfn0cf167->dCashTotal),&(psMtAfn0cf167_f->sCashTotal));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecFault),&(psMtAfn0cf167_f->sElecFault));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecFault),&(psMtAfn0cf167_f->sElecFault));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecLeft),&(psMtAfn0cf167_f->sElecLeft));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecLeft),&(psMtAfn0cf167_f->sElecLeft));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecLimit),&(psMtAfn0cf167_f->sElecLimit));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecLimit),&(psMtAfn0cf167_f->sElecLimit));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecOut),&(psMtAfn0cf167_f->sElecOut));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecOut),&(psMtAfn0cf167_f->sElecOut));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecTotal),&(psMtAfn0cf167_f->sElecTotal));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecTotal),&(psMtAfn0cf167_f->sElecTotal));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecWarn),&(psMtAfn0cf167_f->sElecWarn));
-    if (MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans,&(psMtAfn0cf167->dElecWarn),&(psMtAfn0cf167_f->sElecWarn));
+    if (MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0cf167() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0cf167() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
@@ -17666,14 +17666,14 @@ emt_err_t emtTrans_afn0cf167(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf167_f);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf168
  功能描述  : F168：电能表结算信息
                  CMD_AFN_C_F168_METR_BALANCE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17688,7 +17688,7 @@ emt_err_t emtTrans_afn0cf167(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf168(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf168(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17719,14 +17719,14 @@ emt_err_t emtTrans_afn0cf168(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0cf168_f) + (psMtAfn0cf168_f->usRateM + 2) * sizeof(sMtFmt14);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf169
  功能描述  : F169：集中抄表中继路由信息
                  CMD_AFN_C_F169_READ_ROUTE
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17741,7 +17741,7 @@ emt_err_t emtTrans_afn0cf168(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf169(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf169(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17778,14 +17778,14 @@ emt_err_t emtTrans_afn0cf169(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     
     *pusfLen = sizeof(sMtAfn0cf169_f) + psMtAfn0cf169_f->ucRoutN * sizeof(sMtRoute) + usAddress * sizeof(sMtFmt12);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0cf170
  功能描述  : F170： 集中抄表电表抄读信息
                  CMD_AFN_C_F170_READ_METER
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -17800,7 +17800,7 @@ emt_err_t emtTrans_afn0cf169(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0cf170(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0cf170(trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen)
 {   
     if (!psUser || !psFrame || !pusfLen)
     {
@@ -17829,13 +17829,13 @@ emt_err_t emtTrans_afn0cf170(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     // 计算在帧侧的字节长度 
     *pusfLen = sizeof(sMtAfn0cf170_f);
     
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_td_h
  功能描述  : 小时冻结类数据时标数据格式 Td_h
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -17850,7 +17850,7 @@ emt_err_t emtTrans_afn0cf170(emt_trans_t eTrans,void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_td_h(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_td_h(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -17903,13 +17903,13 @@ emt_err_t emtTrans_td_h(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtTd_h_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_td_c
  功能描述  : 曲线类数据时标数据格式 Td_c
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -17924,7 +17924,7 @@ emt_err_t emtTrans_td_h(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_td_c(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -17936,7 +17936,7 @@ emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
 
     sMtTd_c     *psU   = (sMtTd_c*)psUser;
     sMtTd_c_f   *psF   = (sMtTd_c_f*)psFrame;
-    emt_err_t       eRet  = MT_OK;
+    err_t       eRet  = MT_ERR_OK;
 
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -17944,11 +17944,11 @@ emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
         psU->ucM = psF->ucM;
         psU->ucN = psF->ucN;
         
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sT), &(psF->sT));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sT), &(psF->sT));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_td_c() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_td_c() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -17959,11 +17959,11 @@ emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
         psF->ucM = psU->ucM;
         psF->ucN = psU->ucN;
         
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sT), &(psF->sT));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sT), &(psF->sT));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_td_c() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_td_c() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -17978,13 +17978,13 @@ emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtTd_c_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_td_d
  功能描述  : 日冻结类数据时标Td_d
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -17999,10 +17999,10 @@ emt_err_t emtTrans_td_c(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_td_d(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_td_d(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet =  emt_trans_YYMMDD(eTrans, (sMtYYMMDD*)psUser, (sMtYYMMDD_f*)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet =  trans_YYMMDD(eTrans, (sMtYYMMDD*)psUser, (sMtYYMMDD_f*)psFrame);
     *pusfLen = sizeof(sMtTd_d_f);
     return eRet;
 }
@@ -18010,7 +18010,7 @@ emt_err_t emtTrans_td_d(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
 /*****************************************************************************
  函 数 名  : emtTrans_td_m
  功能描述  : 日月冻结类数据时标Td_m
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -18025,10 +18025,10 @@ emt_err_t emtTrans_td_d(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_td_m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_td_m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
-    eRet =  emt_trans_YYMM(eTrans, (sMtYYMM*)psUser, (sMtYYMM_f*)psFrame);
+    err_t eRet = MT_ERR_OK;
+    eRet =  trans_YYMM(eTrans, (sMtYYMM*)psUser, (sMtYYMM_f*)psFrame);
     *pusfLen = sizeof(sMtTd_m_f);
     return eRet;
 }
@@ -18036,7 +18036,7 @@ emt_err_t emtTrans_td_m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df1
  功能描述  : F1：日冻结正向有/无功电能示值、一/四象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -18051,7 +18051,7 @@ emt_err_t emtTrans_td_m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df1(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -18063,7 +18063,7 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF1     *psU      = (sMtAfn0dF1*)psUser;
     sMtAfn0dF1_f   *psF      = (sMtAfn0dF1_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -18077,7 +18077,7 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df1() emtTrans_td_d() error %d", eRet);
@@ -18088,11 +18088,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18116,11 +18116,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dFrthHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18131,11 +18131,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18146,11 +18146,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18161,11 +18161,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18175,11 +18175,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18190,11 +18190,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18204,11 +18204,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18219,11 +18219,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18237,7 +18237,7 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df1() emtTrans_td_d() error %d", eRet);
@@ -18248,11 +18248,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18276,11 +18276,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dFrthHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18291,11 +18291,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18306,11 +18306,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18321,11 +18321,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18335,11 +18335,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18350,11 +18350,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18364,11 +18364,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18379,11 +18379,11 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df1() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df1() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18402,13 +18402,13 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df2
  功能描述  : F2：日冻结反向有/无功电能示值、二/三象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -18423,7 +18423,7 @@ emt_err_t emtTrans_afn0df1(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df2(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -18435,7 +18435,7 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF2     *psU      = (sMtAfn0dF2*)psUser;
     sMtAfn0dF2_f   *psF      = (sMtAfn0dF2_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -18449,7 +18449,7 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df2() emtTrans_td_d() error %d", eRet);
@@ -18460,11 +18460,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18488,11 +18488,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dBackHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18503,11 +18503,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18518,11 +18518,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18533,11 +18533,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18547,11 +18547,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP2T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18562,11 +18562,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18576,11 +18576,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP3T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18591,11 +18591,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18608,7 +18608,7 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df2() emtTrans_td_d() error %d", eRet);
@@ -18619,11 +18619,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18647,11 +18647,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dBackHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18662,11 +18662,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18677,11 +18677,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18692,11 +18692,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18706,11 +18706,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP2T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18721,11 +18721,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18735,11 +18735,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
         // dNonePowerP3T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18750,11 +18750,11 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df2() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df2() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18773,13 +18773,13 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df3
  功能描述  : F3：日冻结正向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -18794,7 +18794,7 @@ emt_err_t emtTrans_afn0df2(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df3(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -18806,7 +18806,7 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF3     *psU      = (sMtAfn0dF3*)psUser;
     sMtAfn0dF3_f   *psF      = (sMtAfn0dF3_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -18820,7 +18820,7 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df3() emtTrans_td_d() error %d", eRet);
@@ -18831,11 +18831,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18859,11 +18859,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fFrthHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18874,11 +18874,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18889,11 +18889,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeFrthHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18904,11 +18904,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18919,11 +18919,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // fFrthNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18934,11 +18934,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18949,11 +18949,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeFrthNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -18964,11 +18964,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -18982,7 +18982,7 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df3() emtTrans_td_d() error %d", eRet);
@@ -18993,11 +18993,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19021,11 +19021,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fFrthHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19036,11 +19036,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19051,11 +19051,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeFrthHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19066,11 +19066,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19081,11 +19081,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // fFrthNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19096,11 +19096,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19111,11 +19111,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeFrthNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19126,11 +19126,11 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df3() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df3() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19149,13 +19149,13 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df4
  功能描述  : F4：日冻结反向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -19170,7 +19170,7 @@ emt_err_t emtTrans_afn0df3(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df4(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -19182,7 +19182,7 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF4     *psU      = (sMtAfn0dF4*)psUser;
     sMtAfn0dF4_f   *psF      = (sMtAfn0dF4_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -19196,7 +19196,7 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df4() emtTrans_td_d() error %d", eRet);
@@ -19207,11 +19207,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19235,11 +19235,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fBackHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19250,11 +19250,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19265,11 +19265,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeBackHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19280,11 +19280,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19295,11 +19295,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // fBackNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19310,11 +19310,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19325,11 +19325,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeBackNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19340,11 +19340,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19358,7 +19358,7 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df4() emtTrans_td_d() error %d", eRet);
@@ -19369,11 +19369,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19397,11 +19397,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fBackHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19412,11 +19412,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19427,11 +19427,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeBackHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19442,11 +19442,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19457,11 +19457,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // fBackNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19472,11 +19472,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19487,11 +19487,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // sTimeBackNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19502,11 +19502,11 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df4() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df4() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19525,13 +19525,13 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df5
  功能描述  : F5：日冻结正向有功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -19546,7 +19546,7 @@ emt_err_t emtTrans_afn0df4(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df5(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -19558,7 +19558,7 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF5     *psU      = (sMtAfn0dF5*)psUser;
     sMtAfn0dF5_f   *psF      = (sMtAfn0dF5_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -19570,7 +19570,7 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df5() emtTrans_td_d() error %d", eRet);
@@ -19581,11 +19581,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df5() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df5() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19607,11 +19607,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthHaveT
         psFmt13_f = &(psF->dFrthHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df5() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df5() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19622,11 +19622,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df5() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df5() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19640,7 +19640,7 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df5() emtTrans_td_d() error %d", eRet);
@@ -19651,11 +19651,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df5() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df5() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19677,11 +19677,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthHaveT
         psFmt13_f = &(psF->dFrthHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df5() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df5() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19692,11 +19692,11 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df5() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df5() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19715,13 +19715,13 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df6
  功能描述  : F6：日冻结正向无功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -19736,7 +19736,7 @@ emt_err_t emtTrans_afn0df5(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df6(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -19748,7 +19748,7 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF6     *psU      = (sMtAfn0dF6*)psUser;
     sMtAfn0dF6_f   *psF      = (sMtAfn0dF6_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -19760,7 +19760,7 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df6() emtTrans_td_d() error %d", eRet);
@@ -19771,11 +19771,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df6() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df6() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19797,11 +19797,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthNoneT
         psFmt13_f = &(psF->dFrthNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df6() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df6() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19812,11 +19812,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df6() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df6() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19830,7 +19830,7 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df6() emtTrans_td_d() error %d", eRet);
@@ -19841,11 +19841,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df6() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df6() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19867,11 +19867,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dFrthNoneT
         psFmt13_f = &(psF->dFrthNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df6() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df6() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19882,11 +19882,11 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df6() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df6() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -19905,14 +19905,14 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df7
  功能描述  : F7：日冻结反向有功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -19927,7 +19927,7 @@ emt_err_t emtTrans_afn0df6(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df7(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -19939,7 +19939,7 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF7     *psU      = (sMtAfn0dF7*)psUser;
     sMtAfn0dF7_f   *psF      = (sMtAfn0dF7_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -19951,7 +19951,7 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df7() emtTrans_td_d() error %d", eRet);
@@ -19962,11 +19962,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df7() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df7() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -19988,11 +19988,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackHaveT
         psFmt13_f = &(psF->dBackHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df7() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df7() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20003,11 +20003,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df7() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df7() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20021,7 +20021,7 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df7() emtTrans_td_d() error %d", eRet);
@@ -20032,11 +20032,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df7() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df7() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20058,11 +20058,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackHaveT
         psFmt13_f = &(psF->dBackHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df7() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df7() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20073,11 +20073,11 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df7() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df7() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20096,13 +20096,13 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df8
  功能描述  : F8：日冻结反向无功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20117,7 +20117,7 @@ emt_err_t emtTrans_afn0df7(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df8(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -20129,7 +20129,7 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     sMtAfn0dF8     *psU      = (sMtAfn0dF8*)psUser;
     sMtAfn0dF8_f   *psF      = (sMtAfn0dF8_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -20141,7 +20141,7 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df8() emtTrans_td_d() error %d", eRet);
@@ -20152,11 +20152,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df8() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df8() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20178,11 +20178,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackNoneT
         psFmt13_f = &(psF->dBackNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df8() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df8() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20193,11 +20193,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df8() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df8() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20211,7 +20211,7 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     {
         // Td_d
         eRet = emtTrans_td_d(eTrans, &(psU->sTd_d), &(psF->sTd_d), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df8() emtTrans_td_d() error %d", eRet);
@@ -20222,11 +20222,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df8() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df8() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20248,11 +20248,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         // dBackNoneT
         psFmt13_f = &(psF->dBackNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df8() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df8() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20263,11 +20263,11 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df8() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df8() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20286,13 +20286,13 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df9
  功能描述  : F9：抄表日冻结正向有/无功电能示值、一/四象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20307,9 +20307,9 @@ emt_err_t emtTrans_afn0df8(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df9(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     eRet =  emtTrans_afn0df1(eTrans, psUser, psFrame, pusfLen);
     return eRet;
 }
@@ -20317,7 +20317,7 @@ emt_err_t emtTrans_afn0df9(emt_trans_t eTrans, void* psUser, void* psFrame, uint
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df10
  功能描述  : F10：抄表日冻结反向有/无功电能示值、二/三象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20332,9 +20332,9 @@ emt_err_t emtTrans_afn0df9(emt_trans_t eTrans, void* psUser, void* psFrame, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df10(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df10(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     eRet =  emtTrans_afn0df2(eTrans, psUser, psFrame, pusfLen);
     return eRet;
 }
@@ -20342,7 +20342,7 @@ emt_err_t emtTrans_afn0df10(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df11
  功能描述  : F11：抄表日冻结电能表正向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20357,9 +20357,9 @@ emt_err_t emtTrans_afn0df10(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df11(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df11(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     eRet =  emtTrans_afn0df3(eTrans, psUser, psFrame, pusfLen);
     return eRet;
 }
@@ -20367,7 +20367,7 @@ emt_err_t emtTrans_afn0df11(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df12
  功能描述  : F12：抄表日冻结电能表反向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20382,9 +20382,9 @@ emt_err_t emtTrans_afn0df11(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df12(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df12(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     eRet =  emtTrans_afn0df4(eTrans, psUser, psFrame, pusfLen);
     return eRet;
 }
@@ -20392,7 +20392,7 @@ emt_err_t emtTrans_afn0df12(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df17
  功能描述  : F17：月冻结正向有/无功电能示值、一/四象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20407,7 +20407,7 @@ emt_err_t emtTrans_afn0df12(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df17(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -20419,7 +20419,7 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF17    *psU       = (sMtAfn0dF17*)psUser;
     sMtAfn0dF17_f  *psF       = (sMtAfn0dF17_f*)psFrame;
-    emt_err_t         eRet       = MT_OK;
+    err_t         eRet       = MT_ERR_OK;
     uint8_t          ucM        = 0;
     uint16_t         usLen      = 0;
     uint16_t         usTmp      = 0;
@@ -20433,7 +20433,7 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_d
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df17() emtTrans_td_m() error %d", eRet);
@@ -20444,11 +20444,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20472,11 +20472,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dFrthHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20487,11 +20487,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20502,11 +20502,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20517,11 +20517,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20531,11 +20531,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20546,11 +20546,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20560,11 +20560,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20575,11 +20575,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20593,7 +20593,7 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // sTd_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df17() emtTrans_td_m() error %d", eRet);
@@ -20604,11 +20604,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20632,11 +20632,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dFrthHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20647,11 +20647,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFrthHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20662,11 +20662,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20677,11 +20677,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dFrthNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20691,11 +20691,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20706,11 +20706,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP1[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20720,11 +20720,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP1T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20735,11 +20735,11 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP4[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df17() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df17() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20757,13 +20757,13 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df18
  功能描述  : F18：月冻结反向有/无功电能示值、二/三象限无功电能示值（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -20778,7 +20778,7 @@ emt_err_t emtTrans_afn0df17(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df18(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -20790,7 +20790,7 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF18    *psU      = (sMtAfn0dF18*)psUser;
     sMtAfn0dF18_f  *psF      = (sMtAfn0dF18_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -20804,7 +20804,7 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df18() emtTrans_td_m() error %d", eRet);
@@ -20815,11 +20815,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20843,11 +20843,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dBackHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20858,11 +20858,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20873,11 +20873,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20888,11 +20888,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20902,11 +20902,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP2T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20917,11 +20917,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20931,11 +20931,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP3T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -20946,11 +20946,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -20963,7 +20963,7 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df18() emtTrans_td_d() error %d", eRet);
@@ -20974,11 +20974,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21002,11 +21002,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt14_f = (sMtFmt14_f*)pTmp;
 
         // dBackHavePowerT
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePowerT), psFmt14_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21017,11 +21017,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt14_f = (sMtFmt14_f*)(pTmp + (i+1)*sizeof(sMtFmt14_f));
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBackHavePower[i]), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21032,11 +21032,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackNonePowerT
         pTmp      = (uint8_t *)(psFmt14_f + 1);
         psFmt11_f = (sMtFmt11_f*)pTmp;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePowerT), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21047,11 +21047,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dBackNonePower[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21061,11 +21061,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP2T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21076,11 +21076,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP2[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21090,11 +21090,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
         // dNonePowerP3T
         psFmt11_f += 1;
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3T), psFmt11_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+            DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21105,11 +21105,11 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt11_f = (sMtFmt11_f*)(pTmp + (i+1)*sizeof(sMtFmt11_f));
-            eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePowerP3[i]), psFmt11_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df18() emt_trans_XXXXXX_XX() error %d", eRet);
+                DEBUG("emtTrans_afn0df18() trans_XXXXXX_XX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21127,13 +21127,13 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df19
  功能描述  : F3：日冻结正向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -21148,7 +21148,7 @@ emt_err_t emtTrans_afn0df18(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df19(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -21160,7 +21160,7 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF19    *psU      = (sMtAfn0dF19*)psUser;
     sMtAfn0dF19_f  *psF      = (sMtAfn0dF19_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -21174,7 +21174,7 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df19() emtTrans_td_m() error %d", eRet);
@@ -21185,11 +21185,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21213,11 +21213,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fFrthHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21228,11 +21228,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21243,11 +21243,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeFrthHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21258,11 +21258,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21273,11 +21273,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // fFrthNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21288,11 +21288,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21303,11 +21303,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeFrthNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21318,11 +21318,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21336,7 +21336,7 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_d
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df19() emtTrans_td_m() error %d", eRet);
@@ -21347,11 +21347,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21375,11 +21375,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fFrthHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21390,11 +21390,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21405,11 +21405,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeFrthHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21420,11 +21420,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21435,11 +21435,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // fFrthNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21450,11 +21450,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fFrthNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21465,11 +21465,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeFrthNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21480,11 +21480,11 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeFrthNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df19() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df19() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21502,13 +21502,13 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df20
  功能描述  : F20：月冻结反向有/无功最大需量及发生时间（总、费率1～M，1≤M≤12）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -21523,7 +21523,7 @@ emt_err_t emtTrans_afn0df19(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df20(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -21535,7 +21535,7 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF20     *psU      = (sMtAfn0dF20*)psUser;
     sMtAfn0dF20_f   *psF      = (sMtAfn0dF20_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -21549,7 +21549,7 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df20() emtTrans_td_m() error %d", eRet);
@@ -21560,11 +21560,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21588,11 +21588,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fBackHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21603,11 +21603,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21618,11 +21618,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeBackHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21633,11 +21633,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21648,11 +21648,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // fBackNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21663,11 +21663,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21678,11 +21678,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeBackNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21693,11 +21693,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21711,7 +21711,7 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df20() emtTrans_td_m() error %d", eRet);
@@ -21722,11 +21722,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21750,11 +21750,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         psFmt23_f = (sMtFmt23_f*)pTmp;
 
         // fBackHaveT
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackHaveT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21765,11 +21765,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackHave[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21780,11 +21780,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeBackHaveT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHaveT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21795,11 +21795,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackHave[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21810,11 +21810,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // fBackNoneT
         psFmt17_f += 1;
         psFmt23_f = (sMtFmt23_f*)psFmt17_f;
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fBackNoneT), psFmt23_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21825,11 +21825,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt23_f = (sMtFmt23_f*)(pTmp + (i+1) * sizeof(sMtFmt23_f));
-            eRet = emt_trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
-            if(MT_OK != eRet)
+            eRet = trans_XX_XXXX(eTrans, &(psU->fBackNone[i]), psFmt23_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_XX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_XX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21840,11 +21840,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // sTimeBackNoneT
         pTmp      = (uint8_t *)(psFmt23_f + 1);
         psFmt17_f = (sMtFmt17_f*)pTmp;
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNoneT), psFmt17_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21855,11 +21855,11 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             psFmt17_f = (sMtFmt17_f*)(pTmp + (i+1)*sizeof(sMtFmt17_f));
-            eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
-            if(MT_OK != eRet)
+            eRet = trans_MMDDHHmm(eTrans, &(psU->sTimeBackNone[i]), psFmt17_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df20() emt_trans_MMDDHHmm() error %d", eRet);
+                DEBUG("emtTrans_afn0df20() trans_MMDDHHmm() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21877,13 +21877,13 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df21
  功能描述  : F21：月冻结正向有功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -21898,7 +21898,7 @@ emt_err_t emtTrans_afn0df20(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df21(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -21910,7 +21910,7 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF21    *psU      = (sMtAfn0dF21*)psUser;
     sMtAfn0dF21_f  *psF      = (sMtAfn0dF21_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -21922,7 +21922,7 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df21() emtTrans_td_m() error %d", eRet);
@@ -21933,11 +21933,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df21() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df21() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21959,11 +21959,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthHaveT
         psFmt13_f = &(psF->dFrthHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df21() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df21() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -21974,11 +21974,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df21() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df21() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -21991,7 +21991,7 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df21() emtTrans_td_m() error %d", eRet);
@@ -22002,11 +22002,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df21() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df21() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22028,11 +22028,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthHaveT
         psFmt13_f = &(psF->dFrthHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df21() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df21() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22043,11 +22043,11 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df21() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df21() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22065,13 +22065,13 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df22
  功能描述  : F6：日冻结正向无功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22086,7 +22086,7 @@ emt_err_t emtTrans_afn0df21(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df22(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -22098,7 +22098,7 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF22    *psU      = (sMtAfn0dF22*)psUser;
     sMtAfn0dF22_f  *psF      = (sMtAfn0dF22_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -22110,7 +22110,7 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df22() emtTrans_td_m() error %d", eRet);
@@ -22121,11 +22121,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df22() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df22() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22147,11 +22147,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthNoneT
         psFmt13_f = &(psF->dFrthNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df22() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df22() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22162,11 +22162,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df22() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df22() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22180,7 +22180,7 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df22() emtTrans_td_m() error %d", eRet);
@@ -22191,11 +22191,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df22() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df22() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22217,11 +22217,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dFrthNoneT
         psFmt13_f = &(psF->dFrthNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df22() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df22() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22232,11 +22232,11 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dFrthNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df22() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df22() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22254,13 +22254,13 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df23
  功能描述  : F7：日冻结反向有功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22275,7 +22275,7 @@ emt_err_t emtTrans_afn0df22(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df23(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -22287,7 +22287,7 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF23     *psU     = (sMtAfn0dF23*)psUser;
     sMtAfn0dF23_f   *psF     = (sMtAfn0dF23_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -22299,7 +22299,7 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df23() emtTrans_td_m() error %d", eRet);
@@ -22310,11 +22310,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df23() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df23() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22336,11 +22336,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackHaveT
         psFmt13_f = &(psF->dBackHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df23() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df23() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22351,11 +22351,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df23() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df23() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22368,7 +22368,7 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df23() emtTrans_td_m() error %d", eRet);
@@ -22379,11 +22379,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df23() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df23() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22405,11 +22405,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackHaveT
         psFmt13_f = &(psF->dBackHaveT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHaveT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df23() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df23() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22420,11 +22420,11 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackHave[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df23() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df23() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22442,13 +22442,13 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df24
  功能描述  : F24：月冻结反向无功电能量（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22463,7 +22463,7 @@ emt_err_t emtTrans_afn0df23(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df24(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -22475,7 +22475,7 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     sMtAfn0dF24    *psU      = (sMtAfn0dF24*)psUser;
     sMtAfn0dF24_f  *psF      = (sMtAfn0dF24_f*)psFrame;
-    emt_err_t         eRet      = MT_OK;
+    err_t         eRet      = MT_ERR_OK;
     uint8_t          ucM       = 0;
     uint16_t         usLen     = 0;
     uint16_t         usTmp     = 0;
@@ -22487,7 +22487,7 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df24() emtTrans_td_m() error %d", eRet);
@@ -22498,11 +22498,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df24() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df24() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22524,11 +22524,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackNoneT
         psFmt13_f = &(psF->dBackNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df24() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df24() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22539,11 +22539,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df24() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df24() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22556,7 +22556,7 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     {
         // Td_m
         eRet = emtTrans_td_m(eTrans, &(psU->sTd_m), &(psF->sTd_m), &usTmp);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
             DEBUG("emtTrans_afn0df24() emtTrans_td_m() error %d", eRet);
@@ -22567,11 +22567,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         usLen += usTmp;
 
         // sTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df24() emt_trans_YYMMDDhhmm() error %d", eRet);
+            DEBUG("emtTrans_afn0df24() trans_YYMMDDhhmm() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22593,11 +22593,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         // dBackNoneT
         psFmt13_f = &(psF->dBackNoneT);
 
-        eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNoneT), psFmt13_f);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df24() emt_trans_XXXX_XXXX() error %d", eRet);
+            DEBUG("emtTrans_afn0df24() trans_XXXX_XXXX() error %d", eRet);
             #endif
             return eRet;
         }
@@ -22608,11 +22608,11 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
         for(i = 0; i < ucM; i++)
         {
             ++psFmt13_f;
-            eRet = emt_trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXX_XXXX(eTrans, &(psU->dBackNone[i]), psFmt13_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_afn0df24() emt_trans_XXXX_XXXX() error %d", eRet);
+                DEBUG("emtTrans_afn0df24() trans_XXXX_XXXX() error %d", eRet);
                 #endif
                 return eRet;
             }
@@ -22631,13 +22631,13 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = usLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df25
  功能描述  : F25：日冻结日总及分相最大有功功率及发生时间、有功功率为零时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22652,17 +22652,17 @@ emt_err_t emtTrans_afn0df24(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df25(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df25(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF25_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df26
  功能描述  : F26：日冻结日总及分相最大需量及发生时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22677,17 +22677,17 @@ emt_err_t emtTrans_afn0df25(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df26(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df26(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF26_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df27
  功能描述  : F27：日冻结日电压统计数据
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22702,17 +22702,17 @@ emt_err_t emtTrans_afn0df26(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df27(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df27(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF27_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df28
  功能描述  : F28：日冻结日不平衡度越限累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22728,17 +22728,17 @@ emt_err_t emtTrans_afn0df27(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df28(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df28(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF28_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df29
  功能描述  : F29：日冻结日电流越限数据
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22753,17 +22753,17 @@ emt_err_t emtTrans_afn0df28(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df29(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df29(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 { 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF29_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df30
  功能描述  : F30：日冻结日视在功率越限累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22778,17 +22778,17 @@ emt_err_t emtTrans_afn0df29(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df30(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df30(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF30_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df31
  功能描述  : F31：日负载率统计
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22803,17 +22803,17 @@ emt_err_t emtTrans_afn0df30(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df31(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df31(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF31_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df32
  功能描述  : F32：日冻结电能表断相数据
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22828,17 +22828,17 @@ emt_err_t emtTrans_afn0df31(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df32(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df32(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF32_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df32
  功能描述  : F33：月冻结月总及分相最大有功功率及发生时间、有功功率为零时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22853,17 +22853,17 @@ emt_err_t emtTrans_afn0df32(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df33(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df33(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF33_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df34
  功能描述  : F34：月冻结月总及分相有功最大需量及发生时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22878,17 +22878,17 @@ emt_err_t emtTrans_afn0df33(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df34(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df34(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF34_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }   
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df35
  功能描述  : F35：月冻结月电压统计数据
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22903,17 +22903,17 @@ emt_err_t emtTrans_afn0df34(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df35(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df35(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF35_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df36
  功能描述  : F36：月冻结月不平衡度越限累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22928,17 +22928,17 @@ emt_err_t emtTrans_afn0df35(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df36(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df36(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF36_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df37
  功能描述  : F37：月冻结月电流越限数据
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22953,17 +22953,17 @@ emt_err_t emtTrans_afn0df36(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df37(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df37(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF37_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df38
  功能描述  : F38：月冻结月视在功率越限累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -22978,17 +22978,17 @@ emt_err_t emtTrans_afn0df37(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df38(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df38(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF38_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df39
  功能描述  : F39：月负载率统计
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -23003,17 +23003,17 @@ emt_err_t emtTrans_afn0df38(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df39(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df39(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF39_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df41
  功能描述  : F41：日冻结电容器累计投入时间和次数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -23028,17 +23028,17 @@ emt_err_t emtTrans_afn0df39(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df41(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df41(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF41_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df42
  功能描述  : F42：日冻结日、月电容器累计补偿的无功电能量
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -23053,17 +23053,17 @@ emt_err_t emtTrans_afn0df41(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df42(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df42(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF42_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df43
  功能描述  : F43：日冻结日功率因数区段累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -23078,17 +23078,17 @@ emt_err_t emtTrans_afn0df42(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df43(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df43(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF43_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df44
  功能描述  : F44：月冻结月功率因数区段累计时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -23103,17 +23103,17 @@ emt_err_t emtTrans_afn0df43(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df44(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df44(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF44_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df97
  功能描述  : F97： 正向有功总电能量 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23128,7 +23128,7 @@ emt_err_t emtTrans_afn0df44(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df97(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23141,7 +23141,7 @@ emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     sMtAfn0dF97    *psU = (sMtAfn0dF97*)psUser;
     sMtAfn0dF97_f  *psF = (sMtAfn0dF97_f*)psFrame;
     uint8_t   ucN,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
        
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -23162,7 +23162,7 @@ emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     }
 
     eRet = emtTrans_td_c(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df97() emtTrans_td_c is %d",eRet);
@@ -23171,11 +23171,11 @@ emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     }
     for(i = 0;i < ucN;i++)
     {
-        eRet = emt_trans_XXXX_XXXX(eTrans,&(psU->dEnergy[i]),&(psF->sEnergy[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXX_XXXX(eTrans,&(psU->dEnergy[i]),&(psF->sEnergy[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df97() emt_trans_XXXX_XXXX is %d",eRet);
+            DEBUG("emtTrans_afn0df97() trans_XXXX_XXXX is %d",eRet);
             #endif
             return eRet;    
         }
@@ -23183,13 +23183,13 @@ emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF97_f) + ucN * sizeof(sMtFmt13_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df98
  功能描述  : F98： 正向无功总电能量 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23204,7 +23204,7 @@ emt_err_t emtTrans_afn0df97(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df98(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df98(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df97(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23212,7 +23212,7 @@ emt_err_t emtTrans_afn0df98(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df99
  功能描述  : F99： 反向有功总电能量 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23227,7 +23227,7 @@ emt_err_t emtTrans_afn0df98(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df99(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df99(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df97(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23235,7 +23235,7 @@ emt_err_t emtTrans_afn0df99(emt_trans_t eTrans, void* psUser, void* psFrame, uin
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df100
  功能描述  : F100： 反向有功总电能量 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23250,7 +23250,7 @@ emt_err_t emtTrans_afn0df99(emt_trans_t eTrans, void* psUser, void* psFrame, uin
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df100(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df100(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df97(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23258,7 +23258,7 @@ emt_err_t emtTrans_afn0df100(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df101
  功能描述  : F101： 正向有功总电能示值 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23273,7 +23273,7 @@ emt_err_t emtTrans_afn0df100(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df101(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23286,7 +23286,7 @@ emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF101    *psU = (sMtAfn0dF101*)psUser;
     sMtAfn0dF101_f  *psF = (sMtAfn0dF101_f*)psFrame;
     uint8_t   ucN,i;
-    emt_err_t  eRet = MT_OK;
+    err_t  eRet = MT_ERR_OK;
     
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -23309,7 +23309,7 @@ emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_c(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df101() emtTrans_td_c is %d",eRet);
@@ -23319,11 +23319,11 @@ emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     
     for(i = 0;i < ucN;i++)
     {
-        eRet = emt_trans_XXXXXX_XX(eTrans,&(psU->dValue[i]),&(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans,&(psU->dValue[i]),&(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df101() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df101() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;    
         }
@@ -23331,13 +23331,13 @@ emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF101_f) + ucN * sizeof(sMtFmt11_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df102
  功能描述  : F102：正向无功总电能示值 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23352,7 +23352,7 @@ emt_err_t emtTrans_afn0df101(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df102(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df102(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df101(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23360,7 +23360,7 @@ emt_err_t emtTrans_afn0df102(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df103
  功能描述  : F103：反向有功总电能示值 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23375,7 +23375,7 @@ emt_err_t emtTrans_afn0df102(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df103(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df103(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df101(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23383,7 +23383,7 @@ emt_err_t emtTrans_afn0df103(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df104
  功能描述  : F104：反向无功总电能示值 曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23398,7 +23398,7 @@ emt_err_t emtTrans_afn0df103(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df104(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df104(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df101(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23406,7 +23406,7 @@ emt_err_t emtTrans_afn0df104(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df105
  功能描述  : F105： 总功率因数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23421,7 +23421,7 @@ emt_err_t emtTrans_afn0df104(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df105(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23434,7 +23434,7 @@ emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF105    *psU = (sMtAfn0dF105*)psUser;
     sMtAfn0dF105_f  *psF = (sMtAfn0dF105_f*)psFrame;
     uint8_t   ucN,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
     
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -23455,7 +23455,7 @@ emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
     
     eRet = emtTrans_td_c(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df105() emtTrans_td_c is %d",eRet);
@@ -23465,24 +23465,24 @@ emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         
     for(i = 0;i < ucN;i++)
     {
-        eRet = emt_trans_sXXX_X(eTrans,&(psU->fFactor[i]),&(psF->sFactor[i]));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans,&(psU->fFactor[i]),&(psF->sFactor[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df105() emt_trans_sXXX_X is %d",eRet);
+            DEBUG("emtTrans_afn0df105() trans_sXXX_X is %d",eRet);
             #endif
             return eRet;    
         }
     }
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF105_f) + ucN * sizeof(sMtFmt05);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df106
  功能描述  : F106：A相功率因数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23497,7 +23497,7 @@ emt_err_t emtTrans_afn0df105(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df106(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df106(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23505,7 +23505,7 @@ emt_err_t emtTrans_afn0df106(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df107
  功能描述  : F107：B相功率因数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23520,7 +23520,7 @@ emt_err_t emtTrans_afn0df106(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df107(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df107(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23528,7 +23528,7 @@ emt_err_t emtTrans_afn0df107(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df108
  功能描述  : F108：C相功率因数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23543,7 +23543,7 @@ emt_err_t emtTrans_afn0df107(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df108(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df108(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df105(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23551,7 +23551,7 @@ emt_err_t emtTrans_afn0df108(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df109
  功能描述  : F109： 电压相位角曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23566,7 +23566,7 @@ emt_err_t emtTrans_afn0df108(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df109(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23579,7 +23579,7 @@ emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF109    *psU = (sMtAfn0dF109*)psUser;
     sMtAfn0dF109_f  *psF = (sMtAfn0dF109_f*)psFrame;
     uint8_t   ucN,i;
-    emt_err_t  eRet = MT_OK;
+    err_t  eRet = MT_ERR_OK;
     
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -23600,7 +23600,7 @@ emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_c(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df109() emtTrans_td_c is %d",eRet);
@@ -23610,42 +23610,42 @@ emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         
     for(i = 0;i < ucN;i++)
     {
-        eRet = emt_trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseA),&(psF->sPhase[i].sPhaseA));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseA),&(psF->sPhase[i].sPhaseA));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df109() emt_trans_sXXX_X is %d",eRet);
+            DEBUG("emtTrans_afn0df109() trans_sXXX_X is %d",eRet);
             #endif
             return eRet;    
         }
         
-        eRet = emt_trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseB),&(psF->sPhase[i].sPhaseB));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseB),&(psF->sPhase[i].sPhaseB));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df109() emt_trans_sXXX_X is %d",eRet);
+            DEBUG("emtTrans_afn0df109() trans_sXXX_X is %d",eRet);
             #endif
             return eRet;    
         }
 
-        eRet = emt_trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseC),&(psF->sPhase[i].sPhaseC));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans,&(psU->sPhase[i].fPhaseC),&(psF->sPhase[i].sPhaseC));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df109() emt_trans_sXXX_X is %d",eRet);
+            DEBUG("emtTrans_afn0df109() trans_sXXX_X is %d",eRet);
             #endif
             return eRet;    
         }
     }
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF109_f) + ucN * sizeof(sMtPhase_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df110
  功能描述  : F110： 电流相位角曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23660,7 +23660,7 @@ emt_err_t emtTrans_afn0df109(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df110(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df110(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df109(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23668,7 +23668,7 @@ emt_err_t emtTrans_afn0df110(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df113
  功能描述  : F113：A相2～19次谐波电流日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23683,7 +23683,7 @@ emt_err_t emtTrans_afn0df110(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df113(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df113(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23695,10 +23695,10 @@ emt_err_t emtTrans_afn0df113(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF113    *psU = (sMtAfn0dF113*)psUser;
     sMtAfn0dF113_f  *psF = (sMtAfn0dF113_f*)psFrame;
     uint8_t   i;
-    emt_err_t  eRet = MT_OK;
+    err_t  eRet = MT_ERR_OK;
    
     eRet = emtTrans_td_d(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df113() emtTrans_td_d is %d",eRet);
@@ -23708,33 +23708,33 @@ emt_err_t emtTrans_afn0df113(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         
     for(i = 0;i < MT_AFN0DF113_COUNT;i++)
     {
-        eRet = emt_trans_sXX_XX(eTrans,&(psU->sHarmTime[i].fHarmI),&(psF->sHarmTime[i].sHarmI));
-        if(MT_OK != eRet)
+        eRet = trans_sXX_XX(eTrans,&(psU->sHarmTime[i].fHarmI),&(psF->sHarmTime[i].sHarmI));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df113() emt_trans_sXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df113() trans_sXX_XX is %d",eRet);
             #endif
             return eRet;    
         }
         
-        eRet = emt_trans_MMDDHHmm(eTrans,&(psU->sHarmTime[i].sTime),&(psF->sHarmTime[i].sTime));
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans,&(psU->sHarmTime[i].sTime),&(psF->sHarmTime[i].sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df113() emt_trans_MMDDHHmm is %d,%d",eRet,i);
+            DEBUG("emtTrans_afn0df113() trans_MMDDHHmm is %d,%d",eRet,i);
             #endif
             return eRet;    
         }
     }
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF113_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df114
  功能描述  : F114： B相2～19次谐波电流日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23749,7 +23749,7 @@ emt_err_t emtTrans_afn0df113(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df114(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df114(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df113(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23757,7 +23757,7 @@ emt_err_t emtTrans_afn0df114(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df115
  功能描述  : F115： C相2～19次谐波电流日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23772,7 +23772,7 @@ emt_err_t emtTrans_afn0df114(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df115(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df115(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df113(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23780,7 +23780,7 @@ emt_err_t emtTrans_afn0df115(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df116
  功能描述  : F116：A相2～19次谐波电压含有率及总畸变率日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23795,7 +23795,7 @@ emt_err_t emtTrans_afn0df115(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df116(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df116(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23807,10 +23807,10 @@ emt_err_t emtTrans_afn0df116(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF116    *psU = (sMtAfn0dF116*)psUser;
     sMtAfn0dF116_f  *psF = (sMtAfn0dF116_f*)psFrame;
     uint8_t   i;
-    emt_err_t  eRet = MT_OK;
+    err_t  eRet = MT_ERR_OK;
     
     eRet = emtTrans_td_d(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df116() emtTrans_td_d is %d",eRet);
@@ -23820,33 +23820,33 @@ emt_err_t emtTrans_afn0df116(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         
     for(i = 0;i < MT_AFN0DF113_COUNT;i++)
     {
-        eRet = emt_trans_sXXX_X(eTrans,&(psU->sHarmTime[i].fHarmU),&(psF->sHarmTime[i].sHarmU));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans,&(psU->sHarmTime[i].fHarmU),&(psF->sHarmTime[i].sHarmU));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df116() emt_trans_sXXX_X is %d",eRet);
+            DEBUG("emtTrans_afn0df116() trans_sXXX_X is %d",eRet);
             #endif
             return eRet;    
         }
         
-        eRet = emt_trans_MMDDHHmm(eTrans,&(psU->sHarmTime[i].sTime),&(psF->sHarmTime[i].sTime));
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans,&(psU->sHarmTime[i].sTime),&(psF->sHarmTime[i].sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df116() emt_trans_MMDDHHmm is %d,%d",eRet,i);
+            DEBUG("emtTrans_afn0df116() trans_MMDDHHmm is %d,%d",eRet,i);
             #endif
             return eRet;    
         }
     }
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF116_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df117
  功能描述  : F117： B相2～19次谐波电压含有率及总畸变率日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23861,7 +23861,7 @@ emt_err_t emtTrans_afn0df116(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df117(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df117(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df116(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23869,7 +23869,7 @@ emt_err_t emtTrans_afn0df117(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df118
  功能描述  : F118： C相2～19次谐波电压含有率及总畸变率日最大值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23884,7 +23884,7 @@ emt_err_t emtTrans_afn0df117(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df118(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df118(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df116(eTrans, psUser, psFrame, pusfLen);
 }
@@ -23892,7 +23892,7 @@ emt_err_t emtTrans_afn0df118(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df121
  功能描述  : F121：A相谐波越限日统计数据 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -23907,7 +23907,7 @@ emt_err_t emtTrans_afn0df118(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df121(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -23920,7 +23920,7 @@ emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF121    *psU = (sMtAfn0dF121*)psUser;
     sMtAfn0dF121_f  *psF = (sMtAfn0dF121_f*)psFrame;
     uint8_t   ucN,i,j;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucN = 0;
     i = 0;
@@ -23976,7 +23976,7 @@ emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
     
     eRet = emtTrans_td_d(eTrans,psUser,psFrame,pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df121() emtTrans_td_d is %d",eRet);
@@ -23986,13 +23986,13 @@ emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF121_f) + 2 * (ucN + 1) * sizeof(uint16_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df122
  功能描述  : F122： B相谐波越限日统计数据 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24007,7 +24007,7 @@ emt_err_t emtTrans_afn0df121(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df122(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df122(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df121(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24015,7 +24015,7 @@ emt_err_t emtTrans_afn0df122(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df123
  功能描述  : F123： C相谐波越限日统计数据 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24030,7 +24030,7 @@ emt_err_t emtTrans_afn0df122(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df123(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df123(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df121(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24038,7 +24038,7 @@ emt_err_t emtTrans_afn0df123(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df129
  功能描述  : F129：直流模拟量越限日累计时间、最大/最小值及发生时间 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24053,7 +24053,7 @@ emt_err_t emtTrans_afn0df123(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df129(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df129(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24083,13 +24083,13 @@ emt_err_t emtTrans_afn0df129(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF129_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df130
  功能描述  : F130： 直流模拟量越限月累计时间、最大/最小值及发生时间 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24104,7 +24104,7 @@ emt_err_t emtTrans_afn0df129(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df130(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df130(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df129(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24112,7 +24112,7 @@ emt_err_t emtTrans_afn0df130(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df138
  功能描述  : F138：直流模拟量数据曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24127,7 +24127,7 @@ emt_err_t emtTrans_afn0df130(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df138(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df138(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24161,13 +24161,13 @@ emt_err_t emtTrans_afn0df138(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF138_f) + ucN * sizeof(sMtFmt02_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df145
  功能描述  : F138：一象限无功总电能示值曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24182,7 +24182,7 @@ emt_err_t emtTrans_afn0df138(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df145(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df145(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24216,13 +24216,13 @@ emt_err_t emtTrans_afn0df145(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF145_f) + ucN * sizeof(sMtFmt11_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df146
  功能描述  : F146： 四象限无功总电能示值曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24237,7 +24237,7 @@ emt_err_t emtTrans_afn0df145(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df146(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df146(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24245,7 +24245,7 @@ emt_err_t emtTrans_afn0df146(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df147
  功能描述  : F147： 二象限无功总电能示值曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24260,7 +24260,7 @@ emt_err_t emtTrans_afn0df146(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df147(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df147(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24268,7 +24268,7 @@ emt_err_t emtTrans_afn0df147(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df148
  功能描述  : F148： 三象限无功总电能示值曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24283,7 +24283,7 @@ emt_err_t emtTrans_afn0df147(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df148(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df148(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df145(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24291,7 +24291,7 @@ emt_err_t emtTrans_afn0df148(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df153
  功能描述  : F153：日冻结分相正向有功电能示值 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24306,7 +24306,7 @@ emt_err_t emtTrans_afn0df148(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df153(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df153(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24336,13 +24336,13 @@ emt_err_t emtTrans_afn0df153(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF153_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df154
  功能描述  : F154：日冻结分相正向无功电能示值 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24357,7 +24357,7 @@ emt_err_t emtTrans_afn0df153(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df154(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df154(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24387,13 +24387,13 @@ emt_err_t emtTrans_afn0df154(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF154_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df155
  功能描述  : F155：日冻结分相反向有功电能示值 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24408,7 +24408,7 @@ emt_err_t emtTrans_afn0df154(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df155(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df155(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df153(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24416,7 +24416,7 @@ emt_err_t emtTrans_afn0df155(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df156
  功能描述  : F156：日冻结分相反向有功电能示值 日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24431,7 +24431,7 @@ emt_err_t emtTrans_afn0df155(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df156(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df156(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df154(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24439,7 +24439,7 @@ emt_err_t emtTrans_afn0df156(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df157
  功能描述  : F157：月冻结分相正向有功电能示值 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24454,7 +24454,7 @@ emt_err_t emtTrans_afn0df156(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df157(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df157(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24466,10 +24466,10 @@ emt_err_t emtTrans_afn0df157(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     
     sMtAfn0dF157    *psU = (sMtAfn0dF157*)psUser;
     sMtAfn0dF157_f  *psF = (sMtAfn0dF157_f*)psFrame;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     eRet = emtTrans_td_m(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df157() emtTrans_td_m is %d",eRet);
@@ -24477,51 +24477,51 @@ emt_err_t emtTrans_afn0df157(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df157() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df157() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dValueA), &(psF->sValueA));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dValueA), &(psF->sValueA));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df157() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df157() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dValueB), &(psF->sValueB));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dValueB), &(psF->sValueB));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df157() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df157() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dValueC), &(psF->sValueC));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dValueC), &(psF->sValueC));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df157() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df157() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF157_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df158
  功能描述  : F158：月冻结分相正向无功电能示值 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24536,7 +24536,7 @@ emt_err_t emtTrans_afn0df157(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df158(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df158(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24566,14 +24566,14 @@ emt_err_t emtTrans_afn0df158(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF158_f);
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df159
  功能描述  : F159：月冻结分相反向有功电能示值 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24588,7 +24588,7 @@ emt_err_t emtTrans_afn0df158(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df159(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df159(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df157(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24596,7 +24596,7 @@ emt_err_t emtTrans_afn0df159(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df160
  功能描述  : F160：月冻结分相反向无功电能示值 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24611,7 +24611,7 @@ emt_err_t emtTrans_afn0df159(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df160(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df160(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df158(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24619,7 +24619,7 @@ emt_err_t emtTrans_afn0df160(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df161
  功能描述  : F161：正向有功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24634,7 +24634,7 @@ emt_err_t emtTrans_afn0df160(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df161(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24647,7 +24647,7 @@ emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF161    *psU = (sMtAfn0dF161*)psUser;
     sMtAfn0dF161_f  *psF = (sMtAfn0dF161_f*)psFrame;
     uint8_t   ucM,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucM = 0;
     // 帧侧转为用户侧
@@ -24671,7 +24671,7 @@ emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_d(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df161() emtTrans_td_d is %d",eRet);
@@ -24679,22 +24679,22 @@ emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df161() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df161() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
     for(i = 0; i < ucM;i ++)
     {
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df161() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df161() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;
         }    
@@ -24702,13 +24702,13 @@ emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF161_f) + ucM * sizeof(sMtFmt14_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df162
  功能描述  : F162：正向无功（组合无功1）电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24723,7 +24723,7 @@ emt_err_t emtTrans_afn0df161(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df162(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -24736,7 +24736,7 @@ emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF162    *psU = (sMtAfn0dF162*)psUser;
     sMtAfn0dF162_f  *psF = (sMtAfn0dF162_f*)psFrame;
     uint8_t   ucM,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucM = 0;
     // 帧侧转为用户侧
@@ -24760,7 +24760,7 @@ emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_d(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df162() emtTrans_td_d is %d",eRet);
@@ -24768,22 +24768,22 @@ emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df162() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df162() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
     for(i = 0; i < ucM;i ++)
     {
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df162() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df162() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;
         }    
@@ -24791,13 +24791,13 @@ emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, ui
    
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF162_f) + ucM * sizeof(sMtFmt11_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df163
  功能描述  : F163：反向有功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24812,7 +24812,7 @@ emt_err_t emtTrans_afn0df162(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df163(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df163(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df161(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24820,7 +24820,7 @@ emt_err_t emtTrans_afn0df163(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df164
  功能描述  : F164：反向无功（组合无功1）电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24835,7 +24835,7 @@ emt_err_t emtTrans_afn0df163(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df164(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df164(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24843,7 +24843,7 @@ emt_err_t emtTrans_afn0df164(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df165
  功能描述  : F165：一象限无功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24858,7 +24858,7 @@ emt_err_t emtTrans_afn0df164(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df165(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df165(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24866,7 +24866,7 @@ emt_err_t emtTrans_afn0df165(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df166
  功能描述  : F166：二象限无功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24881,7 +24881,7 @@ emt_err_t emtTrans_afn0df165(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df166(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df166(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24889,7 +24889,7 @@ emt_err_t emtTrans_afn0df166(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df167
  功能描述  : F167：三象限无功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24904,7 +24904,7 @@ emt_err_t emtTrans_afn0df166(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df167(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df167(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24912,7 +24912,7 @@ emt_err_t emtTrans_afn0df167(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df168
  功能描述  : F168：四象限无功电能示值（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24927,7 +24927,7 @@ emt_err_t emtTrans_afn0df167(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df168(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df168(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24935,7 +24935,7 @@ emt_err_t emtTrans_afn0df168(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df169
  功能描述  : F169： 正向有功电能示值（总、费率1～M）  抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24950,7 +24950,7 @@ emt_err_t emtTrans_afn0df168(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df169(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df169(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df157(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24958,7 +24958,7 @@ emt_err_t emtTrans_afn0df169(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df170
  功能描述  : F170： 正向有功电能示值（总、费率1～M）  抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24973,7 +24973,7 @@ emt_err_t emtTrans_afn0df169(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df170(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df170(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df162(eTrans, psUser, psFrame, pusfLen);
 }
@@ -24981,7 +24981,7 @@ emt_err_t emtTrans_afn0df170(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df171
  功能描述  : F171： 正向有功电能示值（总、费率1～M）  抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -24996,7 +24996,7 @@ emt_err_t emtTrans_afn0df170(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df171(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df171(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df163(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25004,7 +25004,7 @@ emt_err_t emtTrans_afn0df171(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df172
  功能描述  : F172： 反向无功（组合无功1）电能示值（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25019,7 +25019,7 @@ emt_err_t emtTrans_afn0df171(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df172(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df172(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df164(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25027,7 +25027,7 @@ emt_err_t emtTrans_afn0df172(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df173
  功能描述  : F173： 一象限无功电能示值（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25042,7 +25042,7 @@ emt_err_t emtTrans_afn0df172(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df173(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df173(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df165(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25050,7 +25050,7 @@ emt_err_t emtTrans_afn0df173(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df174
  功能描述  : F174： 二象限无功电能示值（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25065,7 +25065,7 @@ emt_err_t emtTrans_afn0df173(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df174(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df174(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df166(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25073,7 +25073,7 @@ emt_err_t emtTrans_afn0df174(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df175
  功能描述  : F175： 三象限无功电能示值（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25088,7 +25088,7 @@ emt_err_t emtTrans_afn0df174(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df175(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df175(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df167(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25096,7 +25096,7 @@ emt_err_t emtTrans_afn0df175(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df176
  功能描述  : F176：  四象限无功电能示值（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25111,7 +25111,7 @@ emt_err_t emtTrans_afn0df175(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df176(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df176(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df168(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25119,7 +25119,7 @@ emt_err_t emtTrans_afn0df176(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df177
  功能描述  : F177：  正向有功电能示值（总、费率1～M）   月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25134,7 +25134,7 @@ emt_err_t emtTrans_afn0df176(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df177(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -25147,7 +25147,7 @@ emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF177    *psU = (sMtAfn0dF177*)psUser;
     sMtAfn0dF177_f  *psF = (sMtAfn0dF177_f*)psFrame;
     uint8_t   ucM,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucM = 0;
     // 帧侧转为用户侧
@@ -25170,7 +25170,7 @@ emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return MT_ERR_PARA;
     }
     eRet = emtTrans_td_m(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df177() emtTrans_td_m is %d",eRet);
@@ -25178,22 +25178,22 @@ emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df177() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df177() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
     for(i = 0; i < ucM;i ++)
     {
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df177() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df177() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;
         }    
@@ -25201,13 +25201,13 @@ emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF177_f) + ucM * sizeof(sMtFmt14_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df178
  功能描述  : F178： 正向无功（组合无功1）电能示值（总、费率1～M）月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -25222,7 +25222,7 @@ emt_err_t emtTrans_afn0df177(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df178(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -25235,7 +25235,7 @@ emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF178    *psU = (sMtAfn0dF178*)psUser;
     sMtAfn0dF178_f  *psF = (sMtAfn0dF178_f*)psFrame;
     uint8_t   ucM,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucM = 0;
     // 帧侧转为用户侧
@@ -25259,7 +25259,7 @@ emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_m(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df178() emtTrans_td_m is %d",eRet);
@@ -25267,22 +25267,22 @@ emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df178() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df178() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
     for(i = 0; i < ucM;i ++)
     {
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dValue[i]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df178() emt_trans_XXXXXX_XX is %d",eRet);
+            DEBUG("emtTrans_afn0df178() trans_XXXXXX_XX is %d",eRet);
             #endif
             return eRet;
         }    
@@ -25290,13 +25290,13 @@ emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF178_f) + ucM * sizeof(sMtFmt11_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df179
  功能描述  : F179：  反向有功电能示值（总、费率1～M）   月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25311,7 +25311,7 @@ emt_err_t emtTrans_afn0df178(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df179(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df179(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df177(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25319,7 +25319,7 @@ emt_err_t emtTrans_afn0df179(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df180
  功能描述  : F180： 反向无功（组合无功1）电能示值（总、费率1～M）月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25334,7 +25334,7 @@ emt_err_t emtTrans_afn0df179(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df180(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df180(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df178(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25342,7 +25342,7 @@ emt_err_t emtTrans_afn0df180(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df181
  功能描述  : F181： 一象限无功电能示值（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25357,7 +25357,7 @@ emt_err_t emtTrans_afn0df180(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df181(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df181(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df178(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25365,7 +25365,7 @@ emt_err_t emtTrans_afn0df181(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df182
  功能描述  : F182：二象限无功电能示值（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25380,7 +25380,7 @@ emt_err_t emtTrans_afn0df181(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df182(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df182(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df178(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25388,7 +25388,7 @@ emt_err_t emtTrans_afn0df182(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df183
  功能描述  : F183：三象限无功电能示值（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25403,7 +25403,7 @@ emt_err_t emtTrans_afn0df182(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df183(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df183(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df178(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25411,7 +25411,7 @@ emt_err_t emtTrans_afn0df183(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df184
  功能描述  : F184：四象限无功电能示值（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25426,7 +25426,7 @@ emt_err_t emtTrans_afn0df183(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df184(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df184(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df178(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25434,7 +25434,7 @@ emt_err_t emtTrans_afn0df184(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df185
  功能描述  : F185： 正向有功最大需量及发生时间（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25449,7 +25449,7 @@ emt_err_t emtTrans_afn0df184(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df185(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -25462,7 +25462,7 @@ emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF185    *psU = (sMtAfn0dF185*)psUser;
     sMtAfn0dF185_f  *psF = (sMtAfn0dF185_f*)psFrame;
     uint8_t   ucM,i;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     ucM = 0;
     // 帧侧转为用户侧
@@ -25486,7 +25486,7 @@ emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
     
     eRet = emtTrans_td_d(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df185() emtTrans_td_d is %d",eRet);
@@ -25494,44 +25494,44 @@ emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
 
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df185() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df185() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
     for(i = 0; i < ucM + 1;i++)
     {   
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->sMaxClock[i].fMax), &(psF->sMaxClock[i].sMax));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->sMaxClock[i].fMax), &(psF->sMaxClock[i].sMax));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df185() emt_trans_XX_XXXX is %d",eRet);
+            DEBUG("emtTrans_afn0df185() trans_XX_XXXX is %d",eRet);
             #endif
             return eRet;
         }    
         
-        eRet = emt_trans_MMDDHHmm(eTrans, &(psU->sMaxClock[i].sClock), &(psF->sMaxClock[i].sClock));
-        if(MT_OK != eRet)
+        eRet = trans_MMDDHHmm(eTrans, &(psU->sMaxClock[i].sClock), &(psF->sMaxClock[i].sClock));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df185() emt_trans_MMDDHHmm is %d",eRet);
+            DEBUG("emtTrans_afn0df185() trans_MMDDHHmm is %d",eRet);
             #endif
             return eRet;
         }         
     }    
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF185_f) + ucM * sizeof( sMtMaxTime_f );
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df186
  功能描述  : F186：正向无功最大需量及发生时间（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25546,7 +25546,7 @@ emt_err_t emtTrans_afn0df185(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df186(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df186(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df185(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25554,7 +25554,7 @@ emt_err_t emtTrans_afn0df186(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df187
  功能描述  : F187：反向有功最大需量及发生时间（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25569,7 +25569,7 @@ emt_err_t emtTrans_afn0df186(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df187(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df187(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df185(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25578,7 +25578,7 @@ emt_err_t emtTrans_afn0df187(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df188
  功能描述  : F188：反向无功最大需量及发生时间（总、费率1～M）日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25593,7 +25593,7 @@ emt_err_t emtTrans_afn0df187(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df188(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df188(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df185(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25601,7 +25601,7 @@ emt_err_t emtTrans_afn0df188(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df189
  功能描述  : F189：正向有功最大需量及发生时间（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25616,7 +25616,7 @@ emt_err_t emtTrans_afn0df188(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df189(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df189(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df185(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25624,7 +25624,7 @@ emt_err_t emtTrans_afn0df189(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df190
  功能描述  : F190：正向无功最大需量及发生时间（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25639,7 +25639,7 @@ emt_err_t emtTrans_afn0df189(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df190(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df190(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df186(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25647,7 +25647,7 @@ emt_err_t emtTrans_afn0df190(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df191
  功能描述  : F191：反向有功最大需量及发生时间（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25662,7 +25662,7 @@ emt_err_t emtTrans_afn0df190(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df191(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df191(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df187(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25670,7 +25670,7 @@ emt_err_t emtTrans_afn0df191(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df192
  功能描述  : F192：反向无功最大需量及发生时间（总、费率1～M）抄表日冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25685,7 +25685,7 @@ emt_err_t emtTrans_afn0df191(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df192(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df192(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df188(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25693,7 +25693,7 @@ emt_err_t emtTrans_afn0df192(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df193
  功能描述  : F193： 正向有功最大需量及发生时间（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25708,7 +25708,7 @@ emt_err_t emtTrans_afn0df192(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df193(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df193(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -25743,13 +25743,13 @@ emt_err_t emtTrans_afn0df193(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF193_f) + ucM * sizeof( sMtMaxTime );
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df194
  功能描述  : F194：正向无功最大需量及发生时间（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25764,7 +25764,7 @@ emt_err_t emtTrans_afn0df193(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df194(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df194(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df193(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25772,7 +25772,7 @@ emt_err_t emtTrans_afn0df194(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df195
  功能描述  : F195：反向有功最大需量及发生时间（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25787,7 +25787,7 @@ emt_err_t emtTrans_afn0df194(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df195(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df195(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df193(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25795,7 +25795,7 @@ emt_err_t emtTrans_afn0df195(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df196
  功能描述  : F196：反向无功最大需量及发生时间（总、费率1～M） 月冻结
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25810,7 +25810,7 @@ emt_err_t emtTrans_afn0df195(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df196(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df196(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df193(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25818,7 +25818,7 @@ emt_err_t emtTrans_afn0df196(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df201
  功能描述  : F201：第一时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25833,7 +25833,7 @@ emt_err_t emtTrans_afn0df196(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df201(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df201(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df177(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25841,7 +25841,7 @@ emt_err_t emtTrans_afn0df201(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df202
  功能描述  : F202：第二时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25856,7 +25856,7 @@ emt_err_t emtTrans_afn0df201(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df202(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df202(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25864,7 +25864,7 @@ emt_err_t emtTrans_afn0df202(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df203
  功能描述  : F203：第三时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25879,7 +25879,7 @@ emt_err_t emtTrans_afn0df202(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df203(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df203(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25887,7 +25887,7 @@ emt_err_t emtTrans_afn0df203(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df204
  功能描述  : F204：第四时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25902,7 +25902,7 @@ emt_err_t emtTrans_afn0df203(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df204(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df204(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25910,7 +25910,7 @@ emt_err_t emtTrans_afn0df204(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df205
  功能描述  : F205：第五时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25925,7 +25925,7 @@ emt_err_t emtTrans_afn0df204(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df205(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df205(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25933,7 +25933,7 @@ emt_err_t emtTrans_afn0df205(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df206
  功能描述  : F206：第六时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25948,7 +25948,7 @@ emt_err_t emtTrans_afn0df205(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df206(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df206(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25956,7 +25956,7 @@ emt_err_t emtTrans_afn0df206(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df207
  功能描述  : F207：第七时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25971,7 +25971,7 @@ emt_err_t emtTrans_afn0df206(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df207(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df207(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -25979,7 +25979,7 @@ emt_err_t emtTrans_afn0df207(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df208
  功能描述  : F208：第八时区冻结正向有功电能示值（总、费率1～M）
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -25994,7 +25994,7 @@ emt_err_t emtTrans_afn0df207(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df208(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df208(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df201(eTrans, psUser, psFrame, pusfLen);
 }
@@ -26002,7 +26002,7 @@ emt_err_t emtTrans_afn0df208(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df209
  功能描述  : F209： 电能表远程控制通断电状态及记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26017,7 +26017,7 @@ emt_err_t emtTrans_afn0df208(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df209(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df209(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26047,13 +26047,13 @@ emt_err_t emtTrans_afn0df209(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF209_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df213
  功能描述  : F213：电能表开关操作次数及时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26068,7 +26068,7 @@ emt_err_t emtTrans_afn0df209(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df213(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df213(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26098,13 +26098,13 @@ emt_err_t emtTrans_afn0df213(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF213_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df214
  功能描述  : F214：电能表参数修改次数及时间
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26119,7 +26119,7 @@ emt_err_t emtTrans_afn0df213(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df214(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df214(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0df213(eTrans, psUser, psFrame, pusfLen); 
 }
@@ -26127,7 +26127,7 @@ emt_err_t emtTrans_afn0df214(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df215
  功能描述  : F215：电能表购、用电信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26142,7 +26142,7 @@ emt_err_t emtTrans_afn0df214(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df215(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df215(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26154,10 +26154,10 @@ emt_err_t emtTrans_afn0df215(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     
     sMtAfn0dF215    *psU = (sMtAfn0dF215*)psUser;
     sMtAfn0dF215_f  *psF = (sMtAfn0dF215_f*)psFrame;
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     eRet = emtTrans_td_m(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df215() emtTrans_td_m is %d",eRet);
@@ -26165,104 +26165,104 @@ emt_err_t emtTrans_afn0df215(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
     
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXX(eTrans, &(psU->usBuyTimes), &(psF->sBuyTimes));
-    if(MT_OK != eRet)
+    eRet = trans_XXXX(eTrans, &(psU->usBuyTimes), &(psF->sBuyTimes));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dCashLeft), &(psF->sCashLeft));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dCashLeft), &(psF->sCashLeft));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dCashTotal), &(psF->sCashTotal));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dCashTotal), &(psF->sCashTotal));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattLeft), &(psF->sKilowattLeft));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattLeft), &(psF->sKilowattLeft));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattOver), &(psF->sKilowattOver));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattOver), &(psF->sKilowattOver));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
     
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattTotal), &(psF->sKilowattTotal));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattTotal), &(psF->sKilowattTotal));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattDebit), &(psF->sKilowattDebit));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattDebit), &(psF->sKilowattDebit));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattWarn), &(psF->sKilowattWarn));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattWarn), &(psF->sKilowattWarn));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dKilowattFault), &(psF->sKilowattFault));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XX(eTrans, &(psU->dKilowattFault), &(psF->sKilowattFault));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df215() emt_trans_XXXXXX_XX is %d",eRet);
+        DEBUG("emtTrans_afn0df215() trans_XXXXXX_XX is %d",eRet);
         #endif
         return eRet;
     }
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF215_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df216
  功能描述  : F216：电能表结算信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26277,7 +26277,7 @@ emt_err_t emtTrans_afn0df215(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df216(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26289,7 +26289,7 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     sMtAfn0dF216 *psU   = (sMtAfn0dF216 *)psUser;
     sMtAfn0dF216_f *psF = (sMtAfn0dF216_f *)psFrame;
     uint8_t   ucM,i,j;
-    emt_err_t  eRet = MT_OK;
+    err_t  eRet = MT_ERR_OK;
 
     ucM = 0;
     i = 0;
@@ -26314,7 +26314,7 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     }
 
     eRet = emtTrans_td_m(eTrans, psUser, psFrame, pusfLen);
-    if(MT_OK != eRet)
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
         DEBUG("emtTrans_afn0df216() emtTrans_td_m is %d",eRet);
@@ -26322,20 +26322,20 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
         return eRet;
     }
     
-    eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-    if(MT_OK != eRet)
+    eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df216() emt_trans_YYMMDDhhmm is %d",eRet);
+        DEBUG("emtTrans_afn0df216() trans_YYMMDDhhmm is %d",eRet);
         #endif
         return eRet;
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dTotalBalance), &(psF->sValue[i]));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dTotalBalance), &(psF->sValue[i]));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df216() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df216() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
@@ -26343,21 +26343,21 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     for(j = 0; j < ucM; j++,i++)
     {
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dBalance[j]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dBalance[j]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df216() emt_trans_XXXXXX_XXXX is %d",eRet);
+            DEBUG("emtTrans_afn0df216() trans_XXXXXX_XXXX is %d",eRet);
             #endif
             return eRet;
         }
     }
     
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dTotalNoBalance), &(psF->sValue[i]));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dTotalNoBalance), &(psF->sValue[i]));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df216() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df216() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
@@ -26365,34 +26365,34 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     for(j = 0; j < ucM; j++,i++)
     {
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dNoBalance[j]), &(psF->sValue[i]));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dNoBalance[j]), &(psF->sValue[i]));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_afn0df216() emt_trans_XXXXXX_XXXX is %d",eRet);
+            DEBUG("emtTrans_afn0df216() trans_XXXXXX_XXXX is %d",eRet);
             #endif
             return eRet;
         }
     }
 
-    eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dFault), &(psF->sValue[i]));
-    if(MT_OK != eRet)
+    eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dFault), &(psF->sValue[i]));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emtTrans_afn0df216() emt_trans_XXXXXX_XXXX is %d",eRet);
+        DEBUG("emtTrans_afn0df216() trans_XXXXXX_XXXX is %d",eRet);
         #endif
         return eRet;
     }
     i++;
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF216_f) + (2 * ucM + 3) * sizeof(sMtFmt14_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df217
  功能描述  : F217：台区集中抄表载波主节点白噪声曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26407,7 +26407,7 @@ emt_err_t emtTrans_afn0df216(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df217(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df217(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26442,13 +26442,13 @@ emt_err_t emtTrans_afn0df217(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF217_f) + ucN * sizeof(uint8_t);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0df218
  功能描述  : F218：台区集中抄表载波主节点色噪声曲线
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame       
              uint16_t* pusfLen     
@@ -26463,7 +26463,7 @@ emt_err_t emtTrans_afn0df217(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0df218(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0df218(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26498,13 +26498,13 @@ emt_err_t emtTrans_afn0df218(emt_trans_t eTrans, void* psUser, void* psFrame, ui
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAfn0dF218_f) + ucN * sizeof(sMtCurvePoint_f);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_1
  功能描述  : ERC1：数据初始化和版本变更记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -26519,7 +26519,7 @@ emt_err_t emtTrans_afn0df218(emt_trans_t eTrans, void* psUser, void* psFrame, ui
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_1(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26532,7 +26532,7 @@ emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     sMtRec1    *psU   = (sMtRec1*)psUser;
     sMtRec1_f  *psF   = (sMtRec1_f*)psFrame;
     uint8_t      ucLen  = 0;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     
     // 帧侧转为用户侧
     if(MT_TRANS_F2U == eTrans)
@@ -26558,11 +26558,11 @@ emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_1() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_1() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -26612,11 +26612,11 @@ emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_1() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_1() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -26658,13 +26658,13 @@ emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_2
  功能描述  : ERC2：参数丢失记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -26679,7 +26679,7 @@ emt_err_t emtTrans_rec_1(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_2(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26691,7 +26691,7 @@ emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec2    *psU   = (sMtRec2*)psUser;
     sMtRec2_f  *psF   = (sMtRec2_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
 
     
@@ -26719,11 +26719,11 @@ emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_2() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_2() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -26768,11 +26768,11 @@ emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_2() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_2() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -26808,13 +26808,13 @@ emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = 0;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_3
  功能描述  : ERC3：参数变更记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -26829,7 +26829,7 @@ emt_err_t emtTrans_rec_2(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_3(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26843,7 +26843,7 @@ emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     sMtRec3_f  *psF   = (sMtRec3_f*)psFrame;
     uint8_t      ucLen  = 0;
     uint8_t      ucN    = 0;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
 
     
     // 帧侧转为用户侧
@@ -26872,11 +26872,11 @@ emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         ucN = (ucLen - (sizeof(sMtFmt15_f) + 3)) / sizeof(sMtDaDt);
         
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_3() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_3() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -26900,13 +26900,13 @@ emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = 0;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_4
  功能描述  : ERC4：状态量变位记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -26921,7 +26921,7 @@ emt_err_t emtTrans_rec_3(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_4(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -26934,7 +26934,7 @@ emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     sMtRec4    *psU   = (sMtRec4*)psUser;
     sMtRec4_f  *psF   = (sMtRec4_f*)psFrame;
     uint8_t      ucLen  = 0;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     int32_t      i      = 0;
     
     // 帧侧转为用户侧
@@ -26961,11 +26961,11 @@ emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_4() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_4() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27015,11 +27015,11 @@ emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_4() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_4() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27062,12 +27062,12 @@ emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_5
  功能描述  : ERC5：遥控跳闸记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -27082,7 +27082,7 @@ emt_err_t emtTrans_rec_4(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_5(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -27094,7 +27094,7 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec5    *psU   = (sMtRec5*)psUser;
     sMtRec5_f  *psF   = (sMtRec5_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucMask = 0x01;
     int32_t      i      = 0;
@@ -27123,11 +27123,11 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27146,21 +27146,21 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // fPower
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPower2m
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27184,11 +27184,11 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27204,21 +27204,21 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // fPower
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPower2m
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_5() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_5() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27234,12 +27234,12 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = 0;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_6
  功能描述  : ERC6：功控跳闸记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -27254,7 +27254,7 @@ emt_err_t emtTrans_rec_5(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_6(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -27266,7 +27266,7 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec6    *psU   = (sMtRec6*)psUser;
     sMtRec6_f  *psF   = (sMtRec6_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucMask = 0x01;
     uint8_t      ucTmp  = 0;
@@ -27298,11 +27298,11 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27365,31 +27365,31 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // fPower
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPower2m
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPowerFix
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPowerFix), &(psF->fPowerFix));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPowerFix), &(psF->fPowerFix));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27413,11 +27413,11 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27462,31 +27462,31 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // fPower
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower), &(psF->fPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPower2m
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPower2m), &(psF->fPower2m));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPowerFix
-        eRet = emt_trans_sXXX(eTrans, &(psU->fPowerFix), &(psF->fPowerFix));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fPowerFix), &(psF->fPowerFix));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27502,12 +27502,12 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_7
  功能描述  : ERC7：电控跳闸记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -27522,7 +27522,7 @@ emt_err_t emtTrans_rec_6(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_7(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -27534,7 +27534,7 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec7    *psU   = (sMtRec7*)psUser;
     sMtRec7_f  *psF   = (sMtRec7_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucMask = 0x01;
     uint8_t      ucTmp  = 0;
@@ -27564,11 +27564,11 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_7() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_7() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27612,21 +27612,21 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
        
 
         // fPower
-        eRet = emt_trans_sX7(eTrans, &(psU->sPower), &(psF->sPower));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPower), &(psF->sPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPowerFix
-        eRet = emt_trans_sX7(eTrans, &(psU->sPowerFix), &(psF->sPowerFix));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPowerFix), &(psF->sPowerFix));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27650,11 +27650,11 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_7() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_7() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27687,21 +27687,21 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
         
         // fPower
-        eRet = emt_trans_sX7(eTrans, &(psU->sPower), &(psF->sPower));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPower), &(psF->sPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fPowerFix
-        eRet = emt_trans_sX7(eTrans, &(psU->sPowerFix), &(psF->sPowerFix));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPowerFix), &(psF->sPowerFix));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_6() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_6() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27716,12 +27716,12 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_8
  功能描述  : ERC8：电能表参数变更
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -27736,7 +27736,7 @@ emt_err_t emtTrans_rec_7(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_8(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -27748,7 +27748,7 @@ emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec8    *psU   = (sMtRec8*)psUser;
     sMtRec8_f  *psF   = (sMtRec8_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -27775,11 +27775,11 @@ emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_8() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_8() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27874,11 +27874,11 @@ emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_8() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_8() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -27942,12 +27942,12 @@ emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_9
  功能描述  : ERC9：电流回路异常
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -27962,7 +27962,7 @@ emt_err_t emtTrans_rec_8(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_9(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -27974,7 +27974,7 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     sMtRec9    *psU   = (sMtRec9*)psUser;
     sMtRec9_f  *psF   = (sMtRec9_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucTmp  = 0;
     uint16_t     usPn   = 0;
@@ -28003,11 +28003,11 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28090,71 +28090,71 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         }
         
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28177,11 +28177,11 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28246,71 +28246,71 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
         psF->ucExcp |= (ucTmp << 6);
                 
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28325,12 +28325,12 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_10
  功能描述  : ERC10：电压回路异常 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -28345,7 +28345,7 @@ emt_err_t emtTrans_rec_9(emt_trans_t eTrans, void* psUser, void* psFrame, uint16
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_10(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -28357,7 +28357,7 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec10    *psU   = (sMtRec10*)psUser;
     sMtRec10_f  *psF   = (sMtRec10_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint8_t       ucTmp  = 0;
     uint16_t      usPn   = 0;
@@ -28386,11 +28386,11 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28468,71 +28468,71 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
         
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_9() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_9() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28555,11 +28555,11 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28621,71 +28621,71 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucExcp |= (ucTmp << 6);
                 
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_10() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_10() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28700,12 +28700,12 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_11
  功能描述  : ERC11：相序异常
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -28720,7 +28720,7 @@ emt_err_t emtTrans_rec_10(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_11(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -28732,7 +28732,7 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec11    *psU   = (sMtRec11*)psUser;
     sMtRec11_f  *psF   = (sMtRec11_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -28760,11 +28760,11 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28792,71 +28792,71 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fUa
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28880,11 +28880,11 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28908,71 +28908,71 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fUa
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // fIa
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_11() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_11() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -28987,12 +28987,12 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_12
  功能描述  : ERC12：电能表时间超差
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -29007,7 +29007,7 @@ emt_err_t emtTrans_rec_11(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_12(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -29019,7 +29019,7 @@ emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec12    *psU   = (sMtRec12*)psUser;
     sMtRec12_f  *psF   = (sMtRec12_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
 
@@ -29047,11 +29047,11 @@ emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_12() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_12() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29096,11 +29096,11 @@ emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_12() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_12() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29133,12 +29133,12 @@ emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_13
  功能描述  : ERC13：电表故障信息
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -29153,7 +29153,7 @@ emt_err_t emtTrans_rec_12(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_13(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -29165,7 +29165,7 @@ emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec13    *psU   = (sMtRec13*)psUser;
     sMtRec13_f  *psF   = (sMtRec13_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     int16_t       usPn   = 0;
     
@@ -29193,11 +29193,11 @@ emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_13() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_13() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29292,11 +29292,11 @@ emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_13() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_13() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29361,12 +29361,12 @@ emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_14
  功能描述  : ERC14：终端停/上电事件
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -29381,7 +29381,7 @@ emt_err_t emtTrans_rec_13(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_14(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -29393,7 +29393,7 @@ emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec14    *psU   = (sMtRec14*)psUser;
     sMtRec14_f  *psF   = (sMtRec14_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -29420,21 +29420,21 @@ emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_14() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_14() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // time_go
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTimeGo), &(psF->sTimeGo));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTimeGo), &(psF->sTimeGo));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_14() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_14() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29457,21 +29457,21 @@ emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_14() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_14() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // time_go
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTimeGo), &(psF->sTimeGo));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTimeGo), &(psF->sTimeGo));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_14() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_14() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29486,12 +29486,12 @@ emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_15
  功能描述  : ERC15：谐波越限告警
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -29506,7 +29506,7 @@ emt_err_t emtTrans_rec_14(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_15(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -29518,7 +29518,7 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec15    *psU      = (sMtRec15*)psUser;
     sMtRec15_f  *psF      = (sMtRec15_f*)psFrame;
-    emt_err_t      eRet      = MT_OK;
+    err_t      eRet      = MT_ERR_OK;
     uint8_t       ucLen     = 0;
     uint8_t       ucIndex   = 0;
     uint8_t       ucPos     = 0;
@@ -29550,11 +29550,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_15() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_15() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29640,11 +29640,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
             if(psF->ucExcp & 0x80)
             {
                 // 电流越限记录
-                eRet = emt_trans_sXX_XX(eTrans, &(psOver->fValue), (sMtFmt06*)&(psF->usHarm[i]));
-                if(MT_OK != eRet)
+                eRet = trans_sXX_XX(eTrans, &(psOver->fValue), (sMtFmt06*)&(psF->usHarm[i]));
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emtTrans_rec_15() emt_trans_sXX_XX error eRet = %d", eRet);
+                    DEBUG("emtTrans_rec_15() trans_sXX_XX error eRet = %d", eRet);
                     #endif
                     return eRet;
                 }
@@ -29652,11 +29652,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
             else
             {   
                 // 电压越限记录
-                eRet = emt_trans_sXXX_X(eTrans, &(psOver->fValue), (sMtFmt05*)&(psF->usHarm[i]));
-                if(MT_OK != eRet)
+                eRet = trans_sXXX_X(eTrans, &(psOver->fValue), (sMtFmt05*)&(psF->usHarm[i]));
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emtTrans_rec_15() emt_trans_sXX_XX error eRet = %d", eRet);
+                    DEBUG("emtTrans_rec_15() trans_sXX_XX error eRet = %d", eRet);
                     #endif
                     return eRet;
                 }
@@ -29683,11 +29683,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_15() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_15() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29754,11 +29754,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
             if(psF->ucExcp & 0x80)
             {
                 // 电流越限记录
-                eRet = emt_trans_sXX_XX(eTrans, &(psOver->fValue), (sMtFmt06*)&(psF->usHarm[i]));
-                if(MT_OK != eRet)
+                eRet = trans_sXX_XX(eTrans, &(psOver->fValue), (sMtFmt06*)&(psF->usHarm[i]));
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emtTrans_rec_15() emt_trans_sXX_XX error eRet = %d", eRet);
+                    DEBUG("emtTrans_rec_15() trans_sXX_XX error eRet = %d", eRet);
                     #endif
                     return eRet;
                 }
@@ -29766,11 +29766,11 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
             else
             {   
                 // 电压越限记录
-                eRet = emt_trans_sXXX_X(eTrans, &(psOver->fValue), (sMtFmt05*)&(psF->usHarm[i]));
-                if(MT_OK != eRet)
+                eRet = trans_sXXX_X(eTrans, &(psOver->fValue), (sMtFmt05*)&(psF->usHarm[i]));
+                if(MT_ERR_OK != eRet)
                 {
                     #ifdef MT_DBG
-                    DEBUG("emtTrans_rec_15() emt_trans_sXX_XX error eRet = %d", eRet);
+                    DEBUG("emtTrans_rec_15() trans_sXX_XX error eRet = %d", eRet);
                     #endif
                     return eRet;
                 }
@@ -29789,12 +29789,12 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_16
  功能描述  : ERC16：直流模拟量越限记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -29809,7 +29809,7 @@ emt_err_t emtTrans_rec_15(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_16(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -29821,7 +29821,7 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec16    *psU   = (sMtRec16*)psUser;
     sMtRec16_f  *psF   = (sMtRec16_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
 
@@ -29849,11 +29849,11 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_16() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_16() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29901,11 +29901,11 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fDcValue
-        eRet = emt_trans_sXXX(eTrans, &(psU->fDcValue), &(psF->fDcValue));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fDcValue), &(psF->fDcValue));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_16() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_16() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29928,11 +29928,11 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_16() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_16() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -29969,11 +29969,11 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fDcValue
-        eRet = emt_trans_sXXX(eTrans, &(psU->fDcValue), &(psF->fDcValue));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX(eTrans, &(psU->fDcValue), &(psF->fDcValue));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_16() emt_trans_sXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_16() trans_sXXX error code = %d", eRet);
             #endif
             return eRet;
         }   
@@ -29988,12 +29988,12 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_17
  功能描述  : ERC17：电压/电流不平衡度越限记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -30008,7 +30008,7 @@ emt_err_t emtTrans_rec_16(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_17(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -30020,7 +30020,7 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec17    *psU   = (sMtRec17*)psUser;
     sMtRec17_f  *psF   = (sMtRec17_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -30048,11 +30048,11 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30100,82 +30100,82 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fUnbU
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUnbU), &(psF->fUnbU));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUnbU), &(psF->fUnbU));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
 
         // fUnbI
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUnbI), &(psF->fUnbI));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUnbI), &(psF->fUnbI));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
 
         
         // fUa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }      
@@ -30198,11 +30198,11 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30226,82 +30226,82 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fUnbU
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUnbU), &(psF->fUnbU));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUnbU), &(psF->fUnbU));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
 
         // fUnbI
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fUnbI), &(psF->fUnbI));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fUnbI), &(psF->fUnbI));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }   
 
         
         // fUa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }   
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }  
@@ -30316,12 +30316,12 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_18
  功能描述  : ERC18：电容器投切自锁记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -30336,7 +30336,7 @@ emt_err_t emtTrans_rec_17(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_18(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -30348,7 +30348,7 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec18    *psU   = (sMtRec18*)psUser;
     sMtRec18_f  *psF   = (sMtRec18_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint8_t       ucMask = 0x01;
     int32_t       i      = 0;
@@ -30378,11 +30378,11 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_18() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_18() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30441,31 +30441,31 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fFacter
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fFacter), &(psF->fFacter));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fFacter), &(psF->fFacter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }  
         
         // fPowerNone
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fPowerNone), &(psF->fPowerNone));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fPowerNone), &(psF->fPowerNone));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }  
 
         // fVolt
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fVolt), &(psF->fVolt));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fVolt), &(psF->fVolt));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_17() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_17() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }  
@@ -30488,11 +30488,11 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_18() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_18() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30545,31 +30545,31 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fFacter
-        eRet = emt_trans_sXXX_X(eTrans, &(psU->fFacter), &(psF->fFacter));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_X(eTrans, &(psU->fFacter), &(psF->fFacter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_18() emt_trans_sXXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_18() trans_sXXX_X error code = %d", eRet);
             #endif
             return eRet;
         }  
         
         // fPowerNone
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fPowerNone), &(psF->fPowerNone));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fPowerNone), &(psF->fPowerNone));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_18() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_18() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }  
 
         // fVolt
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fVolt), &(psF->fVolt));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fVolt), &(psF->fVolt));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_18() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_18() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -30584,12 +30584,12 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_19
  功能描述  : ERC19：购电参数设置记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -30604,7 +30604,7 @@ emt_err_t emtTrans_rec_18(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_19(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -30616,7 +30616,7 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec19    *psU   = (sMtRec19*)psUser;
     sMtRec19_f  *psF   = (sMtRec19_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -30643,11 +30643,11 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30659,51 +30659,51 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psU->ulID = psF->ulID;
 
         // sBuyLimit
-        eRet = emt_trans_sX7(eTrans, &(psU->sBuyLimit), &(psF->sBuyLimit));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sBuyLimit), &(psF->sBuyLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }        
 
         // sWarning
-        eRet = emt_trans_sX7(eTrans, &(psU->sWarning), &(psF->sWarning));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sWarning), &(psF->sWarning));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // sTurnOff
-        eRet = emt_trans_sX7(eTrans, &(psU->sTurnOff), &(psF->sTurnOff));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTurnOff), &(psF->sTurnOff));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // sBuyBefore
-        eRet = emt_trans_sX7(eTrans, &(psU->sBuyBefore), &(psF->sBuyBefore));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sBuyBefore), &(psF->sBuyBefore));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // sButAfter
-        eRet = emt_trans_sX7(eTrans, &(psU->sButAfter), &(psF->sButAfter));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sButAfter), &(psF->sButAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -30726,11 +30726,11 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30742,51 +30742,51 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ulID = psU->ulID;
 
         // sBuyLimit
-        eRet = emt_trans_sX7(eTrans, &(psU->sBuyLimit), &(psF->sBuyLimit));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sBuyLimit), &(psF->sBuyLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }        
 
         // sWarning
-        eRet = emt_trans_sX7(eTrans, &(psU->sWarning), &(psF->sWarning));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sWarning), &(psF->sWarning));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // sTurnOff
-        eRet = emt_trans_sX7(eTrans, &(psU->sTurnOff), &(psF->sTurnOff));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTurnOff), &(psF->sTurnOff));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // sBuyBefore
-        eRet = emt_trans_sX7(eTrans, &(psU->sBuyBefore), &(psF->sBuyBefore));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sBuyBefore), &(psF->sBuyBefore));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // sButAfter
-        eRet = emt_trans_sX7(eTrans, &(psU->sButAfter), &(psF->sButAfter));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sButAfter), &(psF->sButAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_19() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_19() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -30801,12 +30801,12 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_20
  功能描述  : ERC20：消息认证错误记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -30821,7 +30821,7 @@ emt_err_t emtTrans_rec_19(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_20(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -30833,7 +30833,7 @@ emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec20    *psU   = (sMtRec20*)psUser;
     sMtRec20_f  *psF   = (sMtRec20_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -30860,11 +30860,11 @@ emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_20() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_20() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30894,11 +30894,11 @@ emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_20() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_20() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -30920,12 +30920,12 @@ emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_21
  功能描述  : ERC21：终端故障记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -30940,7 +30940,7 @@ emt_err_t emtTrans_rec_20(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_21(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -30952,7 +30952,7 @@ emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec21    *psU   = (sMtRec21*)psUser;
     sMtRec21_f  *psF   = (sMtRec21_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -30979,11 +30979,11 @@ emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_21() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_21() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31039,11 +31039,11 @@ emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_21() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_21() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31091,12 +31091,12 @@ emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_22
  功能描述  : ERC22：有功总电能量差动越限事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -31111,7 +31111,7 @@ emt_err_t emtTrans_rec_21(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_22(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -31125,7 +31125,7 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     sMtRec22_f  *psF       = (sMtRec22_f*)psFrame;
     sMtFmt14_f  *psFmt14_f = NULL;
     uint8_t       *pucN      = NULL;
-    emt_err_t     eRet        = MT_OK;
+    err_t     eRet        = MT_ERR_OK;
     uint8_t      ucLen       = 0;
     int32_t      i           = 0;
     
@@ -31153,11 +31153,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31176,21 +31176,21 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psU->ucTeam = psF->ucTeamStart & 0x3F;
 
         // sTotalCompr
-        eRet = emt_trans_sX7(eTrans, &(psU->sTotalCompr), &(psF->sTotalCompr));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTotalCompr), &(psF->sTotalCompr));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // sTotalRefer
-        eRet = emt_trans_sX7(eTrans, &(psU->sTotalRefer), &(psF->sTotalRefer));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTotalRefer), &(psF->sTotalRefer));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31199,11 +31199,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psU->ucDifRelative = psF->ucDifRelative;
 
         // sDifAbsolut
-        eRet = emt_trans_sX7(eTrans, &(psU->sDifAbsolut), &(psF->sDifAbsolut));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sDifAbsolut), &(psF->sDifAbsolut));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31224,11 +31224,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
         for(i = 0; i < psU->ucN; i++)
         {         
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dCompr), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dCompr), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_rec_22() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+                DEBUG("emtTrans_rec_22() trans_XXXXXX_XXXX error code = %d", eRet);
                 #endif
                 return eRet;
             }
@@ -31253,11 +31253,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         // dRefer
         for(i = 0; i < psU->ucN; i++)
         {         
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dRefer), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dRefer), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_rec_22() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+                DEBUG("emtTrans_rec_22() trans_XXXXXX_XXXX error code = %d", eRet);
                 #endif
                 return eRet;
             }
@@ -31284,11 +31284,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31304,21 +31304,21 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucTeamStart |= (psU->ucTeam & 0x3F);
 
         // sTotalCompr
-        eRet = emt_trans_sX7(eTrans, &(psU->sTotalCompr), &(psF->sTotalCompr));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTotalCompr), &(psF->sTotalCompr));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // sTotalRefer
-        eRet = emt_trans_sX7(eTrans, &(psU->sTotalRefer), &(psF->sTotalRefer));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sTotalRefer), &(psF->sTotalRefer));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31327,11 +31327,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucDifRelative = psU->ucDifRelative;
 
         // sDifAbsolut
-        eRet = emt_trans_sX7(eTrans, &(psU->sDifAbsolut), &(psF->sDifAbsolut));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sDifAbsolut), &(psF->sDifAbsolut));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_22() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_22() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31352,11 +31352,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
         for(i = 0; i < psU->ucN; i++)
         {         
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dCompr), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dCompr), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_rec_22() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+                DEBUG("emtTrans_rec_22() trans_XXXXXX_XXXX error code = %d", eRet);
                 #endif
                 return eRet;
             }
@@ -31375,11 +31375,11 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         // dRefer
         for(i = 0; i < psU->ucN; i++)
         {         
-            eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dRefer), psFmt14_f);
-            if(MT_OK != eRet)
+            eRet = trans_XXXXXX_XXXX(eTrans, &(psU->sPower[i].dRefer), psFmt14_f);
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
-                DEBUG("emtTrans_rec_22() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+                DEBUG("emtTrans_rec_22() trans_XXXXXX_XXXX error code = %d", eRet);
                 #endif
                 return eRet;
             }
@@ -31398,13 +31398,13 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_23
  功能描述  : ERC23：电控告警事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -31419,7 +31419,7 @@ emt_err_t emtTrans_rec_22(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_23(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -31431,7 +31431,7 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec23    *psU   = (sMtRec23*)psUser;
     sMtRec23_f  *psF   = (sMtRec23_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucMask = 0x01;
     int32_t      i      = 0;
@@ -31460,11 +31460,11 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31503,21 +31503,21 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // sPowerWarning
-        eRet = emt_trans_sX7(eTrans, &(psU->sPowerWarning), &(psF->sPowerWarning));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPowerWarning), &(psF->sPowerWarning));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // sCtrlFixed
-        eRet = emt_trans_sX7(eTrans, &(psU->sCtrlFixed), &(psF->sCtrlFixed));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sCtrlFixed), &(psF->sCtrlFixed));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }          
@@ -31540,11 +31540,11 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31588,21 +31588,21 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // sPowerWarning
-        eRet = emt_trans_sX7(eTrans, &(psU->sPowerWarning), &(psF->sPowerWarning));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sPowerWarning), &(psF->sPowerWarning));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }
 
         // sCtrlFixed
-        eRet = emt_trans_sX7(eTrans, &(psU->sCtrlFixed), &(psF->sCtrlFixed));
-        if(MT_OK != eRet)
+        eRet = trans_sX7(eTrans, &(psU->sCtrlFixed), &(psF->sCtrlFixed));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_23() emt_trans_sX7 error code = %d", eRet);
+            DEBUG("emtTrans_rec_23() trans_sX7 error code = %d", eRet);
             #endif
             return eRet;
         }   
@@ -31617,13 +31617,13 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_24
  功能描述  : ERC24：电压越限记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -31638,7 +31638,7 @@ emt_err_t emtTrans_rec_23(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_24(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -31650,7 +31650,7 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec24   *psU   = (sMtRec24*)psUser;
     sMtRec24_f *psF   = (sMtRec24_f*)psFrame;
-    emt_err_t     eRet   = MT_OK;
+    err_t     eRet   = MT_ERR_OK;
     uint8_t      ucLen  = 0;
     uint8_t      ucTmp  = 0;
     uint16_t     usPn   = 0;
@@ -31679,11 +31679,11 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31759,31 +31759,31 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31806,11 +31806,11 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31863,31 +31863,31 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
        
         // fUa
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUa), &(psF->fUa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUb
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUb), &(psF->fUb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fUc
-        eRet = emt_trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
-        if(MT_OK != eRet)
+        eRet = trans_XXX_X(eTrans, &(psU->fUc), &(psF->fUc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_24() emt_trans_XXX_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_24() trans_XXX_X error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -31902,12 +31902,12 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_25
  功能描述  : ERC25：电流越限记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -31922,7 +31922,7 @@ emt_err_t emtTrans_rec_24(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_25(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -31934,7 +31934,7 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec25    *psU   = (sMtRec25*)psUser;
     sMtRec25_f  *psF   = (sMtRec25_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint8_t       ucTmp  = 0;
     uint16_t      usPn   = 0;
@@ -31963,11 +31963,11 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32043,31 +32043,31 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32090,11 +32090,11 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32147,31 +32147,31 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
        
          // fIa
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIa), &(psF->fIa));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIb
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIb), &(psF->fIb));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fIc
-        eRet = emt_trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
-        if(MT_OK != eRet)
+        eRet = trans_sXXX_XXX(eTrans, &(psU->fIc), &(psF->fIc));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_25() emt_trans_sXXX_XXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_25() trans_sXXX_XXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32186,12 +32186,12 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_26
  功能描述  : ERC26：视在功率越限记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -32206,7 +32206,7 @@ emt_err_t emtTrans_rec_25(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_26(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -32218,7 +32218,7 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec26    *psU   = (sMtRec26*)psUser;
     sMtRec26_f  *psF   = (sMtRec26_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint8_t       ucTmp  = 0;
     uint16_t      usPn   = 0;
@@ -32247,11 +32247,11 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32297,21 +32297,21 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fSPower
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fSPower), &(psF->fSPower));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fSPower), &(psF->fSPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fSPwrLimit
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fSPwrLimit), &(psF->fSPwrLimit));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fSPwrLimit), &(psF->fSPwrLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32334,11 +32334,11 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32373,21 +32373,21 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // fSPower
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fSPower), &(psF->fSPower));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fSPower), &(psF->fSPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         }
         
         // fSPwrLimit
-        eRet = emt_trans_XX_XXXX(eTrans, &(psU->fSPwrLimit), &(psF->fSPwrLimit));
-        if(MT_OK != eRet)
+        eRet = trans_XX_XXXX(eTrans, &(psU->fSPwrLimit), &(psF->fSPwrLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_26() emt_trans_XX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_26() trans_XX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -32402,12 +32402,12 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_27
  功能描述  : ERC27：电能表示度下降记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -32422,7 +32422,7 @@ emt_err_t emtTrans_rec_26(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_27(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -32434,7 +32434,7 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec27    *psU   = (sMtRec27*)psUser;
     sMtRec27_f  *psF   = (sMtRec27_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -32462,11 +32462,11 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32494,21 +32494,21 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerBefor
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
          // dPowerAfter
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -32531,11 +32531,11 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32559,21 +32559,21 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerBefor
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dPowerAfter
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_27() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_27() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -32588,12 +32588,12 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_28
  功能描述  : ERC28：电能量超差记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -32608,7 +32608,7 @@ emt_err_t emtTrans_rec_27(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_28(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -32620,7 +32620,7 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec28    *psU   = (sMtRec28*)psUser;
     sMtRec28_f  *psF   = (sMtRec28_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -32648,11 +32648,11 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32680,31 +32680,31 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerCmpr
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerCmpr), &(psF->dPowerCmpr));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerCmpr), &(psF->dPowerCmpr));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // fLimit
-        eRet = emt_trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
-        if(MT_OK != eRet)
+        eRet = trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_X_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_X_X error code = %d", eRet);
             #endif
             return eRet;
         }  
@@ -32727,11 +32727,11 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32755,31 +32755,31 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerCmpr
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerCmpr), &(psF->dPowerCmpr));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerCmpr), &(psF->dPowerCmpr));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // dPower
-        eRet = emt_trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
-        if(MT_OK != eRet)
+        eRet = trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_28() emt_trans_X_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_28() trans_X_X error code = %d", eRet);
             #endif
             return eRet;
         }      
@@ -32794,12 +32794,12 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_29
  功能描述  : ERC29：电能表飞走记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -32814,7 +32814,7 @@ emt_err_t emtTrans_rec_28(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_29(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -32826,7 +32826,7 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec29    *psU   = (sMtRec29*)psUser;
     sMtRec29_f  *psF   = (sMtRec29_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -32854,11 +32854,11 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32886,31 +32886,31 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerBefor
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dPowerAfter
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // fLimit
-        eRet = emt_trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
-        if(MT_OK != eRet)
+        eRet = trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_X_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_X_X error code = %d", eRet);
             #endif
             return eRet;
         }    
@@ -32933,11 +32933,11 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -32961,31 +32961,31 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPowerBefor
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerBefor), &(psF->dPowerBefor));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dPowerAfter
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPowerAfter), &(psF->dPowerAfter));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // fLimit
-        eRet = emt_trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
-        if(MT_OK != eRet)
+        eRet = trans_X_X(eTrans, &(psU->fLimit), &(psF->fLimit));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_X_X error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_X_X error code = %d", eRet);
             #endif
             return eRet;
         }    
@@ -33000,12 +33000,12 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_30
  功能描述  : ERC30：电能表停走记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33020,7 +33020,7 @@ emt_err_t emtTrans_rec_29(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_30(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33032,7 +33032,7 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec30    *psU   = (sMtRec30*)psUser;
     sMtRec30_f  *psF   = (sMtRec30_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -33060,11 +33060,11 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_30() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_30() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33092,11 +33092,11 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_30() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_30() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -33123,11 +33123,11 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_30() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_30() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33151,11 +33151,11 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // dPower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dPower), &(psF->dPower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_29() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_29() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -33170,13 +33170,13 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_31
  功能描述  : ERC31：终端485抄表失败事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33191,7 +33191,7 @@ emt_err_t emtTrans_rec_30(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_31(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33203,7 +33203,7 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec31    *psU   = (sMtRec31*)psUser;
     sMtRec31_f  *psF   = (sMtRec31_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint16_t      usPn   = 0;
     
@@ -33231,11 +33231,11 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33263,31 +33263,31 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
         
         // sReadTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sReadTime), &(psF->sReadTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sReadTime), &(psF->sReadTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // dHavePower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dHavePower), &(psF->dHavePower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dHavePower), &(psF->dHavePower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dNonePower
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePower), &(psF->dNonePower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePower), &(psF->dNonePower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_XXXXXX_XX error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_XXXXXX_XX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -33310,11 +33310,11 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33338,31 +33338,31 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
         
         // sReadTime
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sReadTime), &(psF->sReadTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sReadTime), &(psF->sReadTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         } 
         
         // dHavePower
-        eRet = emt_trans_XXXXXX_XXXX(eTrans, &(psU->dHavePower), &(psF->dHavePower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XXXX(eTrans, &(psU->dHavePower), &(psF->dHavePower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_XXXXXX_XXXX error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_XXXXXX_XXXX error code = %d", eRet);
             #endif
             return eRet;
         } 
 
         // dNonePower
-        eRet = emt_trans_XXXXXX_XX(eTrans, &(psU->dNonePower), &(psF->dNonePower));
-        if(MT_OK != eRet)
+        eRet = trans_XXXXXX_XX(eTrans, &(psU->dNonePower), &(psF->dNonePower));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_31() emt_trans_XXXXXX_XX error code = %d", eRet);
+            DEBUG("emtTrans_rec_31() trans_XXXXXX_XX error code = %d", eRet);
             #endif
             return eRet;
         } 
@@ -33377,12 +33377,12 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_32
  功能描述  : ERC32：终端与主站通信流量超门限事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33397,7 +33397,7 @@ emt_err_t emtTrans_rec_31(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_32(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33409,7 +33409,7 @@ emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec32    *psU   = (sMtRec32*)psUser;
     sMtRec32_f  *psF   = (sMtRec32_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -33436,11 +33436,11 @@ emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_32() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_32() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33470,11 +33470,11 @@ emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_32() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_32() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33495,12 +33495,12 @@ emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : emtTrans_rec_33
  功能描述  : ERC33：电能表运行状态字变位事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33515,7 +33515,7 @@ emt_err_t emtTrans_rec_32(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_33(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33527,7 +33527,7 @@ emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec33    *psU   = (sMtRec33*)psUser;
     sMtRec33_f  *psF   = (sMtRec33_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     
     // 帧侧转为用户侧
@@ -33554,11 +33554,11 @@ emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_33() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_33() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33581,11 +33581,11 @@ emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_33() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_33() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33600,13 +33600,13 @@ emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_34
  功能描述  : ERC34：CT异常事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33621,7 +33621,7 @@ emt_err_t emtTrans_rec_33(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_34(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33633,7 +33633,7 @@ emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec34    *psU   = (sMtRec34*)psUser;
     sMtRec34_f  *psF   = (sMtRec34_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     uint8_t       ucTmp  = 0;
     uint16_t      usPn   = 0; 
@@ -33662,11 +33662,11 @@ emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_34() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_34() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33763,11 +33763,11 @@ emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_34() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_34() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33839,13 +33839,13 @@ emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_rec_35
  功能描述  : ERC35：发现未知电表事件记录
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33860,7 +33860,7 @@ emt_err_t emtTrans_rec_34(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_rec_35(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -33872,7 +33872,7 @@ emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     sMtRec35    *psU   = (sMtRec35*)psUser;
     sMtRec35_f  *psF   = (sMtRec35_f*)psFrame;
-    emt_err_t      eRet   = MT_OK;
+    err_t      eRet   = MT_ERR_OK;
     uint8_t       ucLen  = 0;
     //uint8_t       ucMask = 0x01;
     //int32_t       i      = 0;
@@ -33901,11 +33901,11 @@ emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         }
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_35() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_35() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33928,11 +33928,11 @@ emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
         psF->ucLe = ucLen;
 
         // time
-        eRet = emt_trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
-        if(MT_OK != eRet)
+        eRet = trans_YYMMDDhhmm(eTrans, &(psU->sTime), &(psF->sTime));
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emtTrans_rec_35() emt_trans_YYMMDDhhmm error code = %d", eRet);
+            DEBUG("emtTrans_rec_35() trans_YYMMDDhhmm error code = %d", eRet);
             #endif
             return eRet;
         }
@@ -33947,13 +33947,13 @@ emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
 
     // 计算在帧侧的字节长度
     *pusfLen = ucLen;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0ef1_m2s
  功能描述  : F1：请求重要事件(命令参数) 
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -33968,7 +33968,7 @@ emt_err_t emtTrans_rec_35(emt_trans_t eTrans, void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0ef1_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0ef1_m2s(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -34003,12 +34003,12 @@ emt_err_t emtTrans_afn0ef1_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, 
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAskEvent1); 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
  函 数 名  : pMtGetRecTransFunc
  功能描述  : 通过事件ID获得解析其的函数指针
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -34023,9 +34023,9 @@ emt_err_t emtTrans_afn0ef1_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-pMtFunc pMtGetRecTransFunc(uint8_t ucRecID)
+trans_func_t pMtGetRecTransFunc(uint8_t ucRecID)
 {
-    pMtFunc pFunc = NULL;
+    trans_func_t pFunc = NULL;
 
     switch(ucRecID)
     {
@@ -34181,7 +34181,7 @@ pMtFunc pMtGetRecTransFunc(uint8_t ucRecID)
 /*****************************************************************************
  函 数 名  : emtTrans_afn0ef1_s2m
  功能描述  : F1：请求重要事件(应答结构)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -34196,7 +34196,7 @@ pMtFunc pMtGetRecTransFunc(uint8_t ucRecID)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0ef1_s2m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     if(!psUser || !psFrame || !pusfLen)
     {
@@ -34210,8 +34210,8 @@ emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
     sMtResEvent1_f *psF   = (sMtResEvent1_f*)psFrame;
     uint8_t          *pNext = NULL; // 取得下一个事件的首地址
     //uMtRec         *puRec = NULL;
-    pMtFunc         pFunc = NULL; // 事件结构解析函数
-    emt_err_t          eRet  = MT_OK;
+    trans_func_t         pFunc = NULL; // 事件结构解析函数
+    err_t          eRet  = MT_ERR_OK;
     uint8_t           ucERC = 0;    // 事件代码
     uint8_t           ucLen = 0;
     uint16_t          usLen = 0;
@@ -34276,7 +34276,7 @@ emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
 
             // 调用函数
             eRet = pFunc(eTrans, (void*)&(psU->uRec[i]), pNext, &usLen);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0ef1_s2m() Call pFunc error %d", eRet);
@@ -34344,7 +34344,7 @@ emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
 
             // 调用函数
             eRet = pFunc(eTrans, (void*)&(psU->uRec[i]), pNext, &usLen);
-            if(MT_OK != eRet)
+            if(MT_ERR_OK != eRet)
             {
                 #ifdef MT_DBG
                 DEBUG("emtTrans_afn0ef1_s2m() Call pFunc error %d", eRet);
@@ -34366,13 +34366,13 @@ emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
 
     // 计算在帧侧的字节长度
     *pusfLen = sizeof(sMtAskEvent1); 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0ef2
  功能描述  : F2：请求一般事件(命令参数)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -34387,7 +34387,7 @@ emt_err_t emtTrans_afn0ef1_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0ef2_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0ef2_m2s(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
    return emtTrans_afn0ef1_m2s(eTrans, psUser, psFrame, pusfLen);
 }
@@ -34395,7 +34395,7 @@ emt_err_t emtTrans_afn0ef2_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, 
 /*****************************************************************************
  函 数 名  : emtTrans_afn0ef2_s2m
  功能描述  : F2：请求一般事件(应答结构)
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -34410,7 +34410,7 @@ emt_err_t emtTrans_afn0ef2_m2s(emt_trans_t eTrans, void* psUser, void* psFrame, 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn0ef2_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
+err_t emtTrans_afn0ef2_s2m(trans_t eTrans, void* psUser, void* psFrame, uint16_t* pusfLen)
 {
     return emtTrans_afn0ef1_s2m(eTrans, psUser, psFrame, pusfLen);
 }
@@ -34418,7 +34418,7 @@ emt_err_t emtTrans_afn0ef2_s2m(emt_trans_t eTrans, void* psUser, void* psFrame, 
 /*****************************************************************************
  函 数 名  : emtGetGroupNum
  功能描述  :  根据总加组有效标志位获取总加组个数
- 输入参数  : emt_trans_t eTrans  
+ 输入参数  : trans_t eTrans  
              void* psUser     
              void* psFrame    
              uint16_t* pusfLen  
@@ -34490,7 +34490,7 @@ uint8_t ucmt_get_bcd_1(uint8_t ucData)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_bcd_to_str
+ 函 数 名  : bcd_to_str
  功能描述  : 将长度为len的BCD码转为2*len长的字符串
  输入参数  : const uint8_t *pbcd  
              uint8_t *pstr        
@@ -34506,7 +34506,7 @@ uint8_t ucmt_get_bcd_1(uint8_t ucData)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
+err_t bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
 {
     int32_t i  = 0, j  = 0;
     uint8_t c1 = 0, c0 = 0;
@@ -34514,7 +34514,7 @@ emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
     if(!pstr || !pbcd)
     {
         #ifdef MT_DBG
-        DEBUG("emt_bcd_to_str() para pointer is null");
+        DEBUG("bcd_to_str() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34522,7 +34522,7 @@ emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
     if(len < 0)
     { 
         #ifdef MT_DBG
-        DEBUG("emt_bcd_to_str() para error");
+        DEBUG("bcd_to_str() para error");
         #endif
         return MT_ERR_PARA;
     }
@@ -34550,11 +34550,11 @@ emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
         } 
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
     
 /*****************************************************************************
- 函 数 名  : emt_str_to_bcd
+ 函 数 名  : str_to_bcd
  功能描述  : 将长度为len的字符串转化为BCD 长度为 len/2
  输入参数  : const uint8_t *pstr  
              uint8_t  *pbcd        
@@ -34570,7 +34570,7 @@ emt_err_t emt_bcd_to_str(const uint8_t* pbcd, uint8_t* pstr, int32_t len)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len)
+err_t str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len)
 {
 
     uint8_t tmpValue;
@@ -34582,7 +34582,7 @@ emt_err_t emt_str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len)
     if(!pstr || !pbcd)
     {
         #ifdef MT_DBG
-        DEBUG("emt_str_to_bcd() para pointer is null");
+        DEBUG("str_to_bcd() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34590,7 +34590,7 @@ emt_err_t emt_str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len)
     if(len < 0)
     { 
          #ifdef MT_DBG
-         DEBUG("emt_str_to_bcd() para error");
+         DEBUG("str_to_bcd() para error");
          #endif
          return MT_ERR_PARA;
     }
@@ -34646,7 +34646,7 @@ emt_err_t emt_str_to_bcd(const uint8_t* pstr, uint8_t* pbcd, int32_t len)
         }
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
@@ -34678,7 +34678,7 @@ bool   bmt_big_endian()
 }
 
 /*****************************************************************************
- 函 数 名  : emt_write_uint16_small_endian
+ 函 数 名  : write_uint16_small_endian
  功能描述  : 将一个UINT16以小字节序的方式写到指定地址
  输入参数  : uint16_t usData  
              uint8_t* pWrite  
@@ -34693,7 +34693,7 @@ bool   bmt_big_endian()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_write_uint16_small_endian(uint16_t usData, uint8_t* pWrite)
+err_t write_uint16_small_endian(uint16_t usData, uint8_t* pWrite)
 {
     uint8_t ucByteHi = 0, ucByteLo = 0;
     bool bBigEndian = false; 
@@ -34701,7 +34701,7 @@ emt_err_t emt_write_uint16_small_endian(uint16_t usData, uint8_t* pWrite)
     if(!pWrite)
     {
         #ifdef MT_DBG
-        DEBUG("emt_write_uint16_small_endian() para pointer is null");
+        DEBUG("write_uint16_small_endian() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34719,11 +34719,11 @@ emt_err_t emt_write_uint16_small_endian(uint16_t usData, uint8_t* pWrite)
         *(uint16_t*)pWrite = usData;
     }
       
-    return MT_OK; 
+    return MT_ERR_OK; 
 }
 
 /*****************************************************************************
- 函 数 名  : emt_write_uint32_small_endian
+ 函 数 名  : write_uint32_small_endian
  功能描述  : 将一个ulong数以小字节序的方式写入指定内存
  输入参数  : uint32_t ulData  
              uint8_t* pWrite  
@@ -34738,7 +34738,7 @@ emt_err_t emt_write_uint16_small_endian(uint16_t usData, uint8_t* pWrite)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_write_uint32_small_endian(uint32_t ulData,   uint8_t* pWrite)
+err_t write_uint32_small_endian(uint32_t ulData,   uint8_t* pWrite)
 {
     uint8_t *pucData;
     bool  bBigEndian = false;
@@ -34746,7 +34746,7 @@ emt_err_t emt_write_uint32_small_endian(uint32_t ulData,   uint8_t* pWrite)
     if(!pWrite)
     {
         #ifdef MT_DBG
-        DEBUG("emt_write_uint32_small_endian() para pointer is null");
+        DEBUG("write_uint32_small_endian() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34765,11 +34765,11 @@ emt_err_t emt_write_uint32_small_endian(uint32_t ulData,   uint8_t* pWrite)
         memcpy((void*)pWrite, (void*)&ulData, sizeof(uint32_t));
     }
   
-    return MT_OK; 
+    return MT_ERR_OK; 
 }
 
 /*****************************************************************************
- 函 数 名  : emt_read_uint16_small_endian
+ 函 数 名  : read_uint16_small_endian
  功能描述  : 以小字节方式读取一个short
  输入参数  : uint8_t *pRead     
              uint16_t *pUint16  
@@ -34784,7 +34784,7 @@ emt_err_t emt_write_uint32_small_endian(uint32_t ulData,   uint8_t* pWrite)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16)
+err_t read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16)
 {
     bool bBigEndian = false;
     uint8_t ucData[2];
@@ -34793,7 +34793,7 @@ emt_err_t emt_read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16)
     if(!pRead || !pUint16)
     {
         #ifdef MT_DBG
-        DEBUG("emt_read_uint16_small_endian() para pointer is null");
+        DEBUG("read_uint16_small_endian() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34811,12 +34811,12 @@ emt_err_t emt_read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16)
     }
 
     *pUint16 = usRet;
-    return MT_OK;
+    return MT_ERR_OK;
 
 }
 
 /*****************************************************************************
- 函 数 名  : emt_read_uint32_small_endian
+ 函 数 名  : read_uint32_small_endian
  功能描述  : 从指定地址位置以小字节序的方式读入一个长整数
  输入参数  : uint8_t *pRead     
              uint32_t* pUint32  
@@ -34831,7 +34831,7 @@ emt_err_t emt_read_uint16_small_endian(uint8_t* pRead, uint16_t* pUint16)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
+err_t read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
 {
     uint8_t ucData[4];
     uint32_t ulRet = 0;
@@ -34840,7 +34840,7 @@ emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
     if(!pRead || !pUint32)
     {
         #ifdef MT_DBG
-        DEBUG("emt_read_uint32_small_endian() para pointer is null");
+        DEBUG("read_uint32_small_endian() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -34860,14 +34860,14 @@ emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
     }
 
     *pUint32 = ulRet;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_address
+ 函 数 名  : trans_address
  功能描述  : 地址域用户侧与封帧侧数据结构转换函数
- 输入参数  : emt_trans_t eDir           
-             smt_addr_t *psAddr_u    
+ 输入参数  : trans_t eDir           
+             addr_t *psAddr_u    
              sMtAddress_f *psAddr_f  
  输出参数  : 无
  返 回 值  : 
@@ -34880,12 +34880,12 @@ emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress_f* psAddr_f)
+err_t trans_address(trans_t eTrans, addr_t* psAddr_u, sMtAddress_f* psAddr_f)
 {
     if(!psAddr_u || !psAddr_f)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_address() para pointer is null!");
+        DEBUG("trans_address() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -34895,7 +34895,7 @@ emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress
         if(psAddr_u->usTAddress == 0)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_address() terminal address error!");
+            DEBUG("trans_address() terminal address error!");
             #endif  
             return MT_ERR_ADDR;
         }
@@ -34904,13 +34904,13 @@ emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress
         psAddr_u->ucMAddress < MT_MST_ADDR_MIN)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_address() master address error!");
+            DEBUG("trans_address() master address error!");
             #endif  
             return MT_ERR_ADDR;
         }
 
-        (void)emt_str_to_bcd((uint8_t*)(psAddr_u->acRegionCode), (uint8_t*)(psAddr_f->acRegionCode), 4);
-        // (void)emt_write_uint16_small_endian(psAddr_u->usTAddress, (uint8_t*)&(psAddr_f->usTAddress));
+        (void)str_to_bcd((uint8_t*)(psAddr_u->acRegionCode), (uint8_t*)(psAddr_f->acRegionCode), 4);
+        // (void)write_uint16_small_endian(psAddr_u->usTAddress, (uint8_t*)&(psAddr_f->usTAddress));
         psAddr_f->usTAddress = psAddr_u->usTAddress;
 
         psAddr_f->ucMAddress = (psAddr_u->ucMAddress << 1);
@@ -34925,8 +34925,8 @@ emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress
     }
     else if(MT_TRANS_F2U == eTrans)
     {
-        (void)emt_bcd_to_str((uint8_t*)(psAddr_f->acRegionCode), (uint8_t*)(psAddr_u->acRegionCode), 2);
-        // (void)emt_read_uint16_small_endian((uint8_t*)&(psAddr_f->usTAddress), (uint16_t*)&(psAddr_u->usTAddress));
+        (void)bcd_to_str((uint8_t*)(psAddr_f->acRegionCode), (uint8_t*)(psAddr_u->acRegionCode), 2);
+        // (void)read_uint16_small_endian((uint8_t*)&(psAddr_f->usTAddress), (uint16_t*)&(psAddr_u->usTAddress));
         psAddr_u->usTAddress = psAddr_f->usTAddress;
         psAddr_u->bTeamAddr  = (psAddr_f->ucMAddress & 0x01) ? true : false;
         psAddr_u->ucMAddress = (psAddr_f->ucMAddress >> 1) & 0x7F;
@@ -34934,19 +34934,19 @@ emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_address() para error!");
+        DEBUG("trans_address() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_ctrl
+ 函 数 名  : trans_ctrl
  功能描述  : 控制域用户侧和帧侧数据转换函数
- 输入参数  : emt_trans_t eDir    
-             sMtCtrl *puCtrl  
+ 输入参数  : trans_t eDir    
+             ctrl_t *puCtrl  
              uint8_t* pfCtrl    
  输出参数  : 无
  返 回 值  : 
@@ -34959,7 +34959,7 @@ emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl)
+err_t trans_ctrl(trans_t eTrans, ctrl_t* puCtrl, uint8_t* pfCtrl)
 {
     uint8_t ucfCtrl = 0;
 
@@ -35018,22 +35018,22 @@ emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_ctrl() para error!");
+        DEBUG("trans_ctrl() para error!");
         #endif
         return MT_ERR_PARA;
     }
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_get_ctrl
+ 函 数 名  : get_ctrl
  功能描述  : 获得控制域用户侧信息
- 输入参数  : emt_afn_t eAFN      
-             emt_dir_t eDir      
-             emt_prm_t ePRM 
+ 输入参数  : afn_t eAFN      
+             dir_t eDir      
+             prm_t ePRM 
              bool bAcd_Fcb
-             sMtCtrl *psCtrl  
+             ctrl_t *psCtrl  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -35045,12 +35045,12 @@ emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl)
+err_t get_ctrl(afn_t eAFN, dir_t eDir, prm_t ePRM, bool bAcd_Fcb, ctrl_t *psCtrl)
 {
     if(!psCtrl)
     {
         #ifdef MT_DBG
-        DEBUG("emt_get_ctrl() para pointer is null");
+        DEBUG("get_ctrl() para pointer is null");
         #endif
         return MT_ERR_NULL;
     }
@@ -35058,7 +35058,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
     if(MT_DIR_M2S != eDir && MT_DIR_S2M != eDir)
     {
         #ifdef MT_DBG
-        DEBUG("emt_get_ctrl() eDir para error");
+        DEBUG("get_ctrl() eDir para error");
         #endif
         return MT_ERR_PARA;
     }
@@ -35066,7 +35066,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
     if(MT_PRM_ACTIVE != ePRM && MT_PRM_PASIVE != ePRM)
     {
         #ifdef MT_DBG
-        DEBUG("emt_get_ctrl() ePRM para error");
+        DEBUG("get_ctrl() ePRM para error");
         #endif
         return MT_ERR_PARA;
     }
@@ -35085,7 +35085,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
              else
              {
                 #ifdef MT_DBG
-                DEBUG("emt_get_ctrl() pack logic error");
+                DEBUG("get_ctrl() pack logic error");
                 #endif
                 return MT_ERR_LOGIC;
              }
@@ -35122,7 +35122,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
              else                    // 上行
              {
                 #ifdef MT_DBG
-                DEBUG("emt_get_ctrl() pack logic error");
+                DEBUG("get_ctrl() pack logic error");
                 #endif
                 return MT_ERR_LOGIC;
              }
@@ -35140,7 +35140,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
              else                   
              {
                 #ifdef MT_DBG
-                DEBUG("emt_get_ctrl() pack logic error");
+                DEBUG("get_ctrl() pack logic error");
                 #endif
                 return MT_ERR_LOGIC;
              }
@@ -35160,7 +35160,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                else                    
                {
                   #ifdef MT_DBG
-                  DEBUG("emt_get_ctrl() pack logic error");
+                  DEBUG("get_ctrl() pack logic error");
                   #endif
                   return MT_ERR_LOGIC;                
                }
@@ -35177,7 +35177,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else                    
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC;                
                 }
@@ -35196,7 +35196,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
              else                     
              {
                 #ifdef MT_DBG
-                DEBUG("emt_get_ctrl() pack logic error");
+                DEBUG("get_ctrl() pack logic error");
                 #endif
                 return MT_ERR_LOGIC;   
              }
@@ -35215,7 +35215,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
              else                     // 上行
              {
                 #ifdef MT_DBG
-                DEBUG("emt_get_ctrl() pack logic error");
+                DEBUG("get_ctrl() pack logic error");
                 #endif
                 return MT_ERR_LOGIC;   
              }
@@ -35259,7 +35259,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35275,7 +35275,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35296,7 +35296,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35312,7 +35312,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35333,7 +35333,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35349,7 +35349,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35370,7 +35370,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35386,7 +35386,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35407,7 +35407,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35443,7 +35443,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35459,7 +35459,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35480,7 +35480,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35496,7 +35496,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35513,7 +35513,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35529,7 +35529,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35571,7 +35571,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35587,7 +35587,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35604,7 +35604,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 }            
@@ -35620,7 +35620,7 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
                 else
                 {
                     #ifdef MT_DBG
-                    DEBUG("emt_get_ctrl() pack logic error");
+                    DEBUG("get_ctrl() pack logic error");
                     #endif
                     return MT_ERR_LOGIC; 
                 } 
@@ -35634,13 +35634,13 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
 
     }
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 /*****************************************************************************
- 函 数 名  : emt_trans_seq
+ 函 数 名  : trans_seq
  功能描述  : 将SEQ字段从用户侧到帧侧转换函数
- 输入参数  : emt_trans_t eTrans  
-             sMtSEQ *puSEQ    
+ 输入参数  : trans_t eTrans  
+             seq_t *puSEQ    
              sMtSEQ_f *pfSEQ  
  输出参数  : 无
  返 回 值  : 
@@ -35653,12 +35653,12 @@ emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_seq(emt_trans_t eTrans, sMtSEQ *puSEQ, sMtSEQ_f *pfSEQ)
+err_t trans_seq(trans_t eTrans, seq_t *puSEQ, sMtSEQ_f *pfSEQ)
 {
     if(!puSEQ || !pfSEQ)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_seq() para pointer is null!");
+        DEBUG("trans_seq() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -35708,7 +35708,7 @@ emt_err_t emt_trans_seq(emt_trans_t eTrans, sMtSEQ *puSEQ, sMtSEQ_f *pfSEQ)
 
             default:
                 #ifdef MT_DBG
-                DEBUG("emt_trans_seq() para error!");
+                DEBUG("trans_seq() para error!");
                 #endif
                 return MT_ERR_PARA;
                 //break;
@@ -35717,19 +35717,19 @@ emt_err_t emt_trans_seq(emt_trans_t eTrans, sMtSEQ *puSEQ, sMtSEQ_f *pfSEQ)
     else
     {
          #ifdef MT_DBG
-         DEBUG("emt_trans_seq() para error!");
+         DEBUG("trans_seq() para error!");
          #endif
          return MT_ERR_PARA;
     }
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_tp
+ 函 数 名  : trans_tp
  功能描述  : TP数据结构转换函数
- 输入参数  : emt_trans_t eTrans  
-             sMtTP* pTP_u     
+ 输入参数  : trans_t eTrans  
+             tp_t* pTP_u     
              sMtTP_f* pTP_f   
  输出参数  : 无
  返 回 值  : 
@@ -35742,12 +35742,12 @@ emt_err_t emt_trans_seq(emt_trans_t eTrans, sMtSEQ *puSEQ, sMtSEQ_f *pfSEQ)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f)
+err_t trans_tp(trans_t eTrans, tp_t* pTP_u, sMtTP_f* pTP_f)
 {
     if(!pTP_u || !pTP_f)
     {
          #ifdef MT_DBG
-         DEBUG("emt_trans_tp() para pointer is null!");
+         DEBUG("trans_tp() para pointer is null!");
          #endif
          return MT_ERR_NULL;
     }
@@ -35756,30 +35756,30 @@ emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f)
     {   
         pTP_f->ucPFC = pTP_u->ucPFC;
         pTP_f->ucPermitDelayMinutes = pTP_u->ucPermitDelayMinutes;
-        emt_trans_DDHHmmss(MT_TRANS_U2F, &(pTP_u->sDDHHmmss), &(pTP_f->sDDHHmmss));
+        trans_DDHHmmss(MT_TRANS_U2F, &(pTP_u->sDDHHmmss), &(pTP_f->sDDHHmmss));
     }
     else if(MT_TRANS_F2U == eTrans)
     {
         pTP_u->ucPFC = pTP_f->ucPFC;
         pTP_u->ucPermitDelayMinutes = pTP_f->ucPermitDelayMinutes;
-        emt_trans_DDHHmmss(MT_TRANS_F2U, &(pTP_u->sDDHHmmss), &(pTP_f->sDDHHmmss));
+        trans_DDHHmmss(MT_TRANS_F2U, &(pTP_u->sDDHHmmss), &(pTP_f->sDDHHmmss));
     }
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_tp() para error!");
+        DEBUG("trans_tp() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : usmt_get_aux_len
+ 函 数 名  : uget_aux_len
  功能描述  : 获得当前类型的报文中附加域的总字长(ec pw tp)
- 输入参数  : emt_afn_t eAFN  
-             emt_dir_t eDir  
+ 输入参数  : afn_t eAFN  
+             dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -35791,7 +35791,7 @@ emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp)
+uint16_t uget_aux_len(afn_t eAFN, dir_t eDir, bool bEc, bool bTp)
 {
     uint16_t usAuxLen = 0;
 
@@ -35801,7 +35801,7 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp)
   
     if(true == bEc)
     {
-        usAuxLen += sizeof(smt_ec_t);
+        usAuxLen += sizeof(ec_t);
     }
     
     if(true == bPw)
@@ -35817,10 +35817,10 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp)
     return usAuxLen;
 }  
 /*****************************************************************************
- 函 数 名  : emt_get_tp
+ 函 数 名  : get_tp
  功能描述  : 获得当前的时间戳
  输入参数  : uint8_t ucPFC   
-             sMtTP *psuTp  
+             tp_t *psuTp  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -35832,12 +35832,12 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_get_tp(uint8_t ucPFC, sMtTP *psuTp)
+err_t get_tp(uint8_t ucPFC, tp_t *psuTp)
 {
     if(!psuTp)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_tp() para pointer is null!");
+        DEBUG("trans_tp() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -35856,13 +35856,13 @@ emt_err_t emt_get_tp(uint8_t ucPFC, sMtTP *psuTp)
     psuTp->ucPermitDelayMinutes = g_ucMtPermitDelayMinutes;
     psuTp->ucPFC = ucPFC;
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
  函 数 名  : bmt_tp_timeout
  功能描述  : 以当前时间为基准判断一个tp是否超时
- 输入参数  : sMtTP *psTP  
+ 输入参数  : tp_t *psTP  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -35874,7 +35874,7 @@ emt_err_t emt_get_tp(uint8_t ucPFC, sMtTP *psuTp)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool  bmt_tp_timeout(sMtTP *psTP)
+bool  bmt_tp_timeout(tp_t *psTP)
 {
     if(!psTP)
     {
@@ -35956,9 +35956,9 @@ int  nMtPow(uint8_t exp)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_YYWWMMDDhhmmss
+ 函 数 名  : trans_YYWWMMDDhhmmss
  功能描述  : 数据格式01 对于表A.1 格式 
- 输入参数  : emt_trans_t eTrans      
+ 输入参数  : trans_t eTrans      
              sMtUserClock* psUser        
              sMtFrmClock* psFrame  
  输出参数  : 无
@@ -35972,12 +35972,12 @@ int  nMtPow(uint8_t exp)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMtFrmClock* psFrame)
+err_t trans_YYWWMMDDhhmmss(trans_t eTrans, sMtUserClock* psUser, sMtFrmClock* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYWWMMDDhhmmss() para pointer is null!");
+        DEBUG("trans_YYWWMMDDhhmmss() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36002,7 +36002,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if (psUser->ucMonth > 12)
         {
              #ifdef MT_DBG
-             DEBUG("emt_trans_YYWWMMDDhhmmss() ucMonth MT_ERR_OUTRNG!");
+             DEBUG("trans_YYWWMMDDhhmmss() ucMonth MT_ERR_OUTRNG!");
              #endif
              return MT_ERR_OUTRNG;
         }
@@ -36016,7 +36016,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if (psUser->ucWeek > 7)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYWWMMDDhhmmss() ucWeek MT_ERR_OUTRNG!");
+            DEBUG("trans_YYWWMMDDhhmmss() ucWeek MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36029,7 +36029,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if (psUser->ucDay > 31)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYWWMMDDhhmmss() ucDay MT_ERR_OUTRNG!");
+            DEBUG("trans_YYWWMMDDhhmmss() ucDay MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36043,7 +36043,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if(psUser->ucHour > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYWWMMDDhhmmss() ucHour MT_ERR_OUTRNG!");
+            DEBUG("trans_YYWWMMDDhhmmss() ucHour MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36057,7 +36057,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if(psUser->ucMinute > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYWWMMDDhhmmss() ucMinute MT_ERR_OUTRNG!");
+            DEBUG("trans_YYWWMMDDhhmmss() ucMinute MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36071,7 +36071,7 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
         if(psUser->ucSecond > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYWWMMDDhhmmss() ucSencond MT_ERR_OUTRNG!");
+            DEBUG("trans_YYWWMMDDhhmmss() ucSencond MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36084,18 +36084,18 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYWWMMDDhhmmss() para error!");
+        DEBUG("trans_YYWWMMDDhhmmss() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK; 
+    return MT_ERR_OK; 
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXXX
+ 函 数 名  : trans_sXXX
  功能描述  : 数据格式02 对于表A.2 格式: (+/-)XXX * 10(-3~4)  
- 输入参数  : emt_trans_t eTrans      
+ 输入参数  : trans_t eTrans      
              float* psUser        
              sMtFmt02_f* psFrame  
  输出参数  : 无
@@ -36109,12 +36109,12 @@ emt_err_t emt_trans_YYWWMMDDhhmmss(emt_trans_t eTrans, sMtUserClock* psUser, sMt
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXXX(emt_trans_t eTrans, float* psUser, sMtsXXX* psFrame)
+err_t trans_sXXX(trans_t eTrans, float* psUser, sMtsXXX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX() para pointer is null!");
+        DEBUG("trans_sXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36211,7 +36211,7 @@ emt_err_t emt_trans_sXXX(emt_trans_t eTrans, float* psUser, sMtsXXX* psFrame)
         else
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_sXXX() float out range %f!", fUser);
+            DEBUG("trans_sXXX() float out range %f!", fUser);
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36291,19 +36291,19 @@ emt_err_t emt_trans_sXXX(emt_trans_t eTrans, float* psUser, sMtsXXX* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX() para error!");
+        DEBUG("trans_sXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sX7
+ 函 数 名  : trans_sX7
  功能描述  : 数据格式03 对于表A.4
              格式: (+/1)XXXXXXX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              sMtFmt_sX7* psUser      
              sMtFmt_sX7_f* psFrame  
  输出参数  : 无
@@ -36317,12 +36317,12 @@ emt_err_t emt_trans_sXXX(emt_trans_t eTrans, float* psUser, sMtsXXX* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* psFrame)
+err_t trans_sX7(trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sx7() para pointer is null!");
+        DEBUG("trans_sx7() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36340,7 +36340,7 @@ emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* ps
         if(nData < MT_SX7_MIN || nData > MT_SX7_MAX)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_sx7() nData is out range nData = %d", nData);
+            DEBUG("trans_sx7() nData is out range nData = %d", nData);
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36380,7 +36380,7 @@ emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* ps
         else
         { 
             #ifdef MT_DBG
-            DEBUG("emt_trans_sx7() nData is eUnit = %d", sX7->eUnit);
+            DEBUG("trans_sx7() nData is eUnit = %d", sX7->eUnit);
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -36407,19 +36407,19 @@ emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* ps
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sx7() para error!");
+        DEBUG("trans_sx7() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXX
+ 函 数 名  : trans_sXX
  功能描述  : 数据格式04 对于表A.5
  数据格式  : (上浮/下浮)XX (0 ~ 79)
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              sMtsXX* psUser     
              sMtsXX_f* psFrame  
  输出参数  : 无
@@ -36433,12 +36433,12 @@ emt_err_t emt_trans_sX7(emt_trans_t eTrans, sMtFmt_sX7* psUser, sMtFmt_sX7_f* ps
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
+err_t trans_sXX(trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX() para pointer is null!");
+        DEBUG("trans_sXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36459,7 +36459,7 @@ emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
         else
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_sXX() para eDir out range");
+            DEBUG("trans_sXX() para eDir out range");
             #endif
             return MT_ERR_NULL;
         }
@@ -36468,7 +36468,7 @@ emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
         if(ucTmp > MT_FLOAT_MAX || ucTmp < MT_FLOAT_MIN)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_sXX() para ucValue out range");
+            DEBUG("trans_sXX() para ucValue out range");
             #endif
             return MT_ERR_NULL;
         }
@@ -36486,7 +36486,7 @@ emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
         if(ucTmp > MT_FLOAT_MAX || ucTmp < MT_FLOAT_MIN)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_sXX() para ucValue out range");
+            DEBUG("trans_sXX() para ucValue out range");
             #endif
             return MT_ERR_NULL;
         }
@@ -36496,19 +36496,19 @@ emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX() para error!");
+        DEBUG("trans_sXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXXX_X
+ 函 数 名  : trans_sXXX_X
  功能描述  : 数据格式05 对于表A.6
              格式: (+/1)XXX.X
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt05* psFrame  
  输出参数  : 无
@@ -36522,12 +36522,12 @@ emt_err_t emt_trans_sXX(emt_trans_t eTrans, sMtsXX* psUser, sMtsXX_f* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXXX_X(emt_trans_t eTrans, float* psUser, sMtFmt05* psFrame)
+err_t trans_sXXX_X(trans_t eTrans, float* psUser, sMtFmt05* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX_X() para pointer is null!");
+        DEBUG("trans_sXXX_X() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36586,19 +36586,19 @@ emt_err_t emt_trans_sXXX_X(emt_trans_t eTrans, float* psUser, sMtFmt05* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX_X() para error!");
+        DEBUG("trans_sXXX_X() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXX_XX
+ 函 数 名  : trans_sXX_XX
  功能描述  : 数据格式06 对于表A.7
              格式: (+/1)XX.XX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt06* psFrame  
  输出参数  : 无
@@ -36612,12 +36612,12 @@ emt_err_t emt_trans_sXXX_X(emt_trans_t eTrans, float* psUser, sMtFmt05* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXX_XX(emt_trans_t eTrans, float* psUser, sMtFmt06* psFrame)
+err_t trans_sXX_XX(trans_t eTrans, float* psUser, sMtFmt06* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX_XX() para pointer is null!");
+        DEBUG("trans_sXX_XX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -36676,18 +36676,18 @@ emt_err_t emt_trans_sXX_XX(emt_trans_t eTrans, float* psUser, sMtFmt06* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX_XX() para error!");
+        DEBUG("trans_sXX_XX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXX_X
+ 函 数 名  : trans_XXX_X
  功能描述  : 数据格式07 对于表A.8 格式: (+)XXX.X
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt07* psFrame  
  输出参数  : 无
@@ -36701,12 +36701,12 @@ emt_err_t emt_trans_sXX_XX(emt_trans_t eTrans, float* psUser, sMtFmt06* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXX_X(emt_trans_t eTrans, float* psUser, sMtFmt07* psFrame)
+err_t trans_XXX_X(trans_t eTrans, float* psUser, sMtFmt07* psFrame)
 {
     if(!psFrame || !psUser)
     {
          #ifdef MT_DBG
-         DEBUG("emt_trans_XXX_X() para pointer is null!");
+         DEBUG("trans_XXX_X() para pointer is null!");
          #endif
          return MT_ERR_NULL;
     }
@@ -36725,7 +36725,7 @@ emt_err_t emt_trans_XXX_X(emt_trans_t eTrans, float* psUser, sMtFmt07* psFrame)
         if(fXXX_X > 999.9f || fXXX_X < 0.0f)
         {
             #ifdef MT_DBG
-	        DEBUG("emt_trans_XXX_X() fXXX_X out range %f!", fXXX_X);
+	        DEBUG("trans_XXX_X() fXXX_X out range %f!", fXXX_X);
 	        #endif
             return MT_ERR_OUTRNG;
         }
@@ -36764,18 +36764,18 @@ emt_err_t emt_trans_XXX_X(emt_trans_t eTrans, float* psUser, sMtFmt07* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXX_X() para error!");
+        DEBUG("trans_XXX_X() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXX
+ 函 数 名  : trans_XXXX
  功能描述  : 数据格式08 对于表A.9 格式: XXXX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              uint16_t* psUser      
              sMtFmt08* psFrame  
  输出参数  : 无
@@ -36789,12 +36789,12 @@ emt_err_t emt_trans_XXX_X(emt_trans_t eTrans, float* psUser, sMtFmt07* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXX(emt_trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame)
+err_t trans_XXXX(trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame)
 {
     if(!psFrame || !psUser)
     {
          #ifdef MT_DBG
-         DEBUG("emt_trans_XXXX() para pointer is null!");
+         DEBUG("trans_XXXX() para pointer is null!");
          #endif
          return MT_ERR_NULL;
     }
@@ -36845,18 +36845,18 @@ emt_err_t emt_trans_XXXX(emt_trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXX() para error!");
+        DEBUG("trans_XXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXX_XXXX
+ 函 数 名  : trans_sXX_XXXX
  功能描述  : 数据格式09 对于表A.10
- 输入参数  : emt_trans_t eTrans      
+ 输入参数  : trans_t eTrans      
              float* psUser     
              sMtFmt09* psFrame  
  输出参数  : 无
@@ -36870,12 +36870,12 @@ emt_err_t emt_trans_XXXX(emt_trans_t eTrans, uint16_t* psUser, sMtFmt08* psFrame
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt09* psFrame)
+err_t trans_sXX_XXXX(trans_t eTrans, float* psUser, sMtFmt09* psFrame)
 {
     if(!psFrame || !psUser)
      {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX_XXXX() para pointer is null!");
+        DEBUG("trans_sXX_XXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
      }
@@ -36939,18 +36939,18 @@ emt_err_t emt_trans_sXX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt09* psFram
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXX_XXXX() para error!");
+        DEBUG("trans_sXX_XXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXXXX
+ 函 数 名  : trans_XXXXXX
  功能描述  : 数据格式10 对于表A.11 格式:  XXXXXX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt07* psFrame  
  输出参数  : 无
@@ -36964,12 +36964,12 @@ emt_err_t emt_trans_sXX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt09* psFram
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* psFrame)
+err_t trans_XXXXXX(trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX() para pointer is null!");
+        DEBUG("trans_XXXXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     } 
@@ -37026,19 +37026,19 @@ emt_err_t emt_trans_XXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* 
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX() para error!");
+        DEBUG("trans_XXXXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XX_6
+ 函 数 名  : trans_XX_6
  功能描述  : 数据格式12 对于表A.13  
  数据格式  : XXXXXXXXXXXX
- 输入参数  : emt_trans_t eTrans       
+ 输入参数  : trans_t eTrans       
              uint8_t* psUser        
              sMtFmt_XX_6* psFrame  
  输出参数  : 无
@@ -37052,12 +37052,12 @@ emt_err_t emt_trans_XXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX* 
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XX_6(emt_trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFrame)
+err_t trans_XX_6(trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XX_6() para pointer is null!");
+        DEBUG("trans_XX_6() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37098,18 +37098,18 @@ emt_err_t emt_trans_XX_6(emt_trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFra
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XX_6() para error!");
+        DEBUG("trans_XX_6() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_sXXX_XXX
+ 函 数 名  : trans_sXXX_XXX
  功能描述  : 数据格式25 对于表A.26 格式: (+/1)XXX.XXX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt25* psFrame  
  输出参数  : 无
@@ -37123,12 +37123,12 @@ emt_err_t emt_trans_XX_6(emt_trans_t eTrans, uint8_t* psUser, sMtFmt_XX_6* psFra
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_sXXX_XXX(emt_trans_t eTrans, float* psUser, sMtFmt25* psFrame)
+err_t trans_sXXX_XXX(trans_t eTrans, float* psUser, sMtFmt25* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX_XXX() para pointer is null!");
+        DEBUG("trans_sXXX_XXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37191,18 +37191,18 @@ emt_err_t emt_trans_sXXX_XXX(emt_trans_t eTrans, float* psUser, sMtFmt25* psFram
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_sXXX_XXX() para error!");
+        DEBUG("trans_sXXX_XXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXXXX_XX
+ 函 数 名  : trans_XXXXXX_XX
  功能描述  : 数据格式11 对于表A.12 格式: (+)XXXXXX.XX
- 输入参数  : emt_trans_t eTrans            
+ 输入参数  : trans_t eTrans            
              float* psUser              
              sMtFmt_XXXXXX_XX* psFrame  
  输出参数  : 无
@@ -37216,12 +37216,12 @@ emt_err_t emt_trans_sXXX_XXX(emt_trans_t eTrans, float* psUser, sMtFmt25* psFram
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXXXX_XX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XX* psFrame)
+err_t trans_XXXXXX_XX(trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX_XX() para pointer is null!");
+        DEBUG("trans_XXXXXX_XX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37294,18 +37294,18 @@ emt_err_t emt_trans_XXXXXX_XX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX_XX() para error!");
+        DEBUG("trans_XXXXXX_XX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXX_XXXX
+ 函 数 名  : trans_XXXX_XXXX
  功能描述  : 数据格式13 对于表A.14 格式: (+)XXXX.XXXX
- 输入参数  : emt_trans_t eTrans            
+ 输入参数  : trans_t eTrans            
              float* psUser              
              sMtFmt_XXXX_XXXX* psFrame  
  输出参数  : 无
@@ -37319,12 +37319,12 @@ emt_err_t emt_trans_XXXXXX_XX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXX_XXXX* psFrame)
+err_t trans_XXXX_XXXX(trans_t eTrans, double* psUser, sMtFmt_XXXX_XXXX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXX_XXXX() para pointer is null!");
+        DEBUG("trans_XXXX_XXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37388,18 +37388,18 @@ emt_err_t emt_trans_XXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXX_XX
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXX_XXXX() para error!");
+        DEBUG("trans_XXXX_XXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXXXX_XXXX
+ 函 数 名  : trans_XXXXXX_XXXX
  功能描述  : 数据格式14 对于表A.15 格式: (+)XXXXXX.XXXX
- 输入参数  : emt_trans_t eTrans            
+ 输入参数  : trans_t eTrans            
              float* psUser              
              sMtFmt_XXXXXX_XXXX* psFrame  
  输出参数  : 无
@@ -37413,12 +37413,12 @@ emt_err_t emt_trans_XXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXX_XX
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XXXX* psFrame)
+err_t trans_XXXXXX_XXXX(trans_t eTrans, double* psUser, sMtFmt_XXXXXX_XXXX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX_XXXX() para pointer is null!");
+        DEBUG("trans_XXXXXX_XXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37497,18 +37497,18 @@ emt_err_t emt_trans_XXXXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXX
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXX_XXXX() para error!");
+        DEBUG("trans_XXXXXX_XXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_YYMMDD
+ 函 数 名  : trans_YYMMDD
  功能描述  : 数据格式转换函数  数据格式20 对于表A.21 单位: 年月日
- 输入参数  : emt_trans_t eTrans           
+ 输入参数  : trans_t eTrans           
              sMtYYMMDD* psUser     
              sMtYYMMDD_f* psFrame  
  输出参数  : 无
@@ -37522,12 +37522,12 @@ emt_err_t emt_trans_XXXXXX_XXXX(emt_trans_t eTrans, double* psUser, sMtFmt_XXXXX
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* psFrame)
+err_t trans_YYMMDD(trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* psFrame)
 {
     if(!psUser || !psFrame)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMMDD() para pointer is null!");
+        DEBUG("trans_YYMMDD() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37542,7 +37542,7 @@ emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* p
         if(psUser->ucMM > 12)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDD() ucMM MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDD() ucMM MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37556,7 +37556,7 @@ emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* p
         if(psUser->ucDD > 31)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDD() ucDD MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDD() ucDD MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37580,13 +37580,13 @@ emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* p
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_YYMM
+ 函 数 名  : trans_YYMM
  功能描述  : 数据格式转换函数  数据格式21 对于表A.22 单位: 年月
- 输入参数  : emt_trans_t eTrans           
+ 输入参数  : trans_t eTrans           
              sMtYYMM* psUser     
              sMtYYMM_f* psFrame  
  输出参数  : 无
@@ -37600,12 +37600,12 @@ emt_err_t emt_trans_YYMMDD(emt_trans_t eTrans, sMtYYMMDD* psUser, sMtYYMMDD_f* p
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_YYMM(emt_trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame)
+err_t trans_YYMM(trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame)
 {
     if(!psUser || !psFrame)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMM() para pointer is null!");
+        DEBUG("trans_YYMM() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37620,7 +37620,7 @@ emt_err_t emt_trans_YYMM(emt_trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame
         if(psUser->ucMM > 12)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMM() ucMM MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMM() ucMM MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37643,13 +37643,13 @@ emt_err_t emt_trans_YYMM(emt_trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_YYMMDDhhmm
+ 函 数 名  : trans_YYMMDDhhmm
  功能描述  : 数据格式转换函数  数据格式15 对于表A.16 单位: 年月日时分
- 输入参数  : emt_trans_t eTrans           
+ 输入参数  : trans_t eTrans           
              sMtYYMMDDhhmm* psUser     
              sMtYYMMDDhhmm_f* psFrame  
  输出参数  : 无
@@ -37663,12 +37663,12 @@ emt_err_t emt_trans_YYMM(emt_trans_t eTrans, sMtYYMM* psUser, sMtYYMM_f* psFrame
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYMMDDhhmm_f* psFrame)
+err_t trans_YYMMDDhhmm(trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYMMDDhhmm_f* psFrame)
 {
     if(!psUser || !psFrame)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_YYMMDDhhmm() para pointer is null!");
+        DEBUG("trans_YYMMDDhhmm() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37683,7 +37683,7 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
         if(psUser->ucMM > 12)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDDhhmm() ucMM MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDDhhmm() ucMM MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37697,7 +37697,7 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
         if(psUser->ucDD > 31)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDDhhmm() ucDD MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDDhhmm() ucDD MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37711,7 +37711,7 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
         if(psUser->ucHH > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDDhhmm() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDDhhmm() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37725,7 +37725,7 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
         if(psUser->ucmm > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_YYMMDDhhmm() ucmm MT_ERR_OUTRNG!");
+            DEBUG("trans_YYMMDDhhmm() ucmm MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37752,13 +37752,13 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_DDHHmmss
+ 函 数 名  : trans_DDHHmmss
  功能描述  : 数据格式转换函数 数据格式16 对于表A.17 单位: 日时分秒
- 输入参数  : emt_trans_t eTrans              
+ 输入参数  : trans_t eTrans              
              sMtDDhhmmss* psDDhhmmss_u    
              sMtDDhhmmss_f* psDDhhmmss_f  
  输出参数  : 无
@@ -37772,12 +37772,12 @@ emt_err_t emt_trans_YYMMDDhhmm(emt_trans_t eTrans, sMtYYMMDDhhmm* psUser, sMtYYM
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtDDHHmmss_f* psDDHHmmss_f)
+err_t trans_DDHHmmss(trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtDDHHmmss_f* psDDHHmmss_f)
 {
     if(!psDDHHmmss_u || !psDDHHmmss_f)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_DDhhmmss() para pointer is null!");
+        DEBUG("trans_DDhhmmss() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37787,7 +37787,7 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
         if(psDDHHmmss_u->ucDD > 31 || psDDHHmmss_u->ucDD < 0)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDhhmmss() ucDD MT_ERR_OUTRNG!");
+            DEBUG("trans_DDhhmmss() ucDD MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37800,7 +37800,7 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
         if(psDDHHmmss_u->ucHH > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37813,7 +37813,7 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
         if(psDDHHmmss_u->ucmm > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37826,7 +37826,7 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
         if(psDDHHmmss_u->ucss > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_DDhhmmss() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37846,18 +37846,18 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_DDhhmmss() para error!");
+        DEBUG("trans_DDhhmmss() para error!");
         #endif
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_MMDDHHmm
+ 函 数 名  : trans_MMDDHHmm
  功能描述  : 数据格式转换函数 数据格式17 对于表A.18 单位: 月日时分
- 输入参数  : emt_trans_t eTrans              
+ 输入参数  : trans_t eTrans              
              sMtMMDDHHmm* psMMDDHHmm_u  
              sMtMMDDHHmm_f* psMMDDHHmm_f
  输出参数  : 无
@@ -37871,12 +37871,12 @@ emt_err_t emt_trans_DDHHmmss(emt_trans_t eTrans, sMtDDHHmmss* psDDHHmmss_u, sMtD
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtMMDDHHmm_f* psMMDDHHmm_f)
+err_t trans_MMDDHHmm(trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtMMDDHHmm_f* psMMDDHHmm_f)
 {
     if(!psMMDDHHmm_u || !psMMDDHHmm_f)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_MMDDHHmm() para pointer is null!");
+        DEBUG("trans_MMDDHHmm() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37887,7 +37887,7 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
         if(psMMDDHHmm_u->ucMM > 12 || psMMDDHHmm_u->ucMM < 1)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_MMDDHHmm() ucMM MT_ERR_OUTRNG!");
+            DEBUG("trans_MMDDHHmm() ucMM MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37900,7 +37900,7 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
         if(psMMDDHHmm_u->ucDD > 31 || psMMDDHHmm_u->ucDD < 0)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_MMDDHHmm() ucDD MT_ERR_OUTRNG!");
+            DEBUG("trans_MMDDHHmm() ucDD MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37913,7 +37913,7 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
         if(psMMDDHHmm_u->ucHH > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_MMDDHHmm() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_MMDDHHmm() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37926,7 +37926,7 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
         if(psMMDDHHmm_u->ucmm > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_MMDDHHmm() ucmm MT_ERR_OUTRNG!");
+            DEBUG("trans_MMDDHHmm() ucmm MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37946,18 +37946,18 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_MMDDhhmm() para error!");
+        DEBUG("trans_MMDDhhmm() para error!");
         #endif
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_MMDDHHmm
+ 函 数 名  : trans_MMDDHHmm
  功能描述  : 数据格式转换函数 数据格式18 对于表A.19 单位: 日时分
- 输入参数  : emt_trans_t eTrans              
+ 输入参数  : trans_t eTrans              
              sMtDDhhmm* psDDhhmm_u    
              sMtDDhhmm_f* psDDhhmm_f  
  输出参数  : 无
@@ -37971,12 +37971,12 @@ emt_err_t emt_trans_MMDDHHmm(emt_trans_t eTrans, sMtMMDDHHmm* psMMDDHHmm_u, sMtM
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_f* psDDHHmm_f)
+err_t trans_DDHHmm(trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_f* psDDHHmm_f)
 {
     if(!psDDHHmm_u || !psDDHHmm_f)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_DDHHmm() para pointer is null!");
+        DEBUG("trans_DDHHmm() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -37986,7 +37986,7 @@ emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_
         if(psDDHHmm_u->ucDD > 31 || psDDHHmm_u->ucDD < 0)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDHHmm() ucDD MT_ERR_OUTRNG!");
+            DEBUG("trans_DDHHmm() ucDD MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -37999,7 +37999,7 @@ emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_
         if(psDDHHmm_u->ucHH > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDHHmm() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_DDHHmm() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -38012,7 +38012,7 @@ emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_
         if(psDDHHmm_u->ucmm > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_DDHHmm() ucmm MT_ERR_OUTRNG!");
+            DEBUG("trans_DDHHmm() ucmm MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -38031,18 +38031,18 @@ emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_DDhhmm() para error!");
+        DEBUG("trans_DDhhmm() para error!");
         #endif
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_MMHHmm
+ 函 数 名  : trans_MMHHmm
  功能描述  : 数据格式转换函数 数据格式19 对于表A.20 单位: 时分
- 输入参数  : emt_trans_t eTrans              
+ 输入参数  : trans_t eTrans              
              sMthhmm* pshhmm_u    
              sMthhmm_f* pshhmm_f  
  输出参数  : 无
@@ -38056,12 +38056,12 @@ emt_err_t emt_trans_DDHHmm(emt_trans_t eTrans, sMtDDHHmm* psDDHHmm_u, sMtDDHHmm_
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHmm_f)
+err_t trans_HHmm(trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHmm_f)
 {
     if(!psHHmm_u || !psHHmm_f)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_HHmm() para pointer is null!");
+        DEBUG("trans_HHmm() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38071,7 +38071,7 @@ emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHm
         if(psHHmm_u->ucHH > 24)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_HHmm() ucHH MT_ERR_OUTRNG!");
+            DEBUG("trans_HHmm() ucHH MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -38084,7 +38084,7 @@ emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHm
         if(psHHmm_u->ucmm > 60)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_HHmm() ucmm MT_ERR_OUTRNG!");
+            DEBUG("trans_HHmm() ucmm MT_ERR_OUTRNG!");
             #endif
             return MT_ERR_OUTRNG;
         }
@@ -38102,18 +38102,18 @@ emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHm
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_hhmm() para error!");
+        DEBUG("trans_hhmm() para error!");
         #endif
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_X_X
+ 函 数 名  : trans_X_X
  功能描述  : 数据格式转换函数 数据格式22 对于表A.23 
- 输入参数  : emt_trans_t eTrans              
+ 输入参数  : trans_t eTrans              
              float* psUser 
              sMtFmt22_f* psFrame  
  输出参数  : 无
@@ -38127,12 +38127,12 @@ emt_err_t emt_trans_HHmm(emt_trans_t eTrans, sMtHHmm* psHHmm_u, sMtHHmm_f* psHHm
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
+err_t trans_X_X(trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
 {
     if(!psUser || !psFrame)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_X_X() para pointer is null!");
+        DEBUG("trans_X_X() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38145,7 +38145,7 @@ emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
         if(fData > 9.9f || fData < 0.0f)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_X_X() fData para error! %f", fData);
+            DEBUG("trans_X_X() fData para error! %f", fData);
             #endif
             return MT_ERR_PARA;
         }
@@ -38160,7 +38160,7 @@ emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
         if(fData > 9.9f || fData < 0.0f)
         {
             #ifdef MT_DBG
-            DEBUG("emt_trans_X_X() fData para error! %f", fData);
+            DEBUG("trans_X_X() fData para error! %f", fData);
             #endif
             return MT_ERR_PARA;
         }
@@ -38170,18 +38170,18 @@ emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_X_X() para error!");
+        DEBUG("trans_X_X() para error!");
         #endif
         return MT_ERR_PARA;
     }
         
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XX_XXXX
+ 函 数 名  : trans_XX_XXXX
  功能描述  : 数据格式转换函数 数据格式23 对于表A.24 
- 输入参数  : emt_trans_t eTrans      
+ 输入参数  : trans_t eTrans      
              float* psUser        
              sMtFmt23_f* psFrame  
  输出参数  : 无
@@ -38195,12 +38195,12 @@ emt_err_t emt_trans_X_X(emt_trans_t eTrans, float* psUser, sMtFmt22_f* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt23_f* psFrame)
+err_t trans_XX_XXXX(trans_t eTrans, float* psUser, sMtFmt23_f* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XX_XXXX() para pointer is null!");
+        DEBUG("trans_XX_XXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38261,18 +38261,18 @@ emt_err_t emt_trans_XX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt23_f* psFra
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XX_XXXX() para error!");
+        DEBUG("trans_XX_XXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-     return MT_OK;
+     return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XX_XXXX
+ 函 数 名  : trans_XX_XXXX
  功能描述  : 数据格式26 对于表A.27
- 输入参数  : emt_trans_t eTrans      
+ 输入参数  : trans_t eTrans      
              float* psUser        
              sMtFmt23_f* psFrame  
  输出参数  : 无
@@ -38286,12 +38286,12 @@ emt_err_t emt_trans_XX_XXXX(emt_trans_t eTrans, float* psUser, sMtFmt23_f* psFra
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_X_XXX(emt_trans_t eTrans, float* psUser, sMtFmt26* psFrame)
+err_t trans_X_XXX(trans_t eTrans, float* psUser, sMtFmt26* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_X_XXX() para pointer is null!");
+        DEBUG("trans_X_XXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38350,18 +38350,18 @@ emt_err_t emt_trans_X_XXX(emt_trans_t eTrans, float* psUser, sMtFmt26* psFrame)
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_X_XXX() para error!");
+        DEBUG("trans_X_XXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
- return MT_OK;
+ return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_XXXXXXXX
+ 函 数 名  : trans_XXXXXXXX
  功能描述  : 数据格式27 对于表A.28 格式:  XXXXXXXX
- 输入参数  : emt_trans_t eTrans    
+ 输入参数  : trans_t eTrans    
              float* psUser      
              sMtFmt07* psFrame  
  输出参数  : 无
@@ -38375,12 +38375,12 @@ emt_err_t emt_trans_X_XXX(emt_trans_t eTrans, float* psUser, sMtFmt26* psFrame)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_XXXXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXXXX* psFrame)
+err_t trans_XXXXXXXX(trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXXXX* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXXXX() para pointer is null!");
+        DEBUG("trans_XXXXXXXX() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38442,18 +38442,18 @@ emt_err_t emt_trans_XXXXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_XXXXXXXX() para error!");
+        DEBUG("trans_XXXXXXXX() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_trans_fmt_freeze
+ 函 数 名  : trans_fmt_freeze
  功能描述  : 附录c 冻结间隔
- 输入参数  : emt_trans_t eTrans     
+ 输入参数  : trans_t eTrans     
              eMtFmtFrez* psUser  
              uint8_t* psFrame      
  输出参数  : 无
@@ -38467,12 +38467,12 @@ emt_err_t emt_trans_XXXXXXXX(emt_trans_t eTrans, uint32_t* psUser, sMtFmt_XXXXXX
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_fmt_freeze(emt_trans_t eTrans, eMtFmtFrez* psUser, uint8_t* psFrame)
+err_t trans_fmt_freeze(trans_t eTrans, eMtFmtFrez* psUser, uint8_t* psFrame)
 {
     if(!psFrame || !psUser)
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_fmt_freeze() para pointer is null!");
+        DEBUG("trans_fmt_freeze() para pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38517,7 +38517,7 @@ emt_err_t emt_trans_fmt_freeze(emt_trans_t eTrans, eMtFmtFrez* psUser, uint8_t* 
 
                 default:
                 #ifdef MT_DBG
-                DEBUG("emt_trans_fmt_freeze() eFrez para out range %d", eFrez);
+                DEBUG("trans_fmt_freeze() eFrez para out range %d", eFrez);
                 #endif
                 return MT_ERR_OUTRNG;
                // break;
@@ -38557,7 +38557,7 @@ emt_err_t emt_trans_fmt_freeze(emt_trans_t eTrans, eMtFmtFrez* psUser, uint8_t* 
 
                 default:
                 #ifdef MT_DBG
-                DEBUG("emt_trans_fmt_freeze() ucFrez para out range %d", ucFrez);
+                DEBUG("trans_fmt_freeze() ucFrez para out range %d", ucFrez);
                 #endif
                 return MT_ERR_OUTRNG;
                // break;
@@ -38568,12 +38568,12 @@ emt_err_t emt_trans_fmt_freeze(emt_trans_t eTrans, eMtFmtFrez* psUser, uint8_t* 
     else
     {
         #ifdef MT_DBG
-        DEBUG("emt_trans_fmt_freeze() para error!");
+        DEBUG("trans_fmt_freeze() para error!");
         #endif
         return MT_ERR_PARA;
     }
 
-    return MT_OK;
+    return MT_ERR_OK;
 }
     
 /*****************************************************************************
@@ -38606,15 +38606,15 @@ uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen)
 }
 
 /*****************************************************************************
- 函 数 名  : emt_pack_common
+ 函 数 名  : pack_common
  功能描述  : 公共部分 报文封装函数   
- 输入参数  : emt_afn_t eAFN           
-             smt_compack_t *psCommon  
+ 输入参数  : afn_t eAFN           
+             compack_t *psCommon  
  输出参数  : uint16_t *pusLen     封装后的帧长    
              uint8_t  *pOutBuf    封装后的帧内容
  返 回 值  : 
  调用函数  : 
- 被调函数  : emt_base_pack
+ 被调函数  : base_pack
  
  修改历史      :
   1.日    期   : 2013年8月2日 星期五
@@ -38622,9 +38622,9 @@ uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf)
+err_t pack_common(afn_t eAFN, compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf)
 {    
-    emt_err_t eErr     = MT_OK;
+    err_t eErr     = MT_ERR_OK;
     uint16_t usBufLen = 0;
     uint8_t  ucCtrl   = 0;
     uint16_t usUserDataLen = 0; // 用户数据区字长 用于CS 和 长度域 
@@ -38632,12 +38632,12 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     uint8_t *pucSeq  = NULL;
     uint8_t *pucCtrl = NULL;   // 用于计算CS
     uint8_t *pucCS   = NULL;
-    smt_fcomhead_t *psHead = NULL;
+    fcomhead_t *psHead = NULL;
     
     if(!psCommon || !pusLen || !pOutBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() pointer is null!");
+        DEBUG("pack_common() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38645,7 +38645,7 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     if(g_bMtInit != true)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() protocol is not init!");
+        DEBUG("pack_common() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
@@ -38654,7 +38654,7 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     if(psCommon->usSeq2CsLen > MT_SEQ2CS_MAX)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() para out of range!");
+        DEBUG("pack_common() para out of range!");
         #endif
         return MT_ERR_OUTRNG;
     }
@@ -38662,12 +38662,12 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     if(!(psCommon->pSeq2Cs))
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() MT_ERR_SEQ2CS pointer is null!");
+        DEBUG("pack_common() MT_ERR_SEQ2CS pointer is null!");
         #endif
         return MT_ERR_SEQ2CS;
     }
        
-    psHead = (smt_fcomhead_t *)pOutBuf;
+    psHead = (fcomhead_t *)pOutBuf;
 
     // 0x68
     psHead->f68 = 0x68;
@@ -38688,11 +38688,11 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     psHead->p10   = 2; 
     
     // 计算控制域
-    eErr = emt_trans_ctrl(MT_TRANS_U2F, &(psCommon->sCtrl), &ucCtrl);
-    if(eErr != MT_OK)
+    eErr = trans_ctrl(MT_TRANS_U2F, &(psCommon->sCtrl), &ucCtrl);
+    if(eErr != MT_ERR_OK)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() emt_trans_ctrl failed: %s\n", smtGetErr(eErr));
+        DEBUG("pack_common() trans_ctrl failed: %s\n", smtGetErr(eErr));
         #endif 
         return MT_ERR_CTRL;
     }
@@ -38700,21 +38700,21 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     psHead->C = ucCtrl;
 
     // 地址域
-    eErr = emt_trans_address(MT_TRANS_U2F, &(psCommon->sAddr), &(psHead->A));
-    if(eErr != MT_OK)
+    eErr = trans_address(MT_TRANS_U2F, &(psCommon->sAddr), &(psHead->A));
+    if(eErr != MT_ERR_OK)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() emt_trans_address failed: %s\n", smtGetErr(eErr));
+        DEBUG("pack_common() trans_address failed: %s\n", smtGetErr(eErr));
         #endif 
         return MT_ERR_ADDR;
     }
         
     // 构造SEQ
-    eErr = emt_trans_seq(MT_TRANS_U2F, &(psCommon->sSEQ), (sMtSEQ_f*)&(psHead->SEQ));
-    if(eErr != MT_OK)
+    eErr = trans_seq(MT_TRANS_U2F, &(psCommon->sSEQ), (sMtSEQ_f*)&(psHead->SEQ));
+    if(eErr != MT_ERR_OK)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_common() emt_trans_seq failed: %s\n", smtGetErr(eErr));
+        DEBUG("pack_common() trans_seq failed: %s\n", smtGetErr(eErr));
         #endif 
         return MT_ERR_SEQ;
     }
@@ -38746,13 +38746,13 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     *pusLen = usBufLen;
 
     // 输出报文数据
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_unpack_common
+ 函 数 名  : unpack_common
  功能描述  : 解析成公共部分, 用于显示各字段意义
- 输入参数  : smt_unpack_common_t *psUnpack  
+ 输入参数  : unpack_common_t *psUnpack  
              uint8_t* pInBuf              
              uint16_t usLen               
  输出参数  : 无
@@ -38766,12 +38766,12 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pu
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t unpack_common(unpack_common_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
     if(!psUnpack || !pInBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() pointer is null!");
+        DEBUG("unpack_common() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38779,55 +38779,55 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() protocol is not init!");
+        DEBUG("unpack_common() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
 
-    emt_err_t        eRet           = MT_OK;
-    smt_fcomhead_t   *psHead        = NULL;
+    err_t        eRet           = MT_ERR_OK;
+    fcomhead_t   *psHead        = NULL;
     uint16_t        usLenUserField = 0;
     uint8_t         u8CS           = 0;
         
      // 判断该帧是否是一个有效的帧
-    eRet = emt_is_valid_pack(pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = is_valid_pack(pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() input is not a valid pack eRet = %d", eRet);
+        DEBUG("unpack_common() input is not a valid pack eRet = %d", eRet);
         #endif 
         return MT_ERR_PACK;
     }
 
-    psHead = (smt_fcomhead_t *)pInBuf;
-    memcpy(&(psUnpack->sfComHead), pInBuf, sizeof(smt_fcomhead_t));
+    psHead = (fcomhead_t *)pInBuf;
+    memcpy(&(psUnpack->sfComHead), pInBuf, sizeof(fcomhead_t));
 
     // 地址域
-    eRet = emt_trans_address(MT_TRANS_F2U, &(psUnpack->sComPack.sAddr), &(psHead->A));
-    if(MT_OK != eRet)
+    eRet = trans_address(MT_TRANS_F2U, &(psUnpack->sComPack.sAddr), &(psHead->A));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() emt_trans_addr() error = %d\n", eRet);
+        DEBUG("unpack_common() trans_addr() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     // 控制域
-    eRet = emt_trans_ctrl(MT_TRANS_F2U, &(psUnpack->sComPack.sCtrl), &(psHead->C));
-    if(MT_OK != eRet)
+    eRet = trans_ctrl(MT_TRANS_F2U, &(psUnpack->sComPack.sCtrl), &(psHead->C));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() emt_trans_ctrl() error = %d\n", eRet);
+        DEBUG("unpack_common() trans_ctrl() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     // SEQ
-    eRet = emt_trans_seq(MT_TRANS_F2U, &psUnpack->sComPack.sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
-    if(MT_OK != eRet)
+    eRet = trans_seq(MT_TRANS_F2U, &psUnpack->sComPack.sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_common() emt_trans_seq() error = %d\n", eRet);
+        DEBUG("unpack_common() trans_seq() error = %d\n", eRet);
         #endif
         return eRet;
     }
@@ -38843,23 +38843,23 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
     u8CS = *(uint8_t*)((uint8_t*)&(psHead->C) + usLenUserField + 1);
     psUnpack->u8CS = u8CS;  
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_lite_pack
+ 函 数 名  : lite_pack
  功能描述  : 实现基本的报文封装, 加入加密算法接口
              该处对应用层数据加密 加密后可能可能会改
              变长度,加密的数据区包括：应用层功能码、数据单元标识及数据单元部分
              应用层的数据,用上层传入的空间,这样比emtBasePack节省内存
              
- 输入参数  : smt_litepack_t* psPack  
+ 输入参数  : litepack_t* psPack  
              uint16_t* pusLen       
              uint8_t* pOutBuf       
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_pack_common()
- 被调函数  : emt_pack()
+ 调用函数  : pack_common()
+ 被调函数  : pack()
  
  修改历史      :
   1.日    期   : 2013年8月6日 星期二
@@ -38867,12 +38867,12 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
+err_t lite_pack(litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 {
     if(!psPack || !pusLen || !pOutBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_pack() pointer is null!");
+        DEBUG("lite_pack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -38880,15 +38880,15 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_pack() protocol is not init!");
+        DEBUG("lite_pack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
 
-    emt_err_t         eRet        = MT_OK;
-    emt_cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
-    emt_dir_t         eDir        = MT_DIR_UNKOWN;
-    emt_afn_t         eAFN        = AFN_NULL;
+    err_t         eRet        = MT_ERR_OK;
+    cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
+    dir_t         eDir        = MT_DIR_UNKOWN;
+    afn_t         eAFN        = AFN_NULL;
     bool           bSameTeam   = false;
     bool           bP0         = false;
     uint8_t          ucPnNum     = 0;
@@ -38904,13 +38904,13 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     uint8_t*         puData      = NULL;   // 数据单元用户侧数据
     uint8_t*         pData       = NULL;   // 数据单元
     sMtDaDt*       pDaDt       = NULL;   // 数据单元标识
-    smt_ec_t*         psEC        = NULL;
+    ec_t*         psEC        = NULL;
     sMtTP_f*       psfTp       = NULL;   // 帧侧Tp字段
-    pMtFunc        pFunc       = NULL;
+    trans_func_t        pFunc       = NULL;
     sMtCmdInfor    sCmdInfor;   
-    sMtTP          suTp;                 // 用户侧Tp字段信息
-    sMtPnFn        sPnFn;
-    smt_compack_t     sPackCommon;
+    tp_t          suTp;                 // 用户侧Tp字段信息
+    pnfn_t        sPnFn;
+    compack_t     sPackCommon;
 
     // 加密
     #if MT_CFG_ENCRYPT
@@ -38920,8 +38920,8 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     int32_t          nLen_out    = 0;     // 密文的总字长
     #endif
     
-    memset(&(sPnFn), 0x00, sizeof(sMtPnFn));
-    memset(&sPackCommon, 0x00, sizeof(smt_compack_t));
+    memset(&(sPnFn), 0x00, sizeof(pnfn_t));
+    memset(&sPackCommon, 0x00, sizeof(compack_t));
 
     if(MT_ROLE_MASTER == g_eMtRole)
     {
@@ -38938,7 +38938,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(!pSeq2Cs)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_pack() malloc failed!");
+        DEBUG("lite_pack() malloc failed!");
         #endif
         return MT_ERR_IO;
     }
@@ -38947,7 +38947,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(0 == psPack->usDataNum)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_pack() ucSubNum is 0!");
+        DEBUG("lite_pack() ucSubNum is 0!");
         #endif
         MT_FREE(pSeq2Cs);
         return MT_ERR_PROTO;
@@ -38967,7 +38967,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(false == bSameTeam)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_pack() pn is not is same team!");
+            DEBUG("lite_pack() pn is not is same team!");
             #endif
             MT_FREE(pSeq2Cs);
             return MT_ERR_TEAM;
@@ -38978,7 +38978,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(false == bSameTeam)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_pack() Fn is not is same team!");
+            DEBUG("lite_pack() Fn is not is same team!");
             #endif
             MT_FREE(pSeq2Cs);
             return MT_ERR_TEAM;
@@ -38989,11 +38989,11 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
 
         // 封装数据单元标识
         pDaDt = (sMtDaDt*)(pSeq2Cs + usSeq2CsPos);
-        eRet = emt_pnfn_to_dadt(&(sPnFn), pDaDt);
-        if(MT_OK != eRet)
+        eRet = pnfn_to_dadt(&(sPnFn), pDaDt);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_pack() emt_pnfn_to_dadt() failed %d %s!", eRet, smtGetErr(eRet));
+            DEBUG("lite_pack() pnfn_to_dadt() failed %d %s!", eRet, smtGetErr(eRet));
             #endif
             return eRet;
         }
@@ -39028,14 +39028,14 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                     {
                          // 合成命令码
                         usCMD = (uint16_t)((eAFN << 8) | (psPack->sData[i].sPnFn.ucFn[fi]));
-                        eCmd  = (emt_cmd_t)usCMD; 
+                        eCmd  = (cmd_t)usCMD; 
 
                         // 获得命令信息
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_lite_pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("lite_pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             MT_FREE(pSeq2Cs);
                             return eRet;
@@ -39048,10 +39048,10 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                         {
                             puData = (uint8_t*)(psPack->sData[i].puApp[pi][fi]);
                             eRet = pFunc(MT_TRANS_U2F, puData, pData, &usfDataLen);
-                            if(MT_OK != eRet)
+                            if(MT_ERR_OK != eRet)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_lite_pack() transU2FpFunc() failed %d %s!", eRet, smtGetErr(eRet));
+                                DEBUG("lite_pack() transU2FpFunc() failed %d %s!", eRet, smtGetErr(eRet));
                                 #endif
                                 MT_FREE(pSeq2Cs);
                                 return eRet;
@@ -39075,16 +39075,16 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(!pEncry_out)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_pack() malloc failed!");
+            DEBUG("lite_pack() malloc failed!");
             #endif
             return MT_ERR_IO; 
         }
         
         eRet = g_peMtEncryptFunc(pEncry_in, nLen_in, pEncry_out, &nLen_out);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_pack() encrypt failed! %d", eRet);
+            DEBUG("lite_pack() encrypt failed! %d", eRet);
             #endif
             MT_FREE(pEncry_out);
             return MT_ERR_ENCRYPT;
@@ -39104,7 +39104,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true == bmt_have_ec(eAFN, eDir))
     {       
         pData = (uint8_t*)(pSeq2Cs + usSeq2CsPos);
-        psEC = (smt_ec_t*)pData;
+        psEC = (ec_t*)pData;
         if(MT_DIR_S2M == eDir)
         {
             psEC->ucEC1 = g_tEC.ucEC1;
@@ -39117,7 +39117,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
             psEC->ucEC2 = 0x0;
         }
        
-        usSeq2CsPos += sizeof(smt_ec_t);
+        usSeq2CsPos += sizeof(ec_t);
      }
     
     // 如果有 pw  
@@ -39136,8 +39136,8 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         psfTp = (sMtTP_f *)pData;
         suTp  = psPack->sTP;
   
-        //(void)emt_get_mtutp(psPack->ucPFC, &suTp); 由上层封装时间戳
-        (void)emt_trans_tp(MT_TRANS_U2F, &suTp, psfTp);
+        //(void)get_mtutp(psPack->ucPFC, &suTp); 由上层封装时间戳
+        (void)trans_tp(MT_TRANS_U2F, &suTp, psfTp);
         usSeq2CsPos += sizeof(sMtTP_f);
     }
 
@@ -39150,11 +39150,11 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     sPackCommon.pSeq2Cs     = pSeq2Cs;
 
     // 通过通用封包函数pack
-    eRet = emt_pack_common(eAFN,  &sPackCommon, pusLen, pOutBuf);   
-    if(MT_OK != eRet)
+    eRet = pack_common(eAFN,  &sPackCommon, pusLen, pOutBuf);   
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_pack() emt_pack_common failed:%s!", smtGetErr(eRet));
+        DEBUG("lite_pack() pack_common failed:%s!", smtGetErr(eRet));
         #endif
 
         MT_FREE(pSeq2Cs);
@@ -39172,20 +39172,20 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     MT_FREE(pEncry_out);
     #endif
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
    
 /*****************************************************************************
- 函 数 名  : emt_lite_unpack
+ 函 数 名  : lite_unpack
  功能描述  : 实现基本的报文解封装, 加入加密算法接口
              该处对应用层数据解密 解密后可能可能会改变长度,
              解密的数据区包括：应用层功能码、数据单元标识及数据单元部分
- 输入参数  : smt_litepack_t *psUnpack  
+ 输入参数  : litepack_t *psUnpack  
              uint8_t* pInBuf          
              uint16_t usLen           
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_unpack
+ 调用函数  : unpack
  被调函数  : 
  
  修改历史      :
@@ -39194,12 +39194,12 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t lite_unpack(litepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
     if(!psUnpack || !pInBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() pointer is null!");
+        DEBUG("lite_unpack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -39207,7 +39207,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() protocol is not init!");
+        DEBUG("lite_unpack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
@@ -39215,24 +39215,24 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     if(usLen < MT_FRM_LEN_MIN)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() input frame length is too short usLen = %d", usLen);
+        DEBUG("lite_unpack() input frame length is too short usLen = %d", usLen);
         #endif 
         return MT_ERR_UNCOMP;
     }
     
-    emt_err_t      eRet            = MT_OK;
-    emt_dir_t      eDir            = MT_DIR_UNKOWN;
-    emt_afn_t      eAFN            = AFN_NULL;
-    emt_cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
+    err_t      eRet            = MT_ERR_OK;
+    dir_t      eDir            = MT_DIR_UNKOWN;
+    afn_t      eAFN            = AFN_NULL;
+    cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
     bool        bP0             = false;
     bool        bTp             = false;   
     bool        bEc             = false;
-    smt_fcomhead_t *psHead         = NULL;
+    fcomhead_t *psHead         = NULL;
     sMtDaDt     *pDaDt          = NULL;
     uint8_t       *pucTemp        = NULL;
-    smt_ec_t       *psEC           = NULL;
+    ec_t       *psEC           = NULL;
     umt_app_t      *puApp          = NULL;
-    pMtFunc     pFunc           = NULL;
+    trans_func_t     pFunc           = NULL;
     uint8_t       ucFn            = 0;
     uint8_t       ucPnCycMax      = 0;        // 按Pn循环的最大值
     uint16_t      usPn            = 0;
@@ -39246,39 +39246,39 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     int32_t       fi              = 0;        // Fn的索引
     int32_t       pi              = 0;        // Pn的索引
 
-    sMtPnFn     sPnFn;
+    pnfn_t     sPnFn;
     sMtCmdInfor sCmdInfor;
 
     // 判断该帧是否是一个有效的帧
-    eRet = emt_is_valid_pack(pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = is_valid_pack(pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() input is not a valid pack eRet = %d", eRet);
+        DEBUG("lite_unpack() input is not a valid pack eRet = %d", eRet);
         #endif 
         return MT_ERR_PACK;
     }
 
     // 报文头
-    psHead = (smt_fcomhead_t *)pInBuf;
+    psHead = (fcomhead_t *)pInBuf;
     usLenUserField =  ((psHead->L2 << 6) & 0x3FC0)| (psHead->L1 & 0x003F); 
   
     // 地址域
-    eRet = emt_trans_address(MT_TRANS_F2U, &(psUnpack->sAddress), &(psHead->A));
-    if(MT_OK != eRet)
+    eRet = trans_address(MT_TRANS_F2U, &(psUnpack->sAddress), &(psHead->A));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() emt_trans_addr() error = %d\n", eRet);
+        DEBUG("lite_unpack() trans_addr() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     // 控制域
-    eRet = emt_trans_ctrl(MT_TRANS_F2U, &(psUnpack->sCtrl), &(psHead->C));
-    if(MT_OK != eRet)
+    eRet = trans_ctrl(MT_TRANS_F2U, &(psUnpack->sCtrl), &(psHead->C));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() emt_trans_ctrl() error = %d\n", eRet);
+        DEBUG("lite_unpack() trans_ctrl() error = %d\n", eRet);
         #endif
         return eRet;
     }
@@ -39286,11 +39286,11 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     //
  
     // SEQ
-    eRet = emt_trans_seq(MT_TRANS_F2U, &psUnpack->sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
-    if(MT_OK != eRet)
+    eRet = trans_seq(MT_TRANS_F2U, &psUnpack->sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_lite_unpack() emt_trans_seq() error = %d\n", eRet);
+        DEBUG("lite_unpack() trans_seq() error = %d\n", eRet);
         #endif
         return eRet;
     }
@@ -39298,7 +39298,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     bTp = psUnpack->sSEQ.bTpv;
 
     // AFN
-    eAFN = (emt_afn_t)(psHead->AFN);
+    eAFN = (afn_t)(psHead->AFN);
     psUnpack->eAFN = eAFN;
 
     // 计算除了附加域的应用层数据字长
@@ -39312,17 +39312,17 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
          bEc = bmt_have_ec(eAFN, eDir);
     }
     
-    usAuxLen = usmt_get_aux_len(eAFN, eDir, bEc, bTp);
+    usAuxLen = uget_aux_len(eAFN, eDir, bEc, bTp);
     #if 1
     #ifdef MT_DBG
-    DEBUG("emt_lite_unpack() usAuxLen = %d\n", usAuxLen);
+    DEBUG("lite_unpack() usAuxLen = %d\n", usAuxLen);
     #endif
     #endif
     nLenUserField = (int32_t)(usLenUserField - usAuxLen - MT_CANS_LEN);   
     
     #if 1
     #ifdef MT_DBG
-    DEBUG("emt_lite_unpack() nLenUserField = %d\n", nLenUserField);
+    DEBUG("lite_unpack() nLenUserField = %d\n", nLenUserField);
     #endif
     #endif
     
@@ -39332,7 +39332,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     {
         #if 0
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() nLenUserField = %d", nLenUserField);
+        DEBUG("base_unpack() nLenUserField = %d", nLenUserField);
         #endif
         #endif
         
@@ -39341,11 +39341,11 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
         
         // 数据单元标识
         pDaDt = (sMtDaDt*)pucTemp;
-        eRet = emt_dadt_to_pnfn(pDaDt, &sPnFn);
-        if(MT_OK != eRet)
+        eRet = dadt_to_pnfn(pDaDt, &sPnFn);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_lite_unpack() emt_dadt_to_pnfn() error = %d\n", eRet);
+            DEBUG("lite_unpack() dadt_to_pnfn() error = %d\n", eRet);
             #endif
             return eRet;
         }
@@ -39376,7 +39376,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
             {
                 // 非法Fn
                 #ifdef MT_DBG
-                DEBUG("emt_lite_unpack() usPn error Pn = %d\n", usPn);
+                DEBUG("lite_unpack() usPn error Pn = %d\n", usPn);
                 #endif
                 return MT_ERR_PARA;
             }
@@ -39393,18 +39393,18 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                     {
                         // 非法Fn
                         #ifdef MT_DBG
-                        DEBUG("emt_lite_unpack() ucFn error Fn = %d\n", ucFn);
+                        DEBUG("lite_unpack() ucFn error Fn = %d\n", ucFn);
                         #endif
                         return MT_ERR_PARA;
                     }
                     else
                     {
-                        eCmd = (emt_cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
+                        eCmd = (cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_lite_unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("lite_unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             return eRet;
                         }
@@ -39417,7 +39417,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                             if(!puApp)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_lite_unpack() malloc failed!");
+                                DEBUG("lite_unpack() malloc failed!");
                                 #endif
                                 return MT_ERR_IO; 
                             }
@@ -39425,10 +39425,10 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                             psUnpack->sData[i].puApp[pi][fi] = puApp;
                             
                             eRet = pFunc(MT_TRANS_F2U, (void*)(psUnpack->sData[i].puApp[pi][fi]), (void*)pucTemp, &usUsrdLen); 
-                            if(eRet != MT_OK)
+                            if(eRet != MT_ERR_OK)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_lite_unpack() transfunc() error = %d\n", eRet);
+                                DEBUG("lite_unpack() transfunc() error = %d\n", eRet);
                                 #endif
                                 return eRet;
                             }
@@ -39459,14 +39459,14 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有EC
     if(true == bEc)
     {
-        psEC = (smt_ec_t*)pucTemp;
+        psEC = (ec_t*)pucTemp;
         psUnpack->sEC.ucEC1 = psEC->ucEC1;
         psUnpack->sEC.ucEC2 = psEC->ucEC2;
-        pucTemp += sizeof(smt_ec_t);
+        pucTemp += sizeof(ec_t);
     }
     
     // 如果有PW
-    if(true == bmt_have_pw((emt_afn_t)(psHead->AFN), eDir))
+    if(true == bmt_have_pw((afn_t)(psHead->AFN), eDir))
     {
         memcpy((void*)(psUnpack->acPW), (void*)pucTemp, MT_PW_LEN);
         pucTemp += MT_PW_LEN;
@@ -39475,11 +39475,11 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有TP
     if(true == bTp)
     {
-        eRet = emt_trans_tp(MT_TRANS_F2U, &(psUnpack->sTP), (sMtTP_f*)pucTemp);
-        if(eRet != MT_OK)
+        eRet = trans_tp(MT_TRANS_F2U, &(psUnpack->sTP), (sMtTP_f*)pucTemp);
+        if(eRet != MT_ERR_OK)
         {
             #ifdef MT_DBG
-            DEBUG("eMtUnpack() emt_trans_tp() error = %d\n", eRet);
+            DEBUG("eMtUnpack() trans_tp() error = %d\n", eRet);
             #endif
             return eRet;
         }
@@ -39488,24 +39488,24 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
 
     psUnpack->usDataNum = usDataNum;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 
 /*****************************************************************************
- 函 数 名  : emt_pack_lite
+ 函 数 名  : pack_lite
  功能描述  : 封装函数(高级接口)
  实现功能  : (1) 实现离散的信息点与信息类的自动分组
              (2) 自动取当前的时间来合成tp
              (3) 为上层屏蔽相关的参数 如功能码等
              
- 输入参数  : smt_pack_t* psPack  
+ 输入参数  : pack_t* psPack  
              uint16_t* pusLen   
              uint8_t* pOutBuf   
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_lite_pack()
- 被调函数  : emt_pack()
+ 调用函数  : lite_pack()
+ 被调函数  : pack()
  
  修改历史      :
   1.日    期   : 2013年8月7日 星期三
@@ -39513,12 +39513,12 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
+err_t pack_lite(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 {
     if(!psPack || !pusLen || !pOutBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_lite() pointer is null!");
+        DEBUG("pack_lite() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -39526,16 +39526,16 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_lite() protocol is not init!");
+        DEBUG("pack_lite() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
 
-    emt_err_t         eRet         = MT_OK;
-    emt_cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
-    emt_dir_t         eDir         = MT_DIR_UNKOWN;
-    emt_afn_t         eAFN         = AFN_NULL;
-    emt_afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
+    err_t         eRet         = MT_ERR_OK;
+    cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
+    dir_t         eDir         = MT_DIR_UNKOWN;
+    afn_t         eAFN         = AFN_NULL;
+    afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
     uint8_t          ucTeamPn     = 0xFF;
     uint8_t          ucTeamPnBase = 0xFF;
     uint8_t          ucTeamFn     = 0xFF;
@@ -39557,9 +39557,9 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     bool           bInFn8       = false;
     //bool           bInPn8       = false;
     uint8_t*         pMemBase     = NULL;
-    smt_litepack_t*   psLitePack   = NULL;
-    sMtCtrl        sCtrl;
-    sMtTP          sTp;                 // 用户侧Tp字段信息
+    litepack_t*   psLitePack   = NULL;
+    ctrl_t        sCtrl;
+    tp_t          sTp;                 // 用户侧Tp字段信息
     sMtCmdInfor    sCmdInfor;
 
     // 为参数早请内存
@@ -39567,14 +39567,14 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     if(!pMemBase)
     { 
         #ifdef MT_DBG
-        DEBUG("emt_pack_lite() malloc failed!");
+        DEBUG("pack_lite() malloc failed!");
         #endif
         return MT_ERR_IO; 
     }
 
-    psLitePack = (smt_litepack_t*)pMemBase;
+    psLitePack = (litepack_t*)pMemBase;
 
-    // 封装成 smt_litepack_t 参数
+    // 封装成 litepack_t 参数
     eDir = psPack->eDir;
     eAFN = psPack->eAFN;
 
@@ -39593,11 +39593,11 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     // 控制域
     bAcd_Fcb = psPack->bAcdFcb;
     
-    eRet = emt_get_ctrl(eAFN, eDir, psPack->ePRM, bAcd_Fcb, &sCtrl);
-    if(MT_OK != eRet)
+    eRet = get_ctrl(eAFN, eDir, psPack->ePRM, bAcd_Fcb, &sCtrl);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_lite() emt_get_ctrl() failed! %d %s", eRet, smtGetErr(eRet));
+        DEBUG("pack_lite() get_ctrl() failed! %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
@@ -39625,7 +39625,7 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     bTP = bmt_have_tp(eAFN, eDir);
     if(true == bTP)
     {
-        (void)emt_get_tp(psPack->sTP.ucPFC, &sTp);
+        (void)get_tp(psPack->sTP.ucPFC, &sTp);
         psLitePack->sTP.sDDHHmmss = sTp.sDDHHmmss;
         psLitePack->sTP.ucPermitDelayMinutes = sTp.ucPermitDelayMinutes;
         // psBasePack->sTP.ucPFC = psBasePack->sTP.ucPFC;// 这个已经在封装时由用户添加
@@ -39638,22 +39638,22 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         
         // 判断该命令是否是合法的、可支持的
         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-        if(eRet != MT_OK)
+        if(eRet != MT_ERR_OK)
         {
             #ifdef MT_DBG
-            DEBUG("emt_pack_lite() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+            DEBUG("pack_lite() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
             #endif
             MT_FREE(pMemBase);
             return eRet;
         }
 
         // 判断该命令是否属于AFN的子命令
-        eAFNCmd = emt_get_afn(eCmd);
+        eAFNCmd = get_afn(eCmd);
         if(eAFNCmd != eAFN)  
         {
             MT_FREE(pMemBase);
             #ifdef MT_DBG
-            DEBUG("emt_pack_lite() cmd is not is a same Afn");
+            DEBUG("pack_lite() cmd is not is a same Afn");
             #endif
             return MT_ERR_TEAM;
         }
@@ -39740,37 +39740,37 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 
     psLitePack->usDataNum = nDaDtNum;
 
-    // 调用 emt_lite_pack()
-    eRet = emt_lite_pack(psLitePack, pusLen , pOutBuf);
-    if(MT_OK != eRet)
+    // 调用 lite_pack()
+    eRet = lite_pack(psLitePack, pusLen , pOutBuf);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack_lite() emt_lite_pack() failed! code : %d %s", eRet, smtGetErr(eRet));
+        DEBUG("pack_lite() lite_pack() failed! code : %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
     }
 
     MT_FREE(pMemBase);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_unpack_lite
+ 函 数 名  : unpack_lite
  功能描述  : 协议解析(高级接口)
              将emtBaseUnPack解析出来的信息smtBasePack, 封装成高级smtPack
              
              (1)将重要信息提取
              (2)将PnFn数据单元提取成离散的
              
- 输入参数  : smt_pack_t *psUnpack  
+ 输入参数  : pack_t *psUnpack  
              uint8_t* pInBuf      
              uint16_t usLen      
              
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_lite_unpack()
- 被调函数  : emt_unpack()
+ 调用函数  : lite_unpack()
+ 被调函数  : unpack()
  
  修改历史      :
   1.日    期   : 2013年8月9日 星期五
@@ -39778,12 +39778,12 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t unpack_lite(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
     if(!psUnpack || !pInBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_lite() pointer is null!");
+        DEBUG("unpack_lite() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -39791,16 +39791,16 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_lite() protocol is not init!");
+        DEBUG("unpack_lite() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
     
-    emt_err_t       eRet          = MT_OK;
-    emt_cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
-    emt_afn_t       eAFN          = AFN_NULL;
+    err_t       eRet          = MT_ERR_OK;
+    cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
+    afn_t       eAFN          = AFN_NULL;
     uint8_t*       pMemBase      = NULL;
-    smt_litepack_t* pLiteUnpack   = NULL;
+    litepack_t* pLiteUnpack   = NULL;
     umt_app_t      *puApp         = NULL;
     bool         bP0           = false;
     int32_t        i             = 0;
@@ -39816,19 +39816,19 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     if(!pMemBase)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_lite() malloc failed!");
+        DEBUG("unpack_lite() malloc failed!");
         #endif
         return MT_ERR_IO;
     }
     
-    pLiteUnpack = (smt_litepack_t*)pMemBase;
+    pLiteUnpack = (litepack_t*)pMemBase;
 
     // 调用解析函数
-    eRet = emt_lite_unpack(pLiteUnpack, pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = lite_unpack(pLiteUnpack, pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack_lite() emt_lite_unpack failed! %d %s", eRet, smtGetErr(eRet));
+        DEBUG("unpack_lite() lite_unpack failed! %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
@@ -39880,7 +39880,7 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
             {
                 // 非法Fn
                 #ifdef MT_DBG
-                DEBUG("emt_unpack_lite() usPn error Pn = %d\n", usPn);
+                DEBUG("unpack_lite() usPn error Pn = %d\n", usPn);
                 #endif
                 MT_FREE(pMemBase);
                 return MT_ERR_PARA;
@@ -39891,7 +39891,7 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                 #ifdef MT_DBG
                 for(fi = 0; fi < 8; fi++)
                 {   ucFn = pUnpackBase->sData[i].sPnFn.ucFn[fi];                
-                    DEBUG("emt_unpack() sData[%d].sPnFn.ucFn[%d] = %d",i, fi, ucFn);
+                    DEBUG("unpack() sData[%d].sPnFn.ucFn[%d] = %d",i, fi, ucFn);
                 }
                 #endif
                 #endif
@@ -39907,19 +39907,19 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                     {
                         // 非法Fn
                         #ifdef MT_DBG
-                        DEBUG("emt_unpack_lite() ucFn error Fn = %d\n", ucFn);
+                        DEBUG("unpack_lite() ucFn error Fn = %d\n", ucFn);
                         #endif
                         MT_FREE(pMemBase);
                         return MT_ERR_PARA;
                     }
                     else
                     {
-                        eCmd = (emt_cmd_t)((eAFN << 8) | ucFn);
+                        eCmd = (cmd_t)((eAFN << 8) | ucFn);
                         eRet = eMtGetCmdInfor(eCmd, psUnpack->eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_unpack_lite() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("unpack_lite() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             MT_FREE(pMemBase);
                             return eRet;
@@ -39936,7 +39936,7 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                             if(!puApp)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_unpack_lite() app date is null");
+                                DEBUG("unpack_lite() app date is null");
                                 #endif
                                 MT_FREE(pMemBase);
                                 return MT_ERR_PARA;
@@ -39959,21 +39959,21 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 
     psUnpack->usDataNum = j;
     MT_FREE(pMemBase);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_base_pack
+ 函 数 名  : base_pack
  功能描述  : 实现基本的报文封装, 加入加密算法接口
              该处对应用层数据加密 加密后可能可能会改
              变长度,加密的数据区包括：应用层功能码、数据单元标识及数据单元部分
- 输入参数  : smt_basepack_t* psPack  
+ 输入参数  : basepack_t* psPack  
              uint16_t* pusLen       
              uint8_t* pOutBuf       
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_pack_common
- 被调函数  : emt_pack_base
+ 调用函数  : pack_common
+ 被调函数  : pack_base
  
  修改历史      :
   1.日    期   : 2013年8月6日 星期二
@@ -39981,12 +39981,12 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
+err_t base_pack(basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 {
     if(!psPack || !pusLen || !pOutBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_pack() pointer is null!");
+        DEBUG("base_pack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -39994,15 +39994,15 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_pack() protocol is not init!");
+        DEBUG("base_pack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
 
-    emt_err_t         eRet        = MT_OK;
-    emt_cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
-    emt_dir_t         eDir        = MT_DIR_UNKOWN;
-    emt_afn_t         eAFN        = AFN_NULL;
+    err_t         eRet        = MT_ERR_OK;
+    cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
+    dir_t         eDir        = MT_DIR_UNKOWN;
+    afn_t         eAFN        = AFN_NULL;
     bool           bSameTeam   = false;
     bool           bP0         = false;
     uint8_t          ucPnNum     = 0;
@@ -40018,13 +40018,13 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     uint8_t*         puData      = NULL;   // 数据单元用户侧数据
     uint8_t*         pData       = NULL;   // 数据单元
     sMtDaDt*       pDaDt       = NULL;   // 数据单元标识
-    smt_ec_t*         psEC        = NULL;
+    ec_t*         psEC        = NULL;
     sMtTP_f*       psfTp       = NULL;   // 帧侧Tp字段
-    pMtFunc        pFunc       = NULL;
+    trans_func_t        pFunc       = NULL;
     sMtCmdInfor    sCmdInfor;   
-    sMtTP          suTp;                 // 用户侧Tp字段信息
-    sMtPnFn        sPnFn;
-    smt_compack_t     sPackCommon;
+    tp_t          suTp;                 // 用户侧Tp字段信息
+    pnfn_t        sPnFn;
+    compack_t     sPackCommon;
 
     // 加密
     #if MT_CFG_ENCRYPT
@@ -40034,8 +40034,8 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     int32_t          nLen_out    = 0;     // 密文的总字长
     #endif
     
-    memset(&(sPnFn), 0x00, sizeof(sMtPnFn));
-    memset(&sPackCommon, 0x00, sizeof(smt_compack_t));
+    memset(&(sPnFn), 0x00, sizeof(pnfn_t));
+    memset(&sPackCommon, 0x00, sizeof(compack_t));
 
     if(MT_ROLE_MASTER == g_eMtRole)
     {
@@ -40052,7 +40052,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(!pSeq2Cs)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_pack() malloc failed!");
+        DEBUG("base_pack() malloc failed!");
         #endif
         return MT_ERR_IO;
     }
@@ -40061,7 +40061,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(0 == psPack->usDataNum)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_pack() ucSubNum is 0!");
+        DEBUG("base_pack() ucSubNum is 0!");
         #endif
         MT_FREE(pSeq2Cs);
         return MT_ERR_PROTO;
@@ -40081,7 +40081,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(false == bSameTeam)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_pack() pn is not is same team!");
+            DEBUG("base_pack() pn is not is same team!");
             #endif
             MT_FREE(pSeq2Cs);
             return MT_ERR_TEAM;
@@ -40092,7 +40092,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(false == bSameTeam)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_pack() Fn is not is same team!");
+            DEBUG("base_pack() Fn is not is same team!");
             #endif
             MT_FREE(pSeq2Cs);
             return MT_ERR_TEAM;
@@ -40103,11 +40103,11 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
 
         // 封装数据单元标识
         pDaDt = (sMtDaDt*)(pSeq2Cs + usSeq2CsPos);
-        eRet = emt_pnfn_to_dadt(&(sPnFn), pDaDt);
-        if(MT_OK != eRet)
+        eRet = pnfn_to_dadt(&(sPnFn), pDaDt);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_pack() emt_pnfn_to_dadt() failed %d %s!", eRet, smtGetErr(eRet));
+            DEBUG("base_pack() pnfn_to_dadt() failed %d %s!", eRet, smtGetErr(eRet));
             #endif
             return eRet;
         }
@@ -40142,14 +40142,14 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                     {
                          // 合成命令码
                         usCMD = (uint16_t)((eAFN << 8) | (psPack->sData[i].sPnFn.ucFn[fi]));
-                        eCmd  = (emt_cmd_t)usCMD; 
+                        eCmd  = (cmd_t)usCMD; 
 
                         // 获得命令信息
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_base_pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("base_pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             MT_FREE(pSeq2Cs);
                             return eRet;
@@ -40162,10 +40162,10 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                         {
                             puData = (uint8_t*)&(psPack->sData[i].uApp[pi][fi]);
                             eRet = pFunc(MT_TRANS_U2F, puData, pData, &usfDataLen);
-                            if(MT_OK != eRet)
+                            if(MT_ERR_OK != eRet)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_base_pack() transU2FpFunc() failed %d %s!", eRet, smtGetErr(eRet));
+                                DEBUG("base_pack() transU2FpFunc() failed %d %s!", eRet, smtGetErr(eRet));
                                 #endif
                                 MT_FREE(pSeq2Cs);
                                 return eRet;
@@ -40189,16 +40189,16 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         if(!pEncry_out)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_pack() malloc failed!");
+            DEBUG("base_pack() malloc failed!");
             #endif
             return MT_ERR_IO; 
         }
         
         eRet = g_peMtEncryptFunc(pEncry_in, nLen_in, pEncry_out, &nLen_out);
-        if(MT_OK != eRet)
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_pack() encrypt failed! %d", eRet);
+            DEBUG("base_pack() encrypt failed! %d", eRet);
             #endif
             MT_FREE(pEncry_out);
             return MT_ERR_ENCRYPT;
@@ -40218,7 +40218,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true == bmt_have_ec(eAFN, eDir))
     {       
         pData = (uint8_t*)(pSeq2Cs + usSeq2CsPos);
-        psEC = (smt_ec_t*)pData;
+        psEC = (ec_t*)pData;
         if(MT_DIR_S2M == eDir)
         {
             psEC->ucEC1 = g_tEC.ucEC1;
@@ -40231,7 +40231,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
             psEC->ucEC2 = 0x0;
         }
        
-        usSeq2CsPos += sizeof(smt_ec_t);
+        usSeq2CsPos += sizeof(ec_t);
      }
     
     // 如果有 pw  
@@ -40250,8 +40250,8 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
         psfTp = (sMtTP_f *)pData;
         suTp  = psPack->sTP;
   
-        //(void)emt_get_mtutp(psPack->ucPFC, &suTp); 由上层封装时间戳
-        (void)emt_trans_tp(MT_TRANS_U2F, &suTp, psfTp);
+        //(void)get_mtutp(psPack->ucPFC, &suTp); 由上层封装时间戳
+        (void)trans_tp(MT_TRANS_U2F, &suTp, psfTp);
         usSeq2CsPos += sizeof(sMtTP_f);
     }
 
@@ -40264,11 +40264,11 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     sPackCommon.pSeq2Cs     = pSeq2Cs;
 
     // 通过通用封包函数pack
-    eRet = emt_pack_common(eAFN,  &sPackCommon, pusLen, pOutBuf);   
-    if(MT_OK != eRet)
+    eRet = pack_common(eAFN,  &sPackCommon, pusLen, pOutBuf);   
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_pack() emt_pack_common failed:%s!", smtGetErr(eRet));
+        DEBUG("base_pack() pack_common failed:%s!", smtGetErr(eRet));
         #endif
 
         MT_FREE(pSeq2Cs);
@@ -40286,20 +40286,20 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     MT_FREE(pEncry_out);
     #endif
     
-    return MT_OK;
+    return MT_ERR_OK;
 }
          
 /*****************************************************************************
- 函 数 名  : emt_base_unpack
+ 函 数 名  : base_unpack
  功能描述  : 实现基本的报文解封装, 加入加密算法接口
              该处对应用层数据解密 解密后可能可能会改变长度,
              解密的数据区包括：应用层功能码、数据单元标识及数据单元部分
- 输入参数  : smt_basepack_t *psUnpack  
+ 输入参数  : basepack_t *psUnpack  
              uint8_t* pInBuf          
              uint16_t usLen           
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_unpack_base
+ 调用函数  : unpack_base
  被调函数  : 
  
  修改历史      :
@@ -40308,12 +40308,12 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t base_unpack(basepack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
     if(!psUnpack || !pInBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() pointer is null!");
+        DEBUG("base_unpack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -40321,7 +40321,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() protocol is not init!");
+        DEBUG("base_unpack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
@@ -40329,23 +40329,23 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     if(usLen < MT_FRM_LEN_MIN)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() input frame length is too short usLen = %d", usLen);
+        DEBUG("base_unpack() input frame length is too short usLen = %d", usLen);
         #endif 
         return MT_ERR_UNCOMP;
     }
     
-    emt_err_t      eRet            = MT_OK;
-    emt_dir_t      eDir            = MT_DIR_UNKOWN;
-    emt_afn_t      eAFN            = AFN_NULL;
-    emt_cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
+    err_t      eRet            = MT_ERR_OK;
+    dir_t      eDir            = MT_DIR_UNKOWN;
+    afn_t      eAFN            = AFN_NULL;
+    cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
     bool        bP0             = false;
     bool        bTp             = false;   
     bool        bEc             = false;
-    smt_fcomhead_t *psHead         = NULL;
+    fcomhead_t *psHead         = NULL;
     sMtDaDt     *pDaDt          = NULL;
     uint8_t       *pucTemp        = NULL;
-    smt_ec_t       *psEC           = NULL;
-    pMtFunc     pFunc           = NULL;
+    ec_t       *psEC           = NULL;
+    trans_func_t     pFunc           = NULL;
     uint8_t       ucFn            = 0;
     uint8_t       ucPnCycMax      = 0;        // 按Pn循环的最大值
     uint16_t      usPn            = 0;
@@ -40358,55 +40358,55 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     int32_t       i               = 0;
     int32_t       fi              = 0;        // Fn的索引
     int32_t       pi              = 0;        // Pn的索引
-    sMtPnFn     sPnFn;
+    pnfn_t     sPnFn;
     sMtCmdInfor sCmdInfor;
 
     // 判断该帧是否是一个有效的帧
-    eRet = emt_is_valid_pack(pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = is_valid_pack(pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() input is not a valid pack eRet = %d", eRet);
+        DEBUG("base_unpack() input is not a valid pack eRet = %d", eRet);
         #endif 
         return MT_ERR_PACK;
     }
 
     // 报文头
-    psHead = (smt_fcomhead_t *)pInBuf;
+    psHead = (fcomhead_t *)pInBuf;
     usLenUserField =  ((psHead->L2 << 6) & 0x3FC0)| (psHead->L1 & 0x003F); 
   
     // 地址域
-    eRet = emt_trans_address(MT_TRANS_F2U, &(psUnpack->sAddress), &(psHead->A));
-    if(MT_OK != eRet)
+    eRet = trans_address(MT_TRANS_F2U, &(psUnpack->sAddress), &(psHead->A));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() emt_trans_addr() error = %d\n", eRet);
+        DEBUG("base_unpack() trans_addr() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     // 控制域
-    eRet = emt_trans_ctrl(MT_TRANS_F2U, &(psUnpack->sCtrl), &(psHead->C));
-    if(MT_OK != eRet)
+    eRet = trans_ctrl(MT_TRANS_F2U, &(psUnpack->sCtrl), &(psHead->C));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() emt_trans_ctrl() error = %d\n", eRet);
+        DEBUG("base_unpack() trans_ctrl() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     // SEQ
-    eRet = emt_trans_seq(MT_TRANS_F2U, &psUnpack->sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
-    if(MT_OK != eRet)
+    eRet = trans_seq(MT_TRANS_F2U, &psUnpack->sSEQ, (sMtSEQ_f*)&(psHead->SEQ));
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() emt_trans_seq() error = %d\n", eRet);
+        DEBUG("base_unpack() trans_seq() error = %d\n", eRet);
         #endif
         return eRet;
     }
 
     bTp = psUnpack->sSEQ.bTpv;
-    eAFN = (emt_afn_t)(psHead->AFN);
+    eAFN = (afn_t)(psHead->AFN);
     psUnpack->eAFN = eAFN;
 
     // 计算除了附加域的应用层数据字长
@@ -40420,12 +40420,12 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
          bEc = bmt_have_ec(eAFN, eDir);
     }
     
-    usAuxLen = usmt_get_aux_len(eAFN, eDir, bEc, bTp);
+    usAuxLen = uget_aux_len(eAFN, eDir, bEc, bTp);
     nLenUserField = (int32_t)(usLenUserField - usAuxLen - MT_CANS_LEN);   
     
     #if 0
     #ifdef MT_DBG
-    DEBUG("emt_base_unpack() nLenUserField = %d\n", nLenUserField);
+    DEBUG("base_unpack() nLenUserField = %d\n", nLenUserField);
     #endif
     #endif
     
@@ -40435,7 +40435,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     {
         #if 0
         #ifdef MT_DBG
-        DEBUG("emt_base_unpack() nLenUserField = %d\n", nLenUserField);
+        DEBUG("base_unpack() nLenUserField = %d\n", nLenUserField);
         #endif
         #endif
         // 初始化
@@ -40443,11 +40443,11 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
         
         // 数据单元标识
         pDaDt = (sMtDaDt*)pucTemp;
-        eRet = emt_dadt_to_pnfn(pDaDt, &sPnFn);
-        if(MT_OK != eRet)
+        eRet = dadt_to_pnfn(pDaDt, &sPnFn);
+        if(MT_ERR_OK != eRet)
         {
             #ifdef MT_DBG
-            DEBUG("emt_base_unpack() emt_dadt_to_pnfn() error = %d\n", eRet);
+            DEBUG("base_unpack() dadt_to_pnfn() error = %d\n", eRet);
             #endif
             return eRet;
         }
@@ -40478,7 +40478,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
             {
                 // 非法Fn
                 #ifdef MT_DBG
-                DEBUG("emt_base_unpack() usPn error Pn = %d\n", usPn);
+                DEBUG("base_unpack() usPn error Pn = %d\n", usPn);
                 #endif
                 return MT_ERR_PARA;
             }
@@ -40495,18 +40495,18 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                     {
                         // 非法Fn
                         #ifdef MT_DBG
-                        DEBUG("emt_base_unpack() ucFn error Fn = %d\n", ucFn);
+                        DEBUG("base_unpack() ucFn error Fn = %d\n", ucFn);
                         #endif
                         return MT_ERR_PARA;
                     }
                     else
                     {
-                        eCmd = (emt_cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
+                        eCmd = (cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_base_unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("base_unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             return eRet;
                         }
@@ -40515,10 +40515,10 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                         if(NULL != pFunc)
                         {
                             eRet = pFunc(MT_TRANS_F2U, (void*)&(psUnpack->sData[i].uApp[pi][fi]), (void*)pucTemp, &usUsrdLen); 
-                            if(eRet != MT_OK)
+                            if(eRet != MT_ERR_OK)
                             {
                                 #ifdef MT_DBG
-                                DEBUG("emt_base_unpack() transfunc() error = %d\n", eRet);
+                                DEBUG("base_unpack() transfunc() error = %d\n", eRet);
                                 #endif
                                 return eRet;
                             }
@@ -40549,14 +40549,14 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有EC
     if(true == bEc)
     {
-        psEC = (smt_ec_t*)pucTemp;
+        psEC = (ec_t*)pucTemp;
         psUnpack->sEC.ucEC1 = psEC->ucEC1;
         psUnpack->sEC.ucEC2 = psEC->ucEC2;
-        pucTemp += sizeof(smt_ec_t);
+        pucTemp += sizeof(ec_t);
     }
     
     // 如果有PW
-    if(true == bmt_have_pw((emt_afn_t)(psHead->AFN), eDir))
+    if(true == bmt_have_pw((afn_t)(psHead->AFN), eDir))
     {
         memcpy((void*)(psUnpack->acPW), (void*)pucTemp, MT_PW_LEN);
         pucTemp += MT_PW_LEN;
@@ -40565,11 +40565,11 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有TP
     if(true == bTp)
     {
-        eRet = emt_trans_tp(MT_TRANS_F2U, &(psUnpack->sTP), (sMtTP_f*)pucTemp);
-        if(eRet != MT_OK)
+        eRet = trans_tp(MT_TRANS_F2U, &(psUnpack->sTP), (sMtTP_f*)pucTemp);
+        if(eRet != MT_ERR_OK)
         {
             #ifdef MT_DBG
-            DEBUG("eMtUnpack() emt_trans_tp() error = %d\n", eRet);
+            DEBUG("eMtUnpack() trans_tp() error = %d\n", eRet);
             #endif
             return eRet;
         }
@@ -40578,23 +40578,23 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
 
     psUnpack->usDataNum = usDataNum;
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_pack_base
+ 函 数 名  : pack_base
  功能描述  : 封装函数(高级接口)
  实现功能  : (1) 实现离散的信息点与信息类的自动分组
              (2) 自动取当前的时间来合成tp
              (3) 为上层屏蔽相关的参数 如功能码等
              
- 输入参数  : smt_pack_t* psPack  
+ 输入参数  : pack_t* psPack  
              uint16_t* pusLen   
              uint8_t* pOutBuf   
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_base_pack
- 被调函数  : emt_pack()
+ 调用函数  : base_pack
+ 被调函数  : pack()
  
  修改历史      :
   1.日    期   : 2013年8月7日 星期三
@@ -40602,12 +40602,12 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
+err_t pack_base(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 {
     if(!psPack || !pusLen || !pOutBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack() pointer is null!");
+        DEBUG("pack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -40615,16 +40615,16 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack() protocol is not init!");
+        DEBUG("pack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
 
-    emt_err_t         eRet         = MT_OK;
-    emt_cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
-    emt_dir_t         eDir         = MT_DIR_UNKOWN;
-    emt_afn_t         eAFN         = AFN_NULL;
-    emt_afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
+    err_t         eRet         = MT_ERR_OK;
+    cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
+    dir_t         eDir         = MT_DIR_UNKOWN;
+    afn_t         eAFN         = AFN_NULL;
+    afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
     uint8_t          ucTeamPn     = 0xFF;
     uint8_t          ucTeamPnBase = 0xFF;
     uint8_t          ucTeamFn     = 0xFF;
@@ -40646,9 +40646,9 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     bool           bInFn8       = false;
     bool           bInPn8       = false;
     uint8_t*         pMemBase     = NULL;
-    smt_basepack_t*   psBasePack   = NULL;
-    sMtCtrl        sCtrl;
-    sMtTP          sTp;                 // 用户侧Tp字段信息
+    basepack_t*   psBasePack   = NULL;
+    ctrl_t        sCtrl;
+    tp_t          sTp;                 // 用户侧Tp字段信息
     sMtCmdInfor    sCmdInfor;
 
     // 为参数早请内存
@@ -40656,14 +40656,14 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     if(!pMemBase)
     { 
         #ifdef MT_DBG
-        DEBUG("emt_pack() malloc failed!");
+        DEBUG("pack() malloc failed!");
         #endif
         return MT_ERR_IO; 
     }
 
-    psBasePack = (smt_basepack_t*)pMemBase;
+    psBasePack = (basepack_t*)pMemBase;
 
-    // 封装成 smt_basepack_t 参数
+    // 封装成 basepack_t 参数
     eDir = psPack->eDir;
     eAFN = psPack->eAFN;
 
@@ -40682,11 +40682,11 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     // 控制域
     bAcd_Fcb = psPack->bAcdFcb;
     
-    eRet = emt_get_ctrl(eAFN, eDir, psPack->ePRM, bAcd_Fcb, &sCtrl);
-    if(MT_OK != eRet)
+    eRet = get_ctrl(eAFN, eDir, psPack->ePRM, bAcd_Fcb, &sCtrl);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack() emt_get_ctrl() failed! %d %s", eRet, smtGetErr(eRet));
+        DEBUG("pack() get_ctrl() failed! %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
@@ -40714,7 +40714,7 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     bTP = bmt_have_tp(eAFN, eDir);
     if(true == bTP)
     {
-        (void)emt_get_tp(psPack->sTP.ucPFC, &sTp);
+        (void)get_tp(psPack->sTP.ucPFC, &sTp);
         psBasePack->sTP.sDDHHmmss = sTp.sDDHHmmss;
         psBasePack->sTP.ucPermitDelayMinutes = sTp.ucPermitDelayMinutes;
         // psBasePack->sTP.ucPFC = psBasePack->sTP.ucPFC;// 这个已经在封装时由用户添加
@@ -40727,22 +40727,22 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         
         // 判断该命令是否是合法的、可支持的
         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
-        if(eRet != MT_OK)
+        if(eRet != MT_ERR_OK)
         {
             #ifdef MT_DBG
-            DEBUG("emt_pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+            DEBUG("pack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
             #endif
             MT_FREE(pMemBase);
             return eRet;
         }
 
         // 判断该命令是否属于AFN的子命令
-        eAFNCmd = emt_get_afn(eCmd);
+        eAFNCmd = get_afn(eCmd);
         if(eAFNCmd != eAFN)  
         {
             MT_FREE(pMemBase);
             #ifdef MT_DBG
-            DEBUG("emt_pack() cmd is not is a same Afn");
+            DEBUG("pack() cmd is not is a same Afn");
             #endif
             return MT_ERR_TEAM;
         }
@@ -40828,37 +40828,37 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 
     psBasePack->usDataNum = nDaDtNum;
 
-    // 调用 emt_base_pack()
-    eRet = emt_base_pack(psBasePack, pusLen , pOutBuf);
-    if(MT_OK != eRet)
+    // 调用 base_pack()
+    eRet = base_pack(psBasePack, pusLen , pOutBuf);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack() emt_base_pack() failed! code : %d %s", eRet, smtGetErr(eRet));
+        DEBUG("pack() base_pack() failed! code : %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
     }
 
     MT_FREE(pMemBase);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_unpack_base
+ 函 数 名  : unpack_base
  功能描述  : 协议解析(高级接口)
              将emtBaseUnPack解析出来的信息smtBasePack, 封装成高级smtPack
              
              (1)将重要信息提取
              (2)将PnFn数据单元提取成离散的
              
- 输入参数  : smt_pack_t *psUnpack  
+ 输入参数  : pack_t *psUnpack  
              uint8_t* pInBuf      
              uint16_t usLen      
              
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_base_unpack
- 被调函数  : emt_unpack
+ 调用函数  : base_unpack
+ 被调函数  : unpack
  
  修改历史      :
   1.日    期   : 2013年8月9日 星期五
@@ -40866,12 +40866,12 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t unpack_base(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
     if(!psUnpack || !pInBuf)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack() pointer is null!");
+        DEBUG("unpack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -40879,16 +40879,16 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     if(true != g_bMtInit)
     {
         #ifdef MT_DBG
-        DEBUG("emt_pack() protocol is not init!");
+        DEBUG("pack() protocol is not init!");
         #endif
         return MT_ERR_INIT;
     }
     
-    emt_err_t       eRet          = MT_OK;
-    emt_cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
-    emt_afn_t       eAFN          = AFN_NULL;
+    err_t       eRet          = MT_ERR_OK;
+    cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
+    afn_t       eAFN          = AFN_NULL;
     uint8_t*       pMemBase      = NULL;
-    smt_basepack_t* pUnpackBase   = NULL;
+    basepack_t* pUnpackBase   = NULL;
     bool         bP0           = false;
     int32_t        i             = 0;
     int32_t        j             = 0;
@@ -40903,19 +40903,19 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     if(!pMemBase)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack() malloc failed!");
+        DEBUG("unpack() malloc failed!");
         #endif
         return MT_ERR_IO;
     }
     
-    pUnpackBase = (smt_basepack_t*)pMemBase;
+    pUnpackBase = (basepack_t*)pMemBase;
 
     // 调用解析函数
-    eRet = emt_base_unpack(pUnpackBase, pInBuf, usLen);
-    if(MT_OK != eRet)
+    eRet = base_unpack(pUnpackBase, pInBuf, usLen);
+    if(MT_ERR_OK != eRet)
     {
         #ifdef MT_DBG
-        DEBUG("emt_unpack() emt_base_unpack failed! %d %s", eRet, smtGetErr(eRet));
+        DEBUG("unpack() base_unpack failed! %d %s", eRet, smtGetErr(eRet));
         #endif
         MT_FREE(pMemBase);
         return eRet;
@@ -40967,7 +40967,7 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
             {
                 // 非法Fn
                 #ifdef MT_DBG
-                DEBUG("emt_unpack() usPn error Pn = %d\n", usPn);
+                DEBUG("unpack() usPn error Pn = %d\n", usPn);
                 #endif
                 MT_FREE(pMemBase);
                 return MT_ERR_PARA;
@@ -40978,7 +40978,7 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                 #ifdef MT_DBG
                 for(fi = 0; fi < 8; fi++)
                 {   ucFn = pUnpackBase->sData[i].sPnFn.ucFn[fi];                
-                    DEBUG("emt_unpack() sData[%d].sPnFn.ucFn[%d] = %d",i, fi, ucFn);
+                    DEBUG("unpack() sData[%d].sPnFn.ucFn[%d] = %d",i, fi, ucFn);
                 }
                 #endif
                 #endif
@@ -40994,19 +40994,19 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                     {
                         // 非法Fn
                         #ifdef MT_DBG
-                        DEBUG("emt_unpack() ucFn error Fn = %d\n", ucFn);
+                        DEBUG("unpack() ucFn error Fn = %d\n", ucFn);
                         #endif
                         MT_FREE(pMemBase);
                         return MT_ERR_PARA;
                     }
                     else
                     {
-                        eCmd = (emt_cmd_t)((eAFN << 8) | ucFn);
+                        eCmd = (cmd_t)((eAFN << 8) | ucFn);
                         eRet = eMtGetCmdInfor(eCmd, psUnpack->eDir, &sCmdInfor);
-                        if(MT_OK != eRet)
+                        if(MT_ERR_OK != eRet)
                         {
                             #ifdef MT_DBG
-                            DEBUG("emt_unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
+                            DEBUG("unpack() eMtGetCmdInfor() failed %d %s!", eRet, smtGetErr(eRet));
                             #endif
                             MT_FREE(pMemBase);
                             return eRet;
@@ -41034,23 +41034,23 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 
     psUnpack->usDataNum = j;
     MT_FREE(pMemBase);
-    return MT_OK;
+    return MT_ERR_OK;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_pack
+ 函 数 名  : pack
  功能描述  : 封装函数(高级接口)
  实现功能  : (1) 实现离散的信息点与信息类的自动分组
              (2) 自动取当前的时间来合成tp
              (3) 为上层屏蔽相关的参数 如功能码等
              
- 输入参数  : smt_pack_t* psPack  
+ 输入参数  : pack_t* psPack  
              uint16_t* pusLen   
              uint8_t* pOutBuf   
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
- 被调函数  : emt_base_pack()
+ 被调函数  : base_pack()
  
  修改历史      :
   1.日    期   : 2013年8月7日 星期三
@@ -41058,32 +41058,32 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pack(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
+err_t pack(pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     // 两种方式任选某一, emtPackBase较费内存
-    //eRet = emt_pack_base(psPack, pusLen, pOutBuf);
-    eRet = emt_pack_lite(psPack, pusLen, pOutBuf);
+    //eRet = pack_base(psPack, pusLen, pOutBuf);
+    eRet = pack_lite(psPack, pusLen, pOutBuf);
     
     return eRet;
 }
 
 /*****************************************************************************
- 函 数 名  : emt_unpack
+ 函 数 名  : unpack
  功能描述  : 协议解析(高级接口)
              将emtBaseUnPack解析出来的信息smtBasePack, 封装成高级smtPack
              
              (1)将重要信息提取
              (2)将PnFn数据单元提取成离散的
              
- 输入参数  : smt_pack_t *psUnpack  
+ 输入参数  : pack_t *psUnpack  
              uint8_t* pInBuf      
              uint16_t usLen      
              
  输出参数  : 无
  返 回 值  : 
- 调用函数  : emt_base_unpack
+ 调用函数  : base_unpack
  被调函数  : 
  
  修改历史      :
@@ -41092,13 +41092,13 @@ emt_err_t emt_pack(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_unpack(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
+err_t unpack(pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
 {
-    emt_err_t eRet = MT_OK;
+    err_t eRet = MT_ERR_OK;
 
     // 两种方式任选某一, emtUnPackBase较费内存
-    //eRet = emt_unpack_base(psUnpack, pInBuf, usLen);
-    eRet = emt_unpack_lite(psUnpack, pInBuf, usLen);
+    //eRet = unpack_base(psUnpack, pInBuf, usLen);
+    eRet = unpack_lite(psUnpack, pInBuf, usLen);
     
     return eRet;
 }
