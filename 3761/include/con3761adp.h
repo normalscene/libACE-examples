@@ -331,7 +331,7 @@ typedef union
     sMtTd_m          sTd_m;             // 月冻结   命令参数  
     
 
-}uCmApp;  // 用户侧应用层数据    与  uMtApp 一一对应
+}uCmApp;  // 用户侧应用层数据    与  umt_app_t 一一对应
 
 
 typedef struct
@@ -353,7 +353,7 @@ typedef struct
  */
 typedef struct
 {
-    sMtAddress   sAddress;       // 地址信息
+    smt_addr_t   sAddress;       // 地址信息
     bool         bReSend;        // 是否为重发  true 重发的帧计数不会自动增加1 false 会自增1
     bool         bActive;        // 是否为主动上报 (仅登录、心跳、退出登录、1类2类数据主动上报时为真)
     uint8_t      ucCmdNum;       // 该包中含有子命令的个数 最少有一个子命令 
@@ -363,7 +363,7 @@ typedef struct
 
 typedef struct
 {
-    eMtRole      eRole;                    // 身份    
+    emt_role_t      eRole;                    // 身份    
     uint8_t      ucPermitDelayMinutes;     // 允许时延
 
 }sCmInit; // 3761协议层初始化数据结构
@@ -399,18 +399,18 @@ void vcm_set_ec(uint8_t ucEC1, uint8_t ucEC2);
 bool bcm_set_pw(const char *pw); 
 
 // 内部接口
-eMtCmd emt_trans_appdata_cm2mt(eMtCmd emtCmd, uCmApp *pcmAppData, uMtApp *pmtAppData);
-eMtCmd emt_trans_appdata_mt2cm(eMtCmd emtCmd, uMtApp *pmtAppData, uCmApp *pcmAppData);
+emt_cmd_t emt_trans_appdata_cm2mt(emt_cmd_t emtCmd, uCmApp *pcmAppData, umt_app_t *pmtAppData);
+emt_cmd_t emt_trans_appdata_mt2cm(emt_cmd_t emtCmd, umt_app_t *pmtAppData, uCmApp *pcmAppData);
 
-eMtCmd eget_mt_cmd(eCmCmd cmCMD);   
-eCmCmd eget_cm_cmd(eMtCmd mtCMD);
-eMtPRM ecm_get_prm(eCmCmd cmCMD);  // 获得该命令的主动性
+emt_cmd_t eget_mt_cmd(eCmCmd cmCMD);   
+eCmCmd eget_cm_cmd(emt_cmd_t mtCMD);
+emt_prm_t ecm_get_prm(eCmCmd cmCMD);  // 获得该命令的主动性
 
 typedef struct
 {
     eCmCmd ecmCMD;
-    eMtCmd emtCMD;
-    eMtPRM ePrm;   // 集中器封装该命令时的主动性
+    emt_cmd_t emtCMD;
+    emt_prm_t ePrm;   // 集中器封装该命令时的主动性
  
 }sCmdMap; // 命令映射
 

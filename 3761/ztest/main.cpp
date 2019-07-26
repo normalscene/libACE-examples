@@ -366,7 +366,7 @@ emt_err_t test_pack_0001()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -455,7 +455,7 @@ emt_err_t test_pack_0002()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -549,7 +549,7 @@ emt_err_t test_pack_0101()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -662,7 +662,7 @@ emt_err_t test_pack_0102()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -767,7 +767,7 @@ emt_err_t test_pack_0103()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -871,7 +871,7 @@ emt_err_t test_pack_0104()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -976,7 +976,7 @@ emt_err_t test_pack_0201()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1082,7 +1082,7 @@ emt_err_t test_pack_0202()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1187,7 +1187,7 @@ emt_err_t test_pack_0203()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1289,7 +1289,7 @@ emt_err_t test_pack_0401()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1395,7 +1395,7 @@ emt_err_t test_pack_0402()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1505,7 +1505,7 @@ emt_err_t test_pack_0403()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1607,7 +1607,7 @@ emt_err_t test_pack_0404()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1711,7 +1711,7 @@ emt_err_t test_pack_0501()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1811,7 +1811,7 @@ emt_err_t test_pack_0601()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -1914,7 +1914,7 @@ emt_err_t test_pack_0602()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -2017,7 +2017,7 @@ emt_err_t test_pack_0603()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -2121,7 +2121,7 @@ emt_err_t test_pack_0604()
     emt_err_t eRet = MT_OK;
     smt_pack_t *psPack = NULL;
     sMtProtoInit sProtoInit = {0};
-    eMtDir eDir = MT_DIR_UNKOWN;
+    emt_dir_t eDir = MT_DIR_UNKOWN;
     uint16_t usBuflen = 0;
     psPack = getSmtPackPoint();
 
@@ -6459,6 +6459,7 @@ emt_err_t test_pack_afn0df97_s2m()
     pscmPacket->sData[0].uApp.sTmlCurvePower.dEnergy[3] = 6666.5555;
     pscmPacket->sData[0].uApp.sTmlCurvePower.dEnergy[4] = 8523.9874;
     pscmPacket->sData[0].uApp.sTmlCurvePower.dEnergy[5] = 3000.0;
+
     
     /* 4 调用函数 */
     eRet = emt_pack(pscmPacket, &usBuflen, (uint8_t*)g_ucOutBuf);
@@ -10746,7 +10747,7 @@ void print_td_d(sMtTd_d *psTd_d)
     }
 }
 
-void show_app_sub_data(eMtDir eDir,eMtCmd emtCmd, uMtApp *puAppData)
+void show_app_sub_data(emt_dir_t eDir,emt_cmd_t emtCmd, umt_app_t *puAppData)
 {
     int     i   = 0;
     int     j   = 0;
@@ -10754,7 +10755,7 @@ void show_app_sub_data(eMtDir eDir,eMtCmd emtCmd, uMtApp *puAppData)
     emt_err_t eRet2 = MT_OK;
 
     sMtCmdInfor sCmdInfo;
-    eMtCmd   eCmd = CMD_AFN_F_UNKOWN;
+    emt_cmd_t   eCmd = CMD_AFN_F_UNKOWN;
     const char *pStr = NULL;
     
     switch(emtCmd)
@@ -12672,7 +12673,7 @@ void show_app_sub_data(eMtDir eDir,eMtCmd emtCmd, uMtApp *puAppData)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void show_app_data_adp(eMtDir eDir, sCmSub *pSub)
+void show_app_data_adp(emt_dir_t eDir, sCmSub *pSub)
 {
     if(!pSub)
     {
@@ -12683,7 +12684,7 @@ void show_app_data_adp(eMtDir eDir, sCmSub *pSub)
     emt_err_t      eRet      = (emt_err_t)MT_OK;    
    // pMtFunc      pFunc     = NULL;
     char *         pStr      = NULL;
-    eMtCmd         emtCmd  ;
+    emt_cmd_t         emtCmd  ;
 
     pStr = NULL;
     
@@ -12753,7 +12754,7 @@ void show_app_data_adp(eMtDir eDir, sCmSub *pSub)
     // 有应用层数据
 
     char buf[1024] = {0};
-    uMtApp *pmtAppData = (uMtApp *)buf;
+    umt_app_t *pmtAppData = (umt_app_t *)buf;
     emt_trans_appdata_cm2mt(emtCmd, &(pSub->uAppData), pmtAppData);
     show_app_sub_data(eDir, emtCmd, pmtAppData);
 }
@@ -12777,7 +12778,7 @@ void show_app_data_adp(eMtDir eDir, sCmSub *pSub)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void show_app_data(eMtDir eDir, sMtData *pSub)
+void show_app_data(emt_dir_t eDir, smt_data_t *pSub)
 {
    if(!pSub)
    {
@@ -12876,7 +12877,7 @@ void show_pack_adp(sCmPacket * psUnpack)
     char strTmp[128] = {0};
     int i = 0;
     int nSubNum = 0;
-    eMtDir eDir = MT_DIR_M2S;
+    emt_dir_t eDir = MT_DIR_M2S;
 
     // 输出地址信息
     show_main_name("address:\n");
@@ -12938,7 +12939,7 @@ void show_pack(smt_pack_t *psUnpack)
     char strTmp[128] = {0};
     int i = 0;
     int nSubNum = 0;
-    eMtDir eDir;
+    emt_dir_t eDir;
 
     // 输出地址信息
     show_main_name("address:\n");
@@ -13236,7 +13237,7 @@ void test_unpack_adp(int nstart, int argc, char *argv[])
     int32_t  i, j = 0;
     uint16_t usLen = argc - nstart  ;
     uint8_t* pInBuf = NULL;
-    sMtInit  sInit = {MT_ROLE_UNKOWN};
+    smt_init_t  sInit = {MT_ROLE_UNKOWN};
    // printf("argc = %d , nstart = %d, usLen = %d------------",argc, nstart, usLen);
    printf("unpack len = %d\n", usLen);
 
@@ -13258,7 +13259,7 @@ void test_unpack_adp(int nstart, int argc, char *argv[])
     // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    eMtInit(&sInit);
+    emt_init(&sInit);
     
     //调用解析函数
     emt_err_t eRet = ecm_3761_unpack(pInBuf, usLen, psUnpack);
@@ -13285,13 +13286,13 @@ void unpack_analyse(int nstart, int argc, char *argv[])
     uint16_t usLen = argc - nstart ;
     uint8_t* pInBuf = NULL;
     emt_err_t eRet = (emt_err_t)MT_OK;
-    sMtInit  sInit = {MT_ROLE_UNKOWN};
+    smt_init_t  sInit = {MT_ROLE_UNKOWN};
     smt_unpack_common_t sUnpackCommon;
     uint8_t  ucTemp = 0;
     char buf[64] = {0};
     const char *str = NULL;
     sMtCmdInfor    sCmdInfor;
-    eMtDir eDir;
+    emt_dir_t eDir;
 
    
     for(i = nstart; i < argc; i++)
@@ -13304,7 +13305,7 @@ void unpack_analyse(int nstart, int argc, char *argv[])
      // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    eMtInit(&sInit);
+    emt_init(&sInit);
 
     // 
     eRet = emt_unpack_common(&sUnpackCommon,pInBuf, usLen);
@@ -13731,7 +13732,7 @@ void test_unpack(int nstart, int argc, char *argv[])
     int32_t  i, j = 0;
     uint16_t usLen = argc - nstart ;
     uint8_t* pInBuf = NULL;
-    sMtInit  sInit = {MT_ROLE_UNKOWN};
+    smt_init_t  sInit = {MT_ROLE_UNKOWN};
 
     // printf("\nargc = %d , nstart = %d, usLen = %d------------",argc, nstart, usLen);
     // 解决命令行输入的参数
@@ -13758,7 +13759,7 @@ void test_unpack(int nstart, int argc, char *argv[])
     // 协议初始化
     sInit.eRole = MT_ROLE_CONTOR;
     sInit.ucPermitDelayMinutes = 255;
-    eMtInit(&sInit);
+    emt_init(&sInit);
 
     //调用解析函数
     emt_err_t eRet = emt_unpack(psUnpack, pInBuf, usLen);

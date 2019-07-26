@@ -50,5 +50,33 @@ sed \
 	-e 's/\<vCmSetEC\>/vcm_set_ec/g'\
 	-e 's/\<bCmSetPw\>/bcm_set_pw/g'\
 	\
+	-e 's/\<emtIsValidPack\>/emt_is_valid_pack/g'\
+	-e 's/\<emtFindValidPack\>/emt_find_valid_pack/g'\
+	-e 's/\<vmtSetEC\>/vmt_set_ec/g'\
+	-e 's/\<vmtSetPw\>/vmt_set_pw/g'\
+	-e 's/\<vmtSetPwBuf\>/vmt_set_pw_buf/g'\
+	-e 's/\<eMtRole\>/emt_role_t/g'\
+	-e 's/\<emtWhoAmI\>/emt_whoami/g'\
+	-e 's/\<eGetCmdAfn\>/emt_get_afn/g'\
+	-e 's/\<ucGetCmFn\>/uc_get_fn/g'\
+	-e 's/\<sMtAddress\>/smt_addr_t/g'\
+	-e 's/\<eMtDir\>/emt_dir_t/g'\
+	-e 's/\<eMtPRM\>/emt_prm_t/g'\
+	-e 's/\<eMtPos\>/emt_pos_t/g'\
+	-e 's/\<sMtEC\>/smt_ec_t/g'\
+	-e 's/\<sMtTp\>/smt_tp_t/g'\
+	-e 's/\<sMtData\>/smt_data_t/g'\
+	-e 's/\<uMtApp\>/umt_app_t/g'\
+	-e 's/\<eMtCmd\>/emt_cmd_t/g'\
+	-e 's/\<ucGetCmdFn\>/uc_get_cmdfn/g'\
+	-e 's/\<sMtInit\>/smt_init_t/g'\
+	-e 's/\<eMtInit\>/emt_init/g'\
+	-e 's/\<sMtfComHead\>/smt_fcomhead_t/g'\
+	-e 's/\<sMtComPack\>/smt_compack_t/g'\
+	\
+	-e 's/\<emt_\>//g'\
+	-e 's/\<vmt_\>//g'\
+	-e 's/\<smt_\>//g'\
+	\
 	-i $@
 

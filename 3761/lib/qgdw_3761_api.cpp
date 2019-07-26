@@ -195,10 +195,10 @@ if(pBuf != NULL)\
  *
 {*////
 bool      g_bMtInit = false;             // 协议是否初始化
-eMtRole   g_eMtRole = MT_ROLE_UNKOWN;    // 身份，主站或是从站
+emt_role_t   g_eMtRole = MT_ROLE_UNKOWN;    // 身份，主站或是从站
 uint8_t     g_ucMtPermitDelayMinutes = 0;  // 允许时延
 uint8_t     g_aucPw[MT_PW_LEN] = {0};
-sMtEC     g_tEC;                         // 事件计数器 仅终端上支持
+smt_ec_t     g_tEC;                         // 事件计数器 仅终端上支持
 
 #if MT_CFG_ENCRYPT
     peMtEncryptFunc   g_peMtEncryptFunc = NULL;  // 加密接口
@@ -1543,9 +1543,9 @@ const sMtCmdInfor gmt_cmdinfor[] =
 ////*}
 
 /*****************************************************************************
- 函 数 名  : eMtInit
+ 函 数 名  : emt_init
  功能描述  : 协议初始化
- 输入参数  : sMtInit* sInit  
+ 输入参数  : smt_init_t* sInit  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -1557,7 +1557,7 @@ const sMtCmdInfor gmt_cmdinfor[] =
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t eMtInit(sMtInit* psInit)
+emt_err_t emt_init(smt_init_t* psInit)
 {
     if(g_bMtInit == true)
     {
@@ -1567,7 +1567,7 @@ emt_err_t eMtInit(sMtInit* psInit)
     if(!psInit)
     {
         #ifdef MT_DBG
-        DEBUG("eMtInit() pointer is null!");
+        DEBUG("emt_init() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -1575,7 +1575,7 @@ emt_err_t eMtInit(sMtInit* psInit)
     if(MT_ROLE_MASTER != psInit->eRole && MT_ROLE_CONTOR != psInit->eRole)
     {
         #ifdef MT_DBG
-        DEBUG("eMtInit() para error!");
+        DEBUG("emt_init() para error!");
         #endif
         return MT_ERR_PARA;
     }
@@ -1715,8 +1715,8 @@ void   vmt_set_none(uint8_t* pData, uint16_t usLen)
 /*****************************************************************************
  函 数 名  : eMtGetCmdInfor
  功能描述  : 通过命令类型和报文方向获得该命令对应的相关信息
- 输入参数  : eMtCmd eCmd          
-             eMtDir eDir         
+ 输入参数  : emt_cmd_t eCmd          
+             emt_dir_t eDir         
              sMtCmdInfor *psInfor  
  输出参数  : 无
  返 回 值  : 
@@ -1729,7 +1729,7 @@ void   vmt_set_none(uint8_t* pData, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t eMtGetCmdInfor(eMtCmd eCmd, eMtDir eDir, sMtCmdInfor *psInfor)
+emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor *psInfor)
 {
     int32_t i   = 0;
     int32_t Num = 0;
@@ -1771,7 +1771,7 @@ emt_err_t eMtGetCmdInfor(eMtCmd eCmd, eMtDir eDir, sMtCmdInfor *psInfor)
 /*****************************************************************************
  函 数 名  : emtGetPrm
  功能描述  : 获得某类型的报文的主动性
- 输入参数  : eMtDir eDir  
+ 输入参数  : emt_dir_t eDir  
              emt_afn_t eAfn  
              bool bAuto   
  输出参数  : 无
@@ -1785,9 +1785,9 @@ emt_err_t eMtGetCmdInfor(eMtCmd eCmd, eMtDir eDir, sMtCmdInfor *psInfor)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtPRM emtGetPrm(eMtDir eDir, emt_afn_t eAfn, bool bAuto)
+emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto)
 {
-    eMtPRM ePrm;
+    emt_prm_t ePrm;
     
     switch(eAfn)
     {
@@ -1926,7 +1926,7 @@ eMtPRM emtGetPrm(eMtDir eDir, emt_afn_t eAfn, bool bAuto)
     return ePrm;
 }
 /*****************************************************************************
- 函 数 名  : emtIsValidPack
+ 函 数 名  : emt_is_valid_pack
  功能描述  : 判断一个帧是否是一个有效的3761.1的报文
              判断一个以0x68 开头以0x16结尾的一段buffer是否是一个完整有效的376.1报文
  输入参数  : uint8_t  *pOutBuf  
@@ -1942,12 +1942,12 @@ eMtPRM emtGetPrm(eMtDir eDir, emt_afn_t eAfn, bool bAuto)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
+emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen)
 {
     if(!pOutBuf)
     {
        #ifdef MT_DBG
-       DEBUG("emtIsValidPack() pointer is null!");
+       DEBUG("emt_is_valid_pack() pointer is null!");
        #endif
        return MT_ERR_NULL;
     }
@@ -1958,13 +1958,13 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     uint16_t usProtoLen  = 0; //实际应该的协议数据长度
     uint16_t usUserLen   = 0;     
 
-    sMtfComHead *pfComHead = NULL;
-    pfComHead = (sMtfComHead *)pOutBuf;
+    smt_fcomhead_t *pfComHead = NULL;
+    pfComHead = (smt_fcomhead_t *)pOutBuf;
 
     if(0x68 != pfComHead->f68 || 0x68 != pfComHead->s68)
     {
         #ifdef MT_DBG
-        DEBUG("emtIsValidPack() MT_ERR_0x68!");
+        DEBUG("emt_is_valid_pack() MT_ERR_0x68!");
         #endif
         return MT_ERR_0x68;
     }
@@ -1972,7 +1972,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     if(2 != pfComHead->p10)
     {       
         #ifdef MT_DBG
-        DEBUG("emtIsValidPack() MT_ERR_PROTO!");
+        DEBUG("emt_is_valid_pack() MT_ERR_PROTO!");
         #endif
         return MT_ERR_PROTO;
     }
@@ -1982,7 +1982,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     // 帧中的实现校验和
     ucCheckSumP =  *(uint8_t*)((uint8_t*)&(pfComHead->C) + usUserLen);
     #ifdef MT_DBG
-    DEBUG("emtIsValidPack() usUserLen = %d", usUserLen);
+    DEBUG("emt_is_valid_pack() usUserLen = %d", usUserLen);
     #endif
    
     // 计算出来的校验和
@@ -1991,7 +1991,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     if(ucCheckSumC != ucCheckSumP)
     {
         #ifdef MT_DBG
-        DEBUG("emtIsValidPack() MT_ERR_CS! CS_PACK = %02X CS_CAL = %02X", ucCheckSumP, ucCheckSumC);
+        DEBUG("emt_is_valid_pack() MT_ERR_CS! CS_PACK = %02X CS_CAL = %02X", ucCheckSumP, ucCheckSumC);
         #endif
         return MT_ERR_CS;
     }
@@ -2001,7 +2001,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     if(usLen < usProtoLen)
     {   
         #ifdef MT_DBG
-        DEBUG("emtIsValidPack() MT_ERR_UNCOMP!");
+        DEBUG("emt_is_valid_pack() MT_ERR_UNCOMP!");
         #endif
         return MT_ERR_UNCOMP;
     }
@@ -2011,7 +2011,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     if(uc0x16 != 0x16)
     {
         #ifdef MT_DBG
-        DEBUG("emtIsValidPack() MT_ERR_0x16!");
+        DEBUG("emt_is_valid_pack() MT_ERR_0x16!");
         #endif
         return MT_ERR_0x16;
     }
@@ -2020,7 +2020,7 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
 }
 
 /*****************************************************************************
- 函 数 名  : vmtSetEC
+ 函 数 名  : vmt_set_ec
  功能描述  : 设置事件计数器
  输入参数  : uint8_t ucEC1  
              uint8_t ucEC2  
@@ -2035,14 +2035,14 @@ emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void  vmtSetEC(uint8_t ucEC1, uint8_t ucEC2)
+void  vmt_set_ec(uint8_t ucEC1, uint8_t ucEC2)
 {
     g_tEC.ucEC1 = ucEC1;
     g_tEC.ucEC2 = ucEC2;
 }  
 
 /*****************************************************************************
- 函 数 名  : vmtSetPw
+ 函 数 名  : vmt_set_pw
  功能描述  : 以字符串方式设置登录密码
              如果长度不足16, 后边自动以'0'补足
  输入参数  : char *pPw  
@@ -2057,7 +2057,7 @@ void  vmtSetEC(uint8_t ucEC1, uint8_t ucEC2)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void  vmtSetPw(const char *pPw)
+void  vmt_set_pw(const char *pPw)
 {
     if(!pPw)
     {
@@ -2080,7 +2080,7 @@ void  vmtSetPw(const char *pPw)
 }
 
 /*****************************************************************************
- 函 数 名  : vmtSetPwBuf
+ 函 数 名  : vmt_set_pw_buf
  功能描述  : 以buffer的方式设置PW
  输入参数  : uint8_t* buf  
  输出参数  : 无
@@ -2094,7 +2094,7 @@ void  vmtSetPw(const char *pPw)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-void vmtSetPwBuf(uint8_t* buf)
+void vmt_set_pw_buf(uint8_t* buf)
 {
     if(!buf)
     {
@@ -2105,7 +2105,7 @@ void vmtSetPwBuf(uint8_t* buf)
 }
 
 /*****************************************************************************
- 函 数 名  : emtWhoAmI
+ 函 数 名  : emt_whoami
  功能描述  : 获得当前使用该接口的身份，主站还是从站
  输入参数  : 无
  输出参数  : 无
@@ -2119,13 +2119,13 @@ void vmtSetPwBuf(uint8_t* buf)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtRole emtWhoAmI()
+emt_role_t emt_whoami()
 {
     return g_eMtRole; 
 }
 
 /*****************************************************************************
- 函 数 名  : emtFindValidPack
+ 函 数 名  : emt_find_valid_pack
  功能描述  : 从帧缓冲区中找到第一个有效的帧的位置及长度
  输入参数  : 无
  输出参数  : 无
@@ -2139,12 +2139,12 @@ eMtRole emtWhoAmI()
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtFindValidPack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen)
+emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen)
 {
     if(!pinBuf || !pusFirstOff || !pusFirstLen)
     {
         #ifdef MT_DBG
-        DEBUG("emtFindValidPack() pointer is null!");
+        DEBUG("emt_find_valid_pack() pointer is null!");
         #endif
         return MT_ERR_NULL;
     }
@@ -2165,7 +2165,7 @@ emt_err_t emtFindValidPack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOf
                     if(pinBuf[j] == 0x16)
                     {    
                         usValidLen = j + 1;
-                        eRet = emtIsValidPack((uint8_t*)(pinBuf + i), usValidLen);
+                        eRet = emt_is_valid_pack((uint8_t*)(pinBuf + i), usValidLen);
 
                         if(MT_OK == eRet)
                         {
@@ -2188,7 +2188,7 @@ emt_err_t emtFindValidPack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOf
  函 数 名  : bmt_have_ec
  功能描述  : 此类报文中是否应该含有ec字段
  输入参数  : emt_afn_t eAFN 
-             eMtDir eDir  
+             emt_dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2200,7 +2200,7 @@ emt_err_t emtFindValidPack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOf
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_have_ec(emt_afn_t eAFN, eMtDir eDir)
+bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir)
 {   
     if((AFN_00_CONF == eAFN) ||    // 确认否认报文 上下行都有EC
        (AFN_02_LINK != eAFN  &&
@@ -2217,7 +2217,7 @@ bool   bmt_have_ec(emt_afn_t eAFN, eMtDir eDir)
  函 数 名  : bmt_have_pw
  功能描述  : 此报文中是否应该还有pw字段
  输入参数  : emt_afn_t eAFN    
-             eMtDir eDir 
+             emt_dir_t eDir 
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2229,7 +2229,7 @@ bool   bmt_have_ec(emt_afn_t eAFN, eMtDir eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_have_pw(emt_afn_t eAFN, eMtDir eDir)
+bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir)
 {
     if(((MT_DIR_M2S == eDir)  &&
         (AFN_01_RSET == eAFN  ||
@@ -2249,7 +2249,7 @@ bool   bmt_have_pw(emt_afn_t eAFN, eMtDir eDir)
  函 数 名  : bmt_have_tp
  功能描述  : 此报文(从 eRole 发送的报文)中是否应该还有tp字段
  输入参数  : emt_afn_t eAFN    
-             eMtDir eDir 
+             emt_dir_t eDir 
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2261,7 +2261,7 @@ bool   bmt_have_pw(emt_afn_t eAFN, eMtDir eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool  bmt_have_tp(emt_afn_t eAFN, eMtDir eDir)
+bool  bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir)
 {
     if(AFN_02_LINK == eAFN &&  MT_DIR_S2M == eDir)  // 除了这种情况的所有报文中
     {
@@ -2285,7 +2285,7 @@ bool  bmt_have_tp(emt_afn_t eAFN, eMtDir eDir)
  函 数 名  : bmt_need_con
  功能描述  : 此报文是否需要确认
  输入参数  : emt_afn_t eAFN  
-             eMtDir eDir  
+             emt_dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2297,7 +2297,7 @@ bool  bmt_have_tp(emt_afn_t eAFN, eMtDir eDir)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-bool   bmt_need_con(emt_afn_t eAFN, eMtDir eDir)
+bool   bmt_need_con(emt_afn_t eAFN, emt_dir_t eDir)
 {
   // 该报文是否需要从动站确认
     if((MT_DIR_M2S == eDir) &&
@@ -2456,9 +2456,9 @@ bool bmt_in_pn8(uint16_t usPn, uint16_t *pusPn8)
 }
 
 /*****************************************************************************
- 函 数 名  : ucGetCmdFn
+ 函 数 名  : uc_get_cmdfn
  功能描述  : 获得命令的FN
- 输入参数  : eMtCmd eCmd  
+ 输入参数  : emt_cmd_t eCmd  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2470,7 +2470,7 @@ bool bmt_in_pn8(uint16_t usPn, uint16_t *pusPn8)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-uint8_t  ucGetCmdFn(eMtCmd eCmd)
+uint8_t  uc_get_cmdfn(emt_cmd_t eCmd)
 {
     uint8_t ucFn;
     ucFn = (uint8_t)(eCmd & 0xFF);
@@ -2478,9 +2478,9 @@ uint8_t  ucGetCmdFn(eMtCmd eCmd)
 }
 
 /*****************************************************************************
- 函 数 名  : eGetCmdAfn
+ 函 数 名  : emt_get_afn
  功能描述  : 通过命令字获取命令对应的AFN
- 输入参数  : eMtCmd eCmd  
+ 输入参数  : emt_cmd_t eCmd  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -2492,7 +2492,7 @@ uint8_t  ucGetCmdFn(eMtCmd eCmd)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_afn_t eGetCmdAfn(eMtCmd eCmd)
+emt_afn_t emt_get_afn(emt_cmd_t eCmd)
 {
     emt_afn_t eAfn;
     uint32_t ulCmd = 0;
@@ -3207,7 +3207,7 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
     int32_t   i     = 0;
     int32_t   j     = 0;
     int32_t   k     = 0;
-    eMtCmd  eCmd  = CMD_AFN_F_UNKOWN;
+    emt_cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
     emt_err_t  eRet  = MT_OK;
     sMtDaDt sDaDt;
     sMtCmdPn sNew;
@@ -3265,7 +3265,7 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
                 {
                     ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                     usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                    eCmd  = (eMtCmd)usCmd;
+                    eCmd  = (emt_cmd_t)usCmd;
                     sNew.eCmd = eCmd;
                     (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                 }
@@ -3284,7 +3284,7 @@ emt_err_t emt_pnfn_to_cmdpn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t ucNumPnFn, 
                         {
                             ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                             usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                            eCmd  = (eMtCmd)usCmd;
+                            eCmd  = (emt_cmd_t)usCmd;
                             sNew.eCmd = eCmd;
                             (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                         }
@@ -3344,15 +3344,15 @@ emt_err_t emt_cmdpn_to_pnfn(emt_afn_t eAfn, sMtPnFn* psPnFn, uint8_t *pucNumPnFn
     bool    bFind        = false;
     bool    bInFn8       = false;
     //bool    bInPn8       = false;
-    eMtCmd  eCmd         = CMD_AFN_F_UNKOWN;
+    emt_cmd_t  eCmd         = CMD_AFN_F_UNKOWN;
     emt_afn_t  eCmdAfn      = AFN_NULL;
 
     for(i = 0; i < ucNumCmdPn; i++)
     {
         eCmd    = psCmdPn[i].eCmd;
         usPn    = psCmdPn[i].usPn;
-        ucFn    = ucGetCmdFn(eCmd); 
-        eCmdAfn = eGetCmdAfn(eCmd);
+        ucFn    = uc_get_cmdfn(eCmd); 
+        eCmdAfn = emt_get_afn(eCmd);
 
         if(eCmdAfn != eAfn)  
         {
@@ -3467,7 +3467,7 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
     int32_t   i     = 0;
     int32_t   j     = 0;
     int32_t   k     = 0;
-    eMtCmd  eCmd  = CMD_AFN_F_UNKOWN;
+    emt_cmd_t  eCmd  = CMD_AFN_F_UNKOWN;
     sMtDaDt sDaDt;
     sMtCmdPn sNew;
     
@@ -3520,7 +3520,7 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
                 {
                     ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                     usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                    eCmd  = (eMtCmd)usCmd;
+                    eCmd  = (emt_cmd_t)usCmd;
                     sNew.eCmd = eCmd;
                     (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                 }
@@ -3539,7 +3539,7 @@ emt_err_t emt_dadt_to_cmdpn(emt_afn_t eAfn, sMtDaDt* psDaDt, uint8_t ucNumDaDt, 
                         {
                             ucFn  = (sDaDt.ucDT2 * 8) + j + 1;
                             usCmd = (uint16_t)(ucAFN << 8 | ucFn);
-                            eCmd  = (eMtCmd)usCmd;
+                            eCmd  = (emt_cmd_t)usCmd;
                             sNew.eCmd = eCmd;
                             (void)emt_add_cmdpn(psCmdPn ,sNew,pucNumCmdPn);
                         }
@@ -3789,7 +3789,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     uint16_t      usCMD     = 0;
     uint16_t      usPn      = 0;
     uint8_t       ucFn      = 0;
-    eMtCmd      eCmd      = CMD_AFN_F_UNKOWN;
+    emt_cmd_t      eCmd      = CMD_AFN_F_UNKOWN;
     emt_afn_t      eAFN      = AFN_NULL;
     emt_afn_t      eAFNCmd   = AFN_NULL;
     bool        bOK       = false;
@@ -3861,7 +3861,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                         if(MT_FN_NONE != sPnFn.ucFn[fi])
                         { 
                             usCMD = (uint16_t)((eAFN << 8) | sPnFn.ucFn[fi]);
-                            eCmd  = (eMtCmd)usCMD; 
+                            eCmd  = (emt_cmd_t)usCMD; 
                             psOneByOne_u->sOne[j].bOk = bOK;
                             psOneByOne_u->sOne[j].usPn = sPnFn.usPn[pi];
                             psOneByOne_u->sOne[j].eCmd = eCmd;
@@ -3896,7 +3896,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
         for(i = 0; i < psOneByOne_u->ucNum; i++)
         {
             // 判断该命令是否属于AFN的子命令
-            eAFNCmd = eGetCmdAfn(psOneByOne_u->sOne[i].eCmd);
+            eAFNCmd = emt_get_afn(psOneByOne_u->sOne[i].eCmd);
             if(eAFNCmd != eAFN)  
             {
                 #ifdef MT_DBG
@@ -3910,7 +3910,7 @@ emt_err_t emtTrans_OneByOne(emt_trans_t eTrans,void* psUser, void* psFrame, uint
             }
 
             usPn = psOneByOne_u->sOne[i].usPn;
-            ucFn = ucGetCmdFn(psOneByOne_u->sOne[i].eCmd);
+            ucFn = uc_get_cmdfn(psOneByOne_u->sOne[i].eCmd);
             bOK  = psOneByOne_u->sOne[i].bOk;
 
             /*
@@ -6186,7 +6186,7 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     int32_t         i      = 0;
     int32_t         m      = 0;
     int32_t         n      = 0;
-    eMtCmd        eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
     emt_err_t        eRet   = MT_OK;
     sMtCmdInfor   sCmdInfor;
     
@@ -6344,7 +6344,7 @@ emt_err_t emtTrans_afn04f38(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                     {
                         // 合成命令
                         usCmd = ((AFN_0C_ASK1 << 8) | (8 * n + i + 1));
-                        eCmd = (eMtCmd)usCmd;
+                        eCmd = (emt_cmd_t)usCmd;
 
                         //判断命令是否合法
                         eRet = eMtGetCmdInfor(eCmd, MT_DIR_S2M, &sCmdInfor);
@@ -6420,7 +6420,7 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
     int32_t         i      = 0;
     int32_t         m      = 0;
     int32_t         n      = 0;
-    eMtCmd        eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t        eCmd   = CMD_AFN_F_UNKOWN;
     emt_err_t        eRet   = MT_OK;
     sMtCmdInfor   sCmdInfor;
     
@@ -6579,7 +6579,7 @@ emt_err_t emtTrans_afn04f39(emt_trans_t eTrans,void* psUser, void* psFrame, uint
                     {
                         // 合成命令
                         usCmd = ((AFN_0D_ASK2 << 8) | (8 * n + i + 1));
-                        eCmd = (eMtCmd)usCmd;
+                        eCmd = (emt_cmd_t)usCmd;
 
                         //判断命令是否合法
                         eRet = eMtGetCmdInfor(eCmd, MT_DIR_S2M, &sCmdInfor);
@@ -9184,7 +9184,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f4_ast
  功能描述  : F4：终端支持的参数配置 辅助函数
- 输入参数  : eMtCmd eCmd      
+ 输入参数  : emt_cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9198,7 +9198,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans, eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam)
+emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9327,7 +9327,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     sMtAfn09F4_f * psF    = (sMtAfn09F4_f*)psFrame;
     sMtAfn09F4*    psU    = (sMtAfn09F4*)psUser;
     emt_err_t         eRet   = MT_OK;
-    eMtCmd         eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9369,7 +9369,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (eMtCmd)((8 * i + j + 1) | 0x0400);
+                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0400);
                    eRet = emtTrans_afn09f4_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
                    if(MT_OK != eRet)
                    {
@@ -9398,7 +9398,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f5_ast
  功能描述  : F5：终端支持的控制配置 辅助函数
- 输入参数  : eMtCmd eCmd      
+ 输入参数  : emt_cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9412,7 +9412,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans, eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam)
+emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9514,7 +9514,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     sMtAfn09F5_f * psF    = (sMtAfn09F5_f*)psFrame;
     sMtAfn09F5*    psU    = (sMtAfn09F5*)psUser;
     emt_err_t         eRet   = MT_OK;
-    eMtCmd         eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9557,7 +9557,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (eMtCmd)((8 * i + j + 1) | 0x0500);
+                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0500);
                    printf("cmd = %X\n", eCmd);
                    eRet = emtTrans_afn09f5_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
                    if(MT_OK != eRet)
@@ -9587,7 +9587,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f6_ast
  功能描述  : F6：终端支持的1类数据配置 辅助函数
- 输入参数  : eMtCmd eCmd      
+ 输入参数  : emt_cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9601,7 +9601,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans, eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam)
+emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -9787,7 +9787,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     sMtAfn09F6_f * psF    = (sMtAfn09F6_f*)psFrame;
     sMtAfn09F6*    psU    = (sMtAfn09F6*)psUser;
     emt_err_t         eRet   = MT_OK;
-    eMtCmd         eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -9839,7 +9839,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (eMtCmd)((8 * i + j + 1) | 0x0C00);
+                   eCmd = (emt_cmd_t)((8 * i + j + 1) | 0x0C00);
                    eRet = emtTrans_afn09f6_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
                    if(MT_OK != eRet)
                    {
@@ -9868,7 +9868,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 /*****************************************************************************
  函 数 名  : emtTrans_afn09f7_ast
  功能描述  : F7：终端支持的2类数据配置 辅助函数
- 输入参数  : eMtCmd eCmd      
+ 输入参数  : emt_cmd_t eCmd      
              uint8_t *pArray    
              pucTeam 所属的信息组 
  输出参数  : 无
@@ -9882,7 +9882,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans, eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam)
+emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans, emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam)
 {
     if(!pArray || !pucTeam)
     {
@@ -10111,7 +10111,7 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
     sMtAfn09F7_f * psF    = (sMtAfn09F7_f*)psFrame;
     sMtAfn09F7*    psU    = (sMtAfn09F7*)psUser;
     emt_err_t         eRet   = MT_OK;
-    eMtCmd         eCmd   = CMD_AFN_F_UNKOWN;
+    emt_cmd_t         eCmd   = CMD_AFN_F_UNKOWN;
     uint8_t         *pFlag  = NULL;
     uint8_t          ucN    = 0;
     uint8_t          ucNTmp = 0;
@@ -10163,7 +10163,7 @@ emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
             {
                 if(ucTmp & (0x01 << j))
                 {
-                   eCmd = (eMtCmd)((8 * i + j) | 0x0D00);
+                   eCmd = (emt_cmd_t)((8 * i + j) | 0x0D00);
                    eRet = emtTrans_afn09f7_ast(eTrans, eCmd, &ucNTmp, &ucNTmp);
                    if(MT_OK != eRet)
                    {
@@ -34867,7 +34867,7 @@ emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
  函 数 名  : emt_trans_address
  功能描述  : 地址域用户侧与封帧侧数据结构转换函数
  输入参数  : emt_trans_t eDir           
-             sMtAddress *psAddr_u    
+             smt_addr_t *psAddr_u    
              sMtAddress_f *psAddr_f  
  输出参数  : 无
  返 回 值  : 
@@ -34880,7 +34880,7 @@ emt_err_t emt_read_uint32_small_endian(uint8_t* pRead, uint32_t* pUint32)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_trans_address(emt_trans_t eTrans, sMtAddress* psAddr_u, sMtAddress_f* psAddr_f)
+emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t* psAddr_u, sMtAddress_f* psAddr_f)
 {
     if(!psAddr_u || !psAddr_f)
     {
@@ -35030,8 +35030,8 @@ emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl)
  函 数 名  : emt_get_ctrl
  功能描述  : 获得控制域用户侧信息
  输入参数  : emt_afn_t eAFN      
-             eMtDir eDir      
-             eMtPRM ePRM 
+             emt_dir_t eDir      
+             emt_prm_t ePRM 
              bool bAcd_Fcb
              sMtCtrl *psCtrl  
  输出参数  : 无
@@ -35045,7 +35045,7 @@ emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_get_ctrl(emt_afn_t eAFN, eMtDir eDir, eMtPRM ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl)
+emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl)
 {
     if(!psCtrl)
     {
@@ -35779,7 +35779,7 @@ emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f)
  函 数 名  : usmt_get_aux_len
  功能描述  : 获得当前类型的报文中附加域的总字长(ec pw tp)
  输入参数  : emt_afn_t eAFN  
-             eMtDir eDir  
+             emt_dir_t eDir  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -35791,7 +35791,7 @@ emt_err_t emt_trans_tp(emt_trans_t eTrans, sMtTP* pTP_u, sMtTP_f* pTP_f)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-uint16_t usmt_get_aux_len(emt_afn_t eAFN, eMtDir eDir, bool bEc, bool bTp)
+uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp)
 {
     uint16_t usAuxLen = 0;
 
@@ -35801,7 +35801,7 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, eMtDir eDir, bool bEc, bool bTp)
   
     if(true == bEc)
     {
-        usAuxLen += sizeof(sMtEC);
+        usAuxLen += sizeof(smt_ec_t);
     }
     
     if(true == bPw)
@@ -38609,7 +38609,7 @@ uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen)
  函 数 名  : emt_pack_common
  功能描述  : 公共部分 报文封装函数   
  输入参数  : emt_afn_t eAFN           
-             sMtComPack *psCommon  
+             smt_compack_t *psCommon  
  输出参数  : uint16_t *pusLen     封装后的帧长    
              uint8_t  *pOutBuf    封装后的帧内容
  返 回 值  : 
@@ -38622,7 +38622,7 @@ uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-emt_err_t emt_pack_common(emt_afn_t eAFN, sMtComPack *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf)
+emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf)
 {    
     emt_err_t eErr     = MT_OK;
     uint16_t usBufLen = 0;
@@ -38632,7 +38632,7 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, sMtComPack *psCommon,  uint16_t *pusLe
     uint8_t *pucSeq  = NULL;
     uint8_t *pucCtrl = NULL;   // 用于计算CS
     uint8_t *pucCS   = NULL;
-    sMtfComHead *psHead = NULL;
+    smt_fcomhead_t *psHead = NULL;
     
     if(!psCommon || !pusLen || !pOutBuf)
     {
@@ -38667,7 +38667,7 @@ emt_err_t emt_pack_common(emt_afn_t eAFN, sMtComPack *psCommon,  uint16_t *pusLe
         return MT_ERR_SEQ2CS;
     }
        
-    psHead = (sMtfComHead *)pOutBuf;
+    psHead = (smt_fcomhead_t *)pOutBuf;
 
     // 0x68
     psHead->f68 = 0x68;
@@ -38785,12 +38785,12 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
     }
 
     emt_err_t        eRet           = MT_OK;
-    sMtfComHead   *psHead        = NULL;
+    smt_fcomhead_t   *psHead        = NULL;
     uint16_t        usLenUserField = 0;
     uint8_t         u8CS           = 0;
         
      // 判断该帧是否是一个有效的帧
-    eRet = emtIsValidPack(pInBuf, usLen);
+    eRet = emt_is_valid_pack(pInBuf, usLen);
     if(MT_OK != eRet)
     {
         #ifdef MT_DBG
@@ -38799,8 +38799,8 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
         return MT_ERR_PACK;
     }
 
-    psHead = (sMtfComHead *)pInBuf;
-    memcpy(&(psUnpack->sfComHead), pInBuf, sizeof(sMtfComHead));
+    psHead = (smt_fcomhead_t *)pInBuf;
+    memcpy(&(psUnpack->sfComHead), pInBuf, sizeof(smt_fcomhead_t));
 
     // 地址域
     eRet = emt_trans_address(MT_TRANS_F2U, &(psUnpack->sComPack.sAddr), &(psHead->A));
@@ -38886,8 +38886,8 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     }
 
     emt_err_t         eRet        = MT_OK;
-    eMtCmd         eCmd        = CMD_AFN_F_UNKOWN;
-    eMtDir         eDir        = MT_DIR_UNKOWN;
+    emt_cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
+    emt_dir_t         eDir        = MT_DIR_UNKOWN;
     emt_afn_t         eAFN        = AFN_NULL;
     bool           bSameTeam   = false;
     bool           bP0         = false;
@@ -38904,13 +38904,13 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     uint8_t*         puData      = NULL;   // 数据单元用户侧数据
     uint8_t*         pData       = NULL;   // 数据单元
     sMtDaDt*       pDaDt       = NULL;   // 数据单元标识
-    sMtEC*         psEC        = NULL;
+    smt_ec_t*         psEC        = NULL;
     sMtTP_f*       psfTp       = NULL;   // 帧侧Tp字段
     pMtFunc        pFunc       = NULL;
     sMtCmdInfor    sCmdInfor;   
     sMtTP          suTp;                 // 用户侧Tp字段信息
     sMtPnFn        sPnFn;
-    sMtComPack     sPackCommon;
+    smt_compack_t     sPackCommon;
 
     // 加密
     #if MT_CFG_ENCRYPT
@@ -38921,7 +38921,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     #endif
     
     memset(&(sPnFn), 0x00, sizeof(sMtPnFn));
-    memset(&sPackCommon, 0x00, sizeof(sMtComPack));
+    memset(&sPackCommon, 0x00, sizeof(smt_compack_t));
 
     if(MT_ROLE_MASTER == g_eMtRole)
     {
@@ -39028,7 +39028,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                     {
                          // 合成命令码
                         usCMD = (uint16_t)((eAFN << 8) | (psPack->sData[i].sPnFn.ucFn[fi]));
-                        eCmd  = (eMtCmd)usCMD; 
+                        eCmd  = (emt_cmd_t)usCMD; 
 
                         // 获得命令信息
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
@@ -39104,7 +39104,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true == bmt_have_ec(eAFN, eDir))
     {       
         pData = (uint8_t*)(pSeq2Cs + usSeq2CsPos);
-        psEC = (sMtEC*)pData;
+        psEC = (smt_ec_t*)pData;
         if(MT_DIR_S2M == eDir)
         {
             psEC->ucEC1 = g_tEC.ucEC1;
@@ -39117,7 +39117,7 @@ emt_err_t emt_lite_pack(smt_litepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
             psEC->ucEC2 = 0x0;
         }
        
-        usSeq2CsPos += sizeof(sMtEC);
+        usSeq2CsPos += sizeof(smt_ec_t);
      }
     
     // 如果有 pw  
@@ -39221,17 +39221,17 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
     
     emt_err_t      eRet            = MT_OK;
-    eMtDir      eDir            = MT_DIR_UNKOWN;
+    emt_dir_t      eDir            = MT_DIR_UNKOWN;
     emt_afn_t      eAFN            = AFN_NULL;
-    eMtCmd      eCmd            = CMD_AFN_F_UNKOWN;
+    emt_cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
     bool        bP0             = false;
     bool        bTp             = false;   
     bool        bEc             = false;
-    sMtfComHead *psHead         = NULL;
+    smt_fcomhead_t *psHead         = NULL;
     sMtDaDt     *pDaDt          = NULL;
     uint8_t       *pucTemp        = NULL;
-    sMtEC       *psEC           = NULL;
-    uMtApp      *puApp          = NULL;
+    smt_ec_t       *psEC           = NULL;
+    umt_app_t      *puApp          = NULL;
     pMtFunc     pFunc           = NULL;
     uint8_t       ucFn            = 0;
     uint8_t       ucPnCycMax      = 0;        // 按Pn循环的最大值
@@ -39250,7 +39250,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     sMtCmdInfor sCmdInfor;
 
     // 判断该帧是否是一个有效的帧
-    eRet = emtIsValidPack(pInBuf, usLen);
+    eRet = emt_is_valid_pack(pInBuf, usLen);
     if(MT_OK != eRet)
     {
         #ifdef MT_DBG
@@ -39260,7 +39260,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
 
     // 报文头
-    psHead = (sMtfComHead *)pInBuf;
+    psHead = (smt_fcomhead_t *)pInBuf;
     usLenUserField =  ((psHead->L2 << 6) & 0x3FC0)| (psHead->L1 & 0x003F); 
   
     // 地址域
@@ -39399,7 +39399,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                     }
                     else
                     {
-                        eCmd = (eMtCmd)((eAFN << 8) | (sPnFn.ucFn[fi]));
+                        eCmd = (emt_cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
                         if(MT_OK != eRet)
                         {
@@ -39413,7 +39413,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                         if(NULL != pFunc)
                         {
                             // 申请内存,存放应用层数据, 由调用者释放该内存, 该函数内不释放
-                            puApp = (uMtApp*)malloc(sizeof(uMtApp));
+                            puApp = (umt_app_t*)malloc(sizeof(umt_app_t));
                             if(!puApp)
                             {
                                 #ifdef MT_DBG
@@ -39459,10 +39459,10 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有EC
     if(true == bEc)
     {
-        psEC = (sMtEC*)pucTemp;
+        psEC = (smt_ec_t*)pucTemp;
         psUnpack->sEC.ucEC1 = psEC->ucEC1;
         psUnpack->sEC.ucEC2 = psEC->ucEC2;
-        pucTemp += sizeof(sMtEC);
+        pucTemp += sizeof(smt_ec_t);
     }
     
     // 如果有PW
@@ -39532,8 +39532,8 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     }
 
     emt_err_t         eRet         = MT_OK;
-    eMtCmd         eCmd         = CMD_AFN_F_UNKOWN;
-    eMtDir         eDir         = MT_DIR_UNKOWN;
+    emt_cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
+    emt_dir_t         eDir         = MT_DIR_UNKOWN;
     emt_afn_t         eAFN         = AFN_NULL;
     emt_afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
     uint8_t          ucTeamPn     = 0xFF;
@@ -39648,7 +39648,7 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         }
 
         // 判断该命令是否属于AFN的子命令
-        eAFNCmd = eGetCmdAfn(eCmd);
+        eAFNCmd = emt_get_afn(eCmd);
         if(eAFNCmd != eAFN)  
         {
             MT_FREE(pMemBase);
@@ -39659,7 +39659,7 @@ emt_err_t emt_pack_lite(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         }
 
         usPn = psPack->sData[i].usPN;
-        ucFn = ucGetCmdFn(eCmd);
+        ucFn = uc_get_cmdfn(eCmd);
 
         /*
             判断该合法的数据单元标识,与数据单元是否已经填入应在位置 psBasePack
@@ -39797,11 +39797,11 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     }
     
     emt_err_t       eRet          = MT_OK;
-    eMtCmd       eCmd          = CMD_AFN_F_UNKOWN;
+    emt_cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
     emt_afn_t       eAFN          = AFN_NULL;
     uint8_t*       pMemBase      = NULL;
     smt_litepack_t* pLiteUnpack   = NULL;
-    uMtApp      *puApp         = NULL;
+    umt_app_t      *puApp         = NULL;
     bool         bP0           = false;
     int32_t        i             = 0;
     int32_t        j             = 0;
@@ -39914,7 +39914,7 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                     }
                     else
                     {
-                        eCmd = (eMtCmd)((eAFN << 8) | ucFn);
+                        eCmd = (emt_cmd_t)((eAFN << 8) | ucFn);
                         eRet = eMtGetCmdInfor(eCmd, psUnpack->eDir, &sCmdInfor);
                         if(MT_OK != eRet)
                         {
@@ -39942,7 +39942,7 @@ emt_err_t emt_unpack_lite(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                                 return MT_ERR_PARA;
                             }
 
-                            memcpy((void*)&(psUnpack->sData[j].uApp), (void*)puApp, sizeof(uMtApp));
+                            memcpy((void*)&(psUnpack->sData[j].uApp), (void*)puApp, sizeof(umt_app_t));
                             MT_FREE(puApp);
                         }
                         else
@@ -40000,8 +40000,8 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     }
 
     emt_err_t         eRet        = MT_OK;
-    eMtCmd         eCmd        = CMD_AFN_F_UNKOWN;
-    eMtDir         eDir        = MT_DIR_UNKOWN;
+    emt_cmd_t         eCmd        = CMD_AFN_F_UNKOWN;
+    emt_dir_t         eDir        = MT_DIR_UNKOWN;
     emt_afn_t         eAFN        = AFN_NULL;
     bool           bSameTeam   = false;
     bool           bP0         = false;
@@ -40018,13 +40018,13 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     uint8_t*         puData      = NULL;   // 数据单元用户侧数据
     uint8_t*         pData       = NULL;   // 数据单元
     sMtDaDt*       pDaDt       = NULL;   // 数据单元标识
-    sMtEC*         psEC        = NULL;
+    smt_ec_t*         psEC        = NULL;
     sMtTP_f*       psfTp       = NULL;   // 帧侧Tp字段
     pMtFunc        pFunc       = NULL;
     sMtCmdInfor    sCmdInfor;   
     sMtTP          suTp;                 // 用户侧Tp字段信息
     sMtPnFn        sPnFn;
-    sMtComPack     sPackCommon;
+    smt_compack_t     sPackCommon;
 
     // 加密
     #if MT_CFG_ENCRYPT
@@ -40035,7 +40035,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     #endif
     
     memset(&(sPnFn), 0x00, sizeof(sMtPnFn));
-    memset(&sPackCommon, 0x00, sizeof(sMtComPack));
+    memset(&sPackCommon, 0x00, sizeof(smt_compack_t));
 
     if(MT_ROLE_MASTER == g_eMtRole)
     {
@@ -40142,7 +40142,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
                     {
                          // 合成命令码
                         usCMD = (uint16_t)((eAFN << 8) | (psPack->sData[i].sPnFn.ucFn[fi]));
-                        eCmd  = (eMtCmd)usCMD; 
+                        eCmd  = (emt_cmd_t)usCMD; 
 
                         // 获得命令信息
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
@@ -40218,7 +40218,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
     if(true == bmt_have_ec(eAFN, eDir))
     {       
         pData = (uint8_t*)(pSeq2Cs + usSeq2CsPos);
-        psEC = (sMtEC*)pData;
+        psEC = (smt_ec_t*)pData;
         if(MT_DIR_S2M == eDir)
         {
             psEC->ucEC1 = g_tEC.ucEC1;
@@ -40231,7 +40231,7 @@ emt_err_t emt_base_pack(smt_basepack_t* psPack, uint16_t* pusLen, uint8_t* pOutB
             psEC->ucEC2 = 0x0;
         }
        
-        usSeq2CsPos += sizeof(sMtEC);
+        usSeq2CsPos += sizeof(smt_ec_t);
      }
     
     // 如果有 pw  
@@ -40335,16 +40335,16 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
     
     emt_err_t      eRet            = MT_OK;
-    eMtDir      eDir            = MT_DIR_UNKOWN;
+    emt_dir_t      eDir            = MT_DIR_UNKOWN;
     emt_afn_t      eAFN            = AFN_NULL;
-    eMtCmd      eCmd            = CMD_AFN_F_UNKOWN;
+    emt_cmd_t      eCmd            = CMD_AFN_F_UNKOWN;
     bool        bP0             = false;
     bool        bTp             = false;   
     bool        bEc             = false;
-    sMtfComHead *psHead         = NULL;
+    smt_fcomhead_t *psHead         = NULL;
     sMtDaDt     *pDaDt          = NULL;
     uint8_t       *pucTemp        = NULL;
-    sMtEC       *psEC           = NULL;
+    smt_ec_t       *psEC           = NULL;
     pMtFunc     pFunc           = NULL;
     uint8_t       ucFn            = 0;
     uint8_t       ucPnCycMax      = 0;        // 按Pn循环的最大值
@@ -40362,7 +40362,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     sMtCmdInfor sCmdInfor;
 
     // 判断该帧是否是一个有效的帧
-    eRet = emtIsValidPack(pInBuf, usLen);
+    eRet = emt_is_valid_pack(pInBuf, usLen);
     if(MT_OK != eRet)
     {
         #ifdef MT_DBG
@@ -40372,7 +40372,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     }
 
     // 报文头
-    psHead = (sMtfComHead *)pInBuf;
+    psHead = (smt_fcomhead_t *)pInBuf;
     usLenUserField =  ((psHead->L2 << 6) & 0x3FC0)| (psHead->L1 & 0x003F); 
   
     // 地址域
@@ -40501,7 +40501,7 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
                     }
                     else
                     {
-                        eCmd = (eMtCmd)((eAFN << 8) | (sPnFn.ucFn[fi]));
+                        eCmd = (emt_cmd_t)((eAFN << 8) | (sPnFn.ucFn[fi]));
                         eRet = eMtGetCmdInfor(eCmd, eDir, &sCmdInfor);
                         if(MT_OK != eRet)
                         {
@@ -40549,10 +40549,10 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
     // 如果有EC
     if(true == bEc)
     {
-        psEC = (sMtEC*)pucTemp;
+        psEC = (smt_ec_t*)pucTemp;
         psUnpack->sEC.ucEC1 = psEC->ucEC1;
         psUnpack->sEC.ucEC2 = psEC->ucEC2;
-        pucTemp += sizeof(sMtEC);
+        pucTemp += sizeof(smt_ec_t);
     }
     
     // 如果有PW
@@ -40621,8 +40621,8 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
     }
 
     emt_err_t         eRet         = MT_OK;
-    eMtCmd         eCmd         = CMD_AFN_F_UNKOWN;
-    eMtDir         eDir         = MT_DIR_UNKOWN;
+    emt_cmd_t         eCmd         = CMD_AFN_F_UNKOWN;
+    emt_dir_t         eDir         = MT_DIR_UNKOWN;
     emt_afn_t         eAFN         = AFN_NULL;
     emt_afn_t         eAFNCmd      = AFN_NULL;  // 命令对应的AFN
     uint8_t          ucTeamPn     = 0xFF;
@@ -40737,7 +40737,7 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         }
 
         // 判断该命令是否属于AFN的子命令
-        eAFNCmd = eGetCmdAfn(eCmd);
+        eAFNCmd = emt_get_afn(eCmd);
         if(eAFNCmd != eAFN)  
         {
             MT_FREE(pMemBase);
@@ -40748,7 +40748,7 @@ emt_err_t emt_pack_base(smt_pack_t* psPack, uint16_t* pusLen, uint8_t* pOutBuf)
         }
 
         usPn = psPack->sData[i].usPN;
-        ucFn = ucGetCmdFn(eCmd);
+        ucFn = uc_get_cmdfn(eCmd);
 
         /*
             判断该合法的数据单元标识,与数据单元是否已经填入应在位置 psBasePack
@@ -40885,7 +40885,7 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
     }
     
     emt_err_t       eRet          = MT_OK;
-    eMtCmd       eCmd          = CMD_AFN_F_UNKOWN;
+    emt_cmd_t       eCmd          = CMD_AFN_F_UNKOWN;
     emt_afn_t       eAFN          = AFN_NULL;
     uint8_t*       pMemBase      = NULL;
     smt_basepack_t* pUnpackBase   = NULL;
@@ -41001,7 +41001,7 @@ emt_err_t emt_unpack_base(smt_pack_t *psUnpack, uint8_t* pInBuf, uint16_t usLen)
                     }
                     else
                     {
-                        eCmd = (eMtCmd)((eAFN << 8) | ucFn);
+                        eCmd = (emt_cmd_t)((eAFN << 8) | ucFn);
                         eRet = eMtGetCmdInfor(eCmd, psUnpack->eDir, &sCmdInfor);
                         if(MT_OK != eRet)
                         {

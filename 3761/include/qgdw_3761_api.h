@@ -16,15 +16,15 @@
                集中器  concentrator -> c
                终端    terminal     -> t
   函数列表   : 
-               (1) eMtInit()           协议模块初始化
-               (2) emtFindValidPack()  一个buf内找到第一个有效帧
-               (3) emtIsValidPack()    判断一个帧是否为有效的3761帧
+               (1) emt_init()           协议模块初始化
+               (2) emt_find_valid_pack()  一个buf内找到第一个有效帧
+               (3) emt_is_valid_pack()    判断一个帧是否为有效的3761帧
                (4) emt_pack()           封装3761协议
                (5) emt_unpack()         解析3761协议
-               (6) vmtSetPw()          主站设置报文中的pw字段
-               (7) vmtSetPwBuf()       主站设置报文中的pw字段
-               (8) emtWhoAmI()         判断自是主站还是集中器
-               (9) vmtSetEC()          集中器设置应答报文中的EC字段
+               (6) vmt_set_pw()          主站设置报文中的pw字段
+               (7) vmt_set_pw_buf()       主站设置报文中的pw字段
+               (8) emt_whoami()         判断自是主站还是集中器
+               (9) vmt_set_ec()          集中器设置应答报文中的EC字段
                
   修改历史   :
   1.日    期   : 2013年7月25日 星期四
@@ -960,7 +960,7 @@ typedef enum
     
     /* 在这之上添加扩展命令字 */
     CMD_AFN_FN_MAX  
-}eMtCmd;
+}emt_cmd_t;
 ///*}
 
 /*******************************************************
@@ -2280,7 +2280,7 @@ typedef enum
     MT_ROLE_MASTER,    // 主站
     MT_ROLE_CONTOR,    // 集中器 或 终端
     
-}eMtRole;              // 协议应用模块的身份
+}emt_role_t;              // 协议应用模块的身份
  
 typedef enum
 {
@@ -2288,7 +2288,7 @@ typedef enum
     MT_DIR_M2S,        // 主站到集中器或终端  下行
     MT_DIR_S2M,        // 集中器或终端到主站  上行
     
-}eMtDir;               // 报文的发送方向 
+}emt_dir_t;               // 报文的发送方向 
 
 typedef enum
 {
@@ -2305,8 +2305,8 @@ typedef enum
 
 typedef struct
 {    
-    eMtCmd  eCmd;
-    eMtDir  eDir;
+    emt_cmd_t  eCmd;
+    emt_dir_t  eDir;
     eMtPn   ePn;
     pMtFunc pFunc;
     const char*   pName;    
@@ -2388,7 +2388,7 @@ emt_err_t emt_dadt_to_pnfn(sMtDaDt* psDaDt, sMtPnFn* psPnFn);
 
 typedef struct
 {
-    eMtCmd eCmd;
+    emt_cmd_t eCmd;
     uint16_t usPn; 
     
 }sMtCmdPn;
@@ -2413,7 +2413,7 @@ typedef struct
     bool     bTeamAddr;          // 为true 表示ulTAddress 为组地址, 为false 表示ulTAddress单一地址
     uint8_t  ucMAddress;         // 主站地址和组地址标志A3, 范围(0~127)
     
-}sMtAddress;
+}smt_addr_t;
 
 // 封帧侧结构
 #pragma pack(1) 
@@ -2428,7 +2428,7 @@ typedef struct
 #pragma pack()
 
 // 转换函数
-emt_err_t emt_trans_address(emt_trans_t eTrans, sMtAddress *psAddr_u, sMtAddress_f *psAddr_f);
+emt_err_t emt_trans_address(emt_trans_t eTrans, smt_addr_t *psAddr_u, sMtAddress_f *psAddr_f);
 ///*}
 
 /************************************************************
@@ -2489,14 +2489,14 @@ typedef enum
     MT_POS_MUL_M,     // 多帧中间帧
     MT_POS_MUL_E,     // 多帧最后帧
     
-}eMtPos;              // 帧的位置类型
+}emt_pos_t;              // 帧的位置类型
 
 // 用户侧
 typedef struct
 {
     bool     bTpv;     // 表示帧中有没有 时间标签 Tp
     bool     bCon;     // 是否需要确认
-    eMtPos   ePos;     // 位置
+    emt_pos_t   ePos;     // 位置
     uint8_t    ucSeq;    // pseq/rseq (0~15) 
     
 }sMtSEQ;
@@ -2557,7 +2557,7 @@ typedef enum
     MT_PRM_ACTIVE,                   // 该帧来自于主动站
     MT_PRM_PASIVE,                   // 该帧来自于从动站
     
-}eMtPRM;                             // 控制域中PRM字段描述 
+}emt_prm_t;                             // 控制域中PRM字段描述 
 
 typedef enum
 {
@@ -2581,8 +2581,8 @@ typedef enum
 // 用户侧
 typedef struct
 {
-    eMtDir     eDir;                   // 上下行
-    eMtPRM     ePRM;                   // 标志该报文是来自启动站 还是从动站
+    emt_dir_t     eDir;                   // 上下行
+    emt_prm_t     ePRM;                   // 标志该报文是来自启动站 还是从动站
     bool       bFcv;                   // 帧计数有效位FCV
     bool       bAcd_Fcb;               // ACD 要求访问位有效 (bFcv 为假时)
                                        // 自上次收到报文后发生新的重要事件，ACD位置"1"；
@@ -2607,7 +2607,7 @@ typedef struct
 emt_err_t emt_trans_ctrl(emt_trans_t eTrans, sMtCtrl* puCtrl, uint8_t* pfCtrl);
 
 // 封装函数
-emt_err_t emt_get_ctrl(emt_afn_t eAFN, eMtDir eDir, eMtPRM ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl);
+emt_err_t emt_get_ctrl(emt_afn_t eAFN, emt_dir_t eDir, emt_prm_t ePRM, bool bAcd_Fcb, sMtCtrl *psCtrl);
 ///*}
 
 /************************************************************
@@ -2618,7 +2618,7 @@ typedef struct
 {
     uint8_t  ucEC1;                      // 重要事件计数器
     uint8_t  ucEC2;                      // 一般事件计数器   
-}sMtEC;                                // 事件计数器  
+}smt_ec_t;                                // 事件计数器  
 ///*}
 
 /************************************************************
@@ -2653,7 +2653,7 @@ emt_err_t emt_get_tp(uint8_t ucPFC, sMtTP *psuTp);
 bool  bmt_tp_timeout(sMtTP *psTP);
 
 // 获得当前报文类型对应的aux(tp ec pw)总字长
-uint16_t usmt_get_aux_len(emt_afn_t eAFN, eMtDir eDir, bool bEc, bool bTp); 
+uint16_t usmt_get_aux_len(emt_afn_t eAFN, emt_dir_t eDir, bool bEc, bool bTp); 
 ///*}
 
 /************************************************************
@@ -2661,7 +2661,7 @@ uint16_t usmt_get_aux_len(emt_afn_t eAFN, eMtDir eDir, bool bEc, bool bTp);
  *
 {*///
 // 通过命令类型和报文方向获得该命令对应的相关信息
-emt_err_t eMtGetCmdInfor(eMtCmd eCmd, eMtDir eDir, sMtCmdInfor* psInfor);
+emt_err_t eMtGetCmdInfor(emt_cmd_t eCmd, emt_dir_t eDir, sMtCmdInfor* psInfor);
 
 /*******************************************
  *  数据项相关
@@ -2678,10 +2678,10 @@ void   vmt_set_none(uint8_t* pData, uint16_t usLen);  // 将数据项设置为�
  *  附加域
  *
 {*///
-bool   bmt_have_pw(emt_afn_t eAFN, eMtDir eDir);  // 此类报文中是否应该有pw字段
-bool   bmt_have_ec(emt_afn_t eAFN, eMtDir eDir);  // 此类报文中是否应该有EC字段
-bool   bmt_have_tp(emt_afn_t eAFN, eMtDir eDir);  // 此类报文中是否应该有tp字段
-bool   bmt_need_con(emt_afn_t eAFN, eMtDir eDir); // 此类报文是否需要确认
+bool   bmt_have_pw(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有pw字段
+bool   bmt_have_ec(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有EC字段
+bool   bmt_have_tp(emt_afn_t eAFN, emt_dir_t eDir);  // 此类报文中是否应该有tp字段
+bool   bmt_need_con(emt_afn_t eAFN, emt_dir_t eDir); // 此类报文是否需要确认
 ///*}
 
 /*******************************************
@@ -2692,7 +2692,7 @@ bool   bmt_need_con(emt_afn_t eAFN, eMtDir eDir); // 此类报文是否需要确
 
 typedef struct
 {
-    eMtCmd      eCmd;         // 
+    emt_cmd_t      eCmd;         // 
     uint16_t      usPn;         // Pn  0 ~ 2040
     bool        bOk;
 }sMtCmdErr;                   // 确认与否认 用户侧数据结构
@@ -4379,7 +4379,7 @@ typedef struct
 {    
     uint8_t   ucSmall;                    //  用户小类号 (0 ~ 15)           
     uint8_t   ucFN;                       //  支持的命令个数  0 ~ 248
-    eMtCmd  eCmd[MT_FN_MAX];            //  支持的一类数据命令码 CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
+    emt_cmd_t  eCmd[MT_FN_MAX];            //  支持的一类数据命令码 CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
 }sMtAsk1CfgOne;
 
 typedef struct
@@ -4427,7 +4427,7 @@ typedef struct
 {    
     uint8_t ucSmall;              //  用户小类号            
     uint8_t   ucFN;               //  支持的命令个数  0 ~ 248
-    eMtCmd  eCmd[MT_FN_MAX];    //  支持的一类数据命令码 CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
+    emt_cmd_t  eCmd[MT_FN_MAX];    //  支持的一类数据命令码 CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
 
 }sMtAsk2CfgOne;
 
@@ -5468,7 +5468,7 @@ emt_err_t emtTrans_afn09f3(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 支持的配置的参数的个数
-    eMtCmd  eCfgCmd[1];  // 支持的配置  CMD_AFN_4_F1_TML_UP_CFG 到 CMD_AFN_4_F83_CD_FREEZE_PARA
+    emt_cmd_t  eCfgCmd[1];  // 支持的配置  CMD_AFN_4_F1_TML_UP_CFG 到 CMD_AFN_4_F83_CD_FREEZE_PARA
 
 }sMtSuptParaCfg, sMtAfn09F4;
 
@@ -5481,7 +5481,7 @@ typedef struct
 }sMtSuptParaCfg_f, sMtAfn09F4_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans,eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam);
+emt_err_t emtTrans_afn09f4_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
 emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
@@ -5500,7 +5500,7 @@ emt_err_t emtTrans_afn09f4(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 支持的控制命令的个数
-    eMtCmd  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_5_F1_REMOTE_TURN_OFF 到 CMD_AFN_5_F53_DELET_ALL_METER
+    emt_cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_5_F1_REMOTE_TURN_OFF 到 CMD_AFN_5_F53_DELET_ALL_METER
 
 }sMtSuptCtrlCfg, sMtAfn09F5;
 
@@ -5513,7 +5513,7 @@ typedef struct
 }sMtSuptCtrlCfg_f, sMtAfn09F5_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans,eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam);
+emt_err_t emtTrans_afn09f5_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
 emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
@@ -5532,7 +5532,7 @@ emt_err_t emtTrans_afn09f5(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;       // 终端支持的1类数据配个数
-    eMtCmd  eCfgCmd[1];  // ucNum 个命令    CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
+    emt_cmd_t  eCfgCmd[1];  // ucNum 个命令    CMD_AFN_C_F2_TML_CLOCK 到 CMD_AFN_C_F170_READ_METER
 
 }sMtSuptAsk1, sMtAfn09F6;
 
@@ -5546,7 +5546,7 @@ typedef struct
 }sMtSuptAsk1_f, sMtAfn09F6_f;
 
 // 辅助函数
-emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans,eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam);
+emt_err_t emtTrans_afn09f6_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
 emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
@@ -5565,7 +5565,7 @@ emt_err_t emtTrans_afn09f6(emt_trans_t eTrans,void* psUser, void* psFrame, uint1
 typedef struct
 {
     uint8_t   ucNum;     // 支持的控制命令的FN个数
-    eMtCmd  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
+    emt_cmd_t  eCfgCmd[1];  // 支持的控制命令的命令字  CMD_AFN_D_F1_FRTH_POWR_P1P4_D 到 CMD_AFN_D_F218_COLOR_YAWP_CURVE
 
 }sMtSuptAsk2, sMtAfn09F7;
 
@@ -5581,7 +5581,7 @@ typedef struct
 #pragma pack() 
 
 // 辅助函数
-emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans,eMtCmd eCmd, uint8_t *pArray, uint8_t *pucTeam);
+emt_err_t emtTrans_afn09f7_ast(emt_trans_t eTrans,emt_cmd_t eCmd, uint8_t *pArray, uint8_t *pucTeam);
 
 // 转换函数
 emt_err_t emtTrans_afn09f7(emt_trans_t eTrans,void* psUser, void* psFrame, uint16_t* pusfLen);
@@ -14214,6 +14214,25 @@ typedef union
     sMtAfn0dF185     sTmlMaxTime;        // 最大需量及发生时间
     sMtAfn0dF215     sTmlMeterInfo;      // 电能表购、用电信息
     sMtAfn0dF216     sTmlBalanceInfo;    // 月冻结电能结算信息   
+
+	/*
+	sMtAfn0dF97      AFN0DF97 ;  // 电能量 曲线
+    sMtAfn0dF101     AFN0DF101;  // 电能示值 曲线
+    sMtAfn0dF105     AFN0DF105;  // 功率因数曲线
+    sMtAfn0dF109     AFN0DF109;  // 相位角曲线
+    sMtAfn0dF113     AFN0DF113;  // 谐波电流最大值及发生时间
+    sMtAfn0dF116     AFN0DF116;  // 谐波电压最大值及发生时间
+    sMtAfn0dF121     AFN0DF121;  // 日冻结测量点谐波越限日统计   
+    sMtAfn0dF169     AFN0DF169;  // 正向有功电能示值    
+    sMtAfn0dF170     AFN0DF170;  // 无组合无功电能示值
+    sMtAfn0dF171     AFN0DF171;  // 有功电能示值
+    sMtAfn0dF177     AFN0DF177;  // 有功电能示值(月冻结)
+    sMtAfn0dF178     AFN0DF178;  // 无组合无功电能示值(月冻结)
+    sMtAfn0dF185     AFN0DF185;  // 最大需量及发生时间
+    sMtAfn0dF215     AFN0DF215;  // 电能表购、用电信息
+    sMtAfn0dF216     AFN0DF216;  // 月冻结电能结算信息   
+	*/
+
     ///*}
 
     /***************************************
@@ -14234,7 +14253,7 @@ typedef union
     // 仅用于占位 无应用意义
     uint8_t            ucRev[MT_UNIT_DATA_MAX];
     
-}uMtApp;
+}umt_app_t;
 ///*}
 
 /***************************************
@@ -14246,12 +14265,12 @@ typedef union
 typedef struct
 {
     sMtPnFn    sPnFn;
-    uMtApp     *puApp[PN_INDEX_MAX][FN_INDEX_MAX];
+    umt_app_t     *puApp[PN_INDEX_MAX][FN_INDEX_MAX];
 }sMtLiteData;
 
 typedef struct
 {
-    sMtAddress    sAddress;      // 地址域
+    smt_addr_t    sAddress;      // 地址域
     sMtCtrl       sCtrl;         // 控制域
 
     // 附加域
@@ -14261,7 +14280,7 @@ typedef struct
                                  // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                  // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
 
-    sMtEC         sEC;           // 事件计数器
+    smt_ec_t         sEC;           // 事件计数器
     sMtTP         sTP;           // 时间标签
  
     // 应用层数据域  
@@ -14292,7 +14311,7 @@ emt_err_t emt_lite_unpack(smt_litepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
 typedef struct
 {
     sMtPnFn    sPnFn;
-    uMtApp     uApp[PN_INDEX_MAX][FN_INDEX_MAX];
+    umt_app_t     uApp[PN_INDEX_MAX][FN_INDEX_MAX];
 }sMtBaseData;
 
 // 根据总加组有效标志位获取总加组个数
@@ -14337,7 +14356,7 @@ bool bmt_in_fn8(uint8_t ucFn, uint8_t *pucFn8);
 {*///
 typedef struct
 {
-    sMtAddress    sAddress;      // 地址域
+    smt_addr_t    sAddress;      // 地址域
     sMtCtrl       sCtrl;         // 控制域
 
     // 附加域
@@ -14347,7 +14366,7 @@ typedef struct
                                  // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                  // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
 
-    sMtEC         sEC;           // 事件计数器
+    smt_ec_t         sEC;           // 事件计数器
     sMtTP         sTP;           // 时间标签
  
     // 应用层数据域  
@@ -14375,13 +14394,13 @@ emt_err_t emt_base_unpack(smt_basepack_t *psUnpack, uint8_t* pInBuf, uint16_t us
 // 用户侧数据
 typedef struct
 {
-    sMtAddress  sAddr;            // 地址信息
+    smt_addr_t  sAddr;            // 地址信息
     sMtCtrl     sCtrl;
     sMtSEQ      sSEQ;         
 
     uint16_t      usSeq2CsLen;     // 从SEQ 到 CS 之间的数据的长度
     uint8_t       *pSeq2Cs;        // 从SEQ 到 CS 之间的数据
-}sMtComPack;
+}smt_compack_t;
 
 // 抽象帧头
 typedef struct
@@ -14401,19 +14420,19 @@ typedef struct
     uint8_t         AFN;          // 主功能码
     uint8_t         SEQ;          // 帧序列
     
-}sMtfComHead;                   // 帧侧公共的头结构
+}smt_fcomhead_t;                   // 帧侧公共的头结构
 
 // 计算检测和函数
 uint8_t ucmt_get_check_sum(uint8_t *pStartPos, uint16_t usLen);
 
 // 封装每个帧的公共部分 
-emt_err_t emt_pack_common(emt_afn_t eAFN, sMtComPack *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf); 
+emt_err_t emt_pack_common(emt_afn_t eAFN, smt_compack_t *psCommon,  uint16_t *pusLen, uint8_t  *pOutBuf); 
 
 // 解析公共部分
 typedef struct
 {
-    sMtfComHead sfComHead;
-    sMtComPack  sComPack;
+    smt_fcomhead_t sfComHead;
+    smt_compack_t  sComPack;
     uint8_t       u8CS;
     uint16_t      usLenUserField1; 
     uint16_t      usLenUserField2; 
@@ -14434,9 +14453,9 @@ emt_err_t emt_unpack_common(smt_unpack_common_t *psUnpack, uint8_t* pInBuf, uint
  *  使该协议API需要先进行初始化
  *  
 {*///
-typedef struct
+typedef struct smt_init_t
 {
-    eMtRole eRole;                  // 身份，主站或是从站
+    emt_role_t eRole;                  // 身份，主站或是从站
     uint8_t   ucPermitDelayMinutes;   // 允许时延
     uint8_t   aucPw[MT_PW_LEN];       // 密码
 
@@ -14445,38 +14464,38 @@ typedef struct
     peMtDecryptFunc   DecryptFunc;  // 解密接口
 #endif
     
-}sMtInit;                           // 协议初始化数据结构
+}smt_init_t;                           // 协议初始化数据结构
 
 // 初始化函数
-emt_err_t eMtInit(sMtInit* psInit);
+emt_err_t emt_init(smt_init_t* psInit);
 ///*}
 
 // 获得该类型的报文的主动性
-eMtPRM emtGetPrm(eMtDir eDir, emt_afn_t eAfn, bool bAuto);
+emt_prm_t emtGetPrm(emt_dir_t eDir, emt_afn_t eAfn, bool bAuto);
 
 // 判断一个报文是否是有一个有效的376.1帧
-emt_err_t emtIsValidPack(const uint8_t* pOutBuf, uint16_t usLen);
+emt_err_t emt_is_valid_pack(const uint8_t* pOutBuf, uint16_t usLen);
 
 // 从帧缓冲区中找到第一个有效的帧的位置及长度
-emt_err_t emtFindValidPack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen);
+emt_err_t emt_find_valid_pack(uint8_t* pinBuf, uint16_t usLen, uint16_t* pusFirstOff, uint16_t* pusFirstLen);
 
 // 设置事件计数器
-void  vmtSetEC(uint8_t ucEC1, uint8_t ucEC2);
+void  vmt_set_ec(uint8_t ucEC1, uint8_t ucEC2);
 
 // 以字符串方式设置密码
-void  vmtSetPw(const char *pPw);
+void  vmt_set_pw(const char *pPw);
 
 // 以buffer 方式设置登录密码
-void vmtSetPwBuf(uint8_t* buf);
+void vmt_set_pw_buf(uint8_t* buf);
 
 // 获得我的身份
-eMtRole emtWhoAmI();
+emt_role_t emt_whoami();
 
 // 获得命令对应的AFN
-emt_afn_t eGetCmdAfn(eMtCmd eCmd);
+emt_afn_t emt_get_afn(emt_cmd_t eCmd);
 
 // 获得命令对应的Fn
-uint8_t  ucGetCmdFn(eMtCmd eCmd);
+uint8_t  uc_get_cmdfn(emt_cmd_t eCmd);
 /***************************************
  *  数据单元标识与对应的数据单元 (高级抽象)
  *  
@@ -14487,12 +14506,12 @@ uint8_t  ucGetCmdFn(eMtCmd eCmd);
 {*///
 typedef struct
 {
-    eMtCmd       eCmd;        // 功能码
+    emt_cmd_t       eCmd;        // 功能码
     uint16_t     usPN;        // Pn (0 <= pn <= 2040 )
     bool         bApp;        // 是否有数据单元
-    uMtApp       uApp;        // 对应不同的命令类型, 及上下行类型, 应用层数据时有时无
+    umt_app_t       uApp;        // 对应不同的命令类型, 及上下行类型, 应用层数据时有时无
     
-}sMtData;
+}smt_data_t;
 ///*}
 
 /***************************************
@@ -14500,13 +14519,13 @@ typedef struct
  *  用于封装
  *  变长结构
 {*///
-typedef struct
+typedef struct smt_pack_t
 {
-    sMtAddress    sAddress;        // 地址域
+    smt_addr_t    sAddress;        // 地址域
     emt_afn_t     eAFN;            // 主功能码  同帧中必须是同一个主功能码下的不同子命令的组合
-    eMtDir        eDir;            // 上下行
-    eMtPRM        ePRM;            // 标志该报文是来自启动站 还是从动站
-    eMtPos        ePos;            // 位置
+    emt_dir_t        eDir;            // 上下行
+    emt_prm_t        ePRM;            // 标志该报文是来自启动站 还是从动站
+    emt_pos_t        ePos;            // 位置
     uint8_t       ucSeq;           // pseq/rseq (0~15) 
  
     bool          bAcdFcb;         // FCB 帧计数位 在下行报文中有效
@@ -14532,13 +14551,13 @@ typedef struct
                                    // 并在主站发送的报文中下发给终端
                                    // 由终端进行校验认证,通过则响应主站命令,反之则否认
                                    // 终端在收到带有PW的报文,必须在认证通过后,才能响应命令。
-    sMtEC         sEC;             // 事件计数器
+    smt_ec_t         sEC;             // 事件计数器
     sMtTP         sTP;             // 时间标签
  
 
     // 数据单元域  变长域
     uint16_t        usDataNum;      // 数据单元组的个数
-    sMtData       sData[1];       // 数据单元组 变长 可能没有 可能多个
+    smt_data_t       sData[1];       // 数据单元组 变长 可能没有 可能多个
     
 }smt_pack_t;
 

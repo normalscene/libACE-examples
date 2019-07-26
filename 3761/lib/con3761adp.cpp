@@ -165,10 +165,10 @@ eCmErr ecm_3761_init(sCmInit * psCmInit)
         return MT_ERR_NULL;            
     }
       
-    sMtInit sInit;
+    smt_init_t sInit;
     sInit.eRole = psCmInit->eRole;
     sInit.ucPermitDelayMinutes = psCmInit->ucPermitDelayMinutes;
-    emt_err_t eRet =  eMtInit(&sInit);  
+    emt_err_t eRet =  emt_init(&sInit);  
     if(eRet == MT_OK)
     {
         g_bcmInit = true;
@@ -196,7 +196,7 @@ eCmErr ecm_3761_init(sCmInit * psCmInit)
 *****************************************************************************/
 bool bcm_valid_3761_packet(uint8_t  *pinBuf, uint16_t usLen)
 {
-    emt_err_t eRet = emtIsValidPack(pinBuf, usLen);
+    emt_err_t eRet = emt_is_valid_pack(pinBuf, usLen);
 
     if(eRet == MT_OK)
     {
@@ -226,7 +226,7 @@ bool bcm_valid_3761_packet(uint8_t  *pinBuf, uint16_t usLen)
 *****************************************************************************/
 void vcm_set_ec(uint8_t ucEC1, uint8_t ucEC2)
 {
-    vmtSetEC(ucEC1, ucEC2);
+    vmt_set_ec(ucEC1, ucEC2);
 }
 
 /*****************************************************************************
@@ -246,7 +246,7 @@ void vcm_set_ec(uint8_t ucEC1, uint8_t ucEC2)
 *****************************************************************************/
 bool bcm_set_pw(const char *pw)
 {
-    vmtSetPw(pw);
+    vmt_set_pw(pw);
     return true; 
 }
 
@@ -270,7 +270,7 @@ bool bcm_set_pw(const char *pw)
 *****************************************************************************/
 eCmErr ecm_find_frist_valid_pack(uint8_t  *pinBuf, uint16_t usLen, uint16_t *pusFirstOff, uint16_t *pusFirstLen)
 {
-    emt_err_t eRet = emtFindValidPack(pinBuf, usLen,  pusFirstOff,  pusFirstLen);
+    emt_err_t eRet = emt_find_valid_pack(pinBuf, usLen,  pusFirstOff,  pusFirstLen);
     return eRet;
 }
 
@@ -323,15 +323,15 @@ eCmErr ecm_3761_pack(sCmPacket* psCmPacket, uint8_t * pBuf, uint16_t *pusBufLen)
     int      i = 0;
     uint8_t    ucCmdNum = 0;
     emt_afn_t   eAfn, eAfnTmp;
-    eMtDir   eDir  = MT_DIR_UNKOWN;
-    eMtPRM   ePrm  = MT_PRM_UNKWON;
+    emt_dir_t   eDir  = MT_DIR_UNKOWN;
+    emt_prm_t   ePrm  = MT_PRM_UNKWON;
     emt_err_t   eRet  = MT_OK;
-    eMtRole  eRole = MT_ROLE_UNKOWN;
-    eMtCmd   emtCmd  = CMD_AFN_F_UNKOWN;
+    emt_role_t  eRole = MT_ROLE_UNKOWN;
+    emt_cmd_t   emtCmd  = CMD_AFN_F_UNKOWN;
     uint8_t    ucPFC = 0;
     smt_pack_t *psPack = (smt_pack_t *)psPackTmp;
 
-    eRole = emtWhoAmI();
+    eRole = emt_whoami();
     eDir  = (eRole == MT_ROLE_MASTER) ? MT_DIR_M2S : MT_DIR_S2M;
 
     ucCmdNum =  psCmPacket->ucCmdNum;
@@ -346,11 +346,11 @@ eCmErr ecm_3761_pack(sCmPacket* psCmPacket, uint8_t * pBuf, uint16_t *pusBufLen)
  
     // 获取命令类型及主动性
     emtCmd = eget_mt_cmd(psCmPacket->sCmdData[0].eCmd);
-    eAfn   = eGetCmdAfn(emtCmd);
+    eAfn   = emt_get_afn(emtCmd);
     if(AFN_NULL == eAfn)
     {
         #ifdef CM_DEG_ON
-        DEBUG("ecm_3761_pack() eGetCmdAfn() error!");
+        DEBUG("ecm_3761_pack() emt_get_afn() error!");
         #endif
         vcmFree(psPackTmp);
         return MT_ERR_AFN;
@@ -370,7 +370,7 @@ eCmErr ecm_3761_pack(sCmPacket* psCmPacket, uint8_t * pBuf, uint16_t *pusBufLen)
     }
     else
     {
-        ePrm = (eMtPRM)true;
+        ePrm = (emt_prm_t)true;
     }
    
     // 确认帧发送计数
@@ -414,7 +414,7 @@ eCmErr ecm_3761_pack(sCmPacket* psCmPacket, uint8_t * pBuf, uint16_t *pusBufLen)
     for(i = 0; i < ucCmdNum; i++)
     {
         emtCmd  = eget_mt_cmd(psCmPacket->sCmdData[i].eCmd);
-        eAfnTmp = eGetCmdAfn(emtCmd);
+        eAfnTmp = emt_get_afn(emtCmd);
         if(eAfnTmp != eAfn)
         {
             #ifdef CM_DEG_ON
@@ -492,7 +492,7 @@ eCmErr ecm_3761_unpack(uint8_t * pBuf, uint16_t usBufLen, sCmPacket* psCmPacket)
     emt_err_t eRet = MT_OK;
     int i = 0;
     //uint8_t ucPFC = 0;
-    eRet = emtIsValidPack(pBuf, usBufLen);
+    eRet = emt_is_valid_pack(pBuf, usBufLen);
     if(eRet != MT_OK)
     {
         #ifdef CM_DEG_ON
@@ -584,8 +584,8 @@ eCmErr ecm_3761_unpack(uint8_t * pBuf, uint16_t usBufLen, sCmPacket* psCmPacket)
 emt_afn_t ecm_get_cmd_afn(eCmCmd eCmd)
 {
     emt_afn_t eAfn = AFN_NULL;
-    eMtCmd emtCmd = eget_mt_cmd(eCmd);
-    eAfn = eGetCmdAfn(emtCmd);
+    emt_cmd_t emtCmd = eget_mt_cmd(eCmd);
+    eAfn = emt_get_afn(emtCmd);
     return eAfn;
 }
 
@@ -604,9 +604,9 @@ emt_afn_t ecm_get_cmd_afn(eCmCmd eCmd)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtCmd eget_mt_cmd(eCmCmd cmCMD)
+emt_cmd_t eget_mt_cmd(eCmCmd cmCMD)
 {
-    eMtCmd emtCMD = CMD_AFN_F_UNKOWN;
+    emt_cmd_t emtCMD = CMD_AFN_F_UNKOWN;
 
     int i,size;
     size = sizeof(g_cmdMap)/sizeof(sCmdMap);
@@ -631,7 +631,7 @@ eMtCmd eget_mt_cmd(eCmCmd cmCMD)
 /*****************************************************************************
  函 数 名  : eget_cm_cmd
  功能描述  : mtCMD 到cmCMD 做适配
- 输入参数  : eMtCmd mtCMD  
+ 输入参数  : emt_cmd_t mtCMD  
  输出参数  : 无
  返 回 值  : 
  调用函数  : 
@@ -643,7 +643,7 @@ eMtCmd eget_mt_cmd(eCmCmd cmCMD)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eCmCmd eget_cm_cmd(eMtCmd mtCMD)
+eCmCmd eget_cm_cmd(emt_cmd_t mtCMD)
 {
  
     eCmCmd ecmCMD = CM_CMD_UNKOWN;
@@ -677,9 +677,9 @@ eCmCmd eget_cm_cmd(eMtCmd mtCMD)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtPRM ecm_get_prm(eCmCmd cmCMD)
+emt_prm_t ecm_get_prm(eCmCmd cmCMD)
 { 
-    eMtPRM ePrm = MT_PRM_UNKWON;
+    emt_prm_t ePrm = MT_PRM_UNKWON;
     int i,size;
     size = sizeof(g_cmdMap)/sizeof(sCmdMap);
 
@@ -698,9 +698,9 @@ eMtPRM ecm_get_prm(eCmCmd cmCMD)
 /*****************************************************************************
  函 数 名  : emt_trans_appdata_cm2mt
  功能描述  : 将对应命令的适配层应用层数据转换为协议层数据
- 输入参数  : eMtCmd emtCmd       
+ 输入参数  : emt_cmd_t emtCmd       
              uCmApp *pcmAppData              
- 输出参数  : uMtApp *pmtAppData  
+ 输出参数  : umt_app_t *pmtAppData  
  返 回 值  : 
  调用函数  : 
  被调函数  : 
@@ -711,16 +711,16 @@ eMtPRM ecm_get_prm(eCmCmd cmCMD)
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtCmd emt_trans_appdata_cm2mt(eMtCmd emtCmd, uCmApp *pcmAppData, uMtApp *pmtAppData)
+emt_cmd_t emt_trans_appdata_cm2mt(emt_cmd_t emtCmd, uCmApp *pcmAppData, umt_app_t *pmtAppData)
 {
      if(!pcmAppData || !pmtAppData)
      {
-          return (eMtCmd)MT_ERR_NULL;
+          return (emt_cmd_t)MT_ERR_NULL;
      }
 
     int i = 0;
     int j = 0;
-    eMtCmd emtCmdTmp;
+    emt_cmd_t emtCmdTmp;
      
     switch(emtCmd)
     {
@@ -729,7 +729,7 @@ eMtCmd emt_trans_appdata_cm2mt(eMtCmd emtCmd, uCmApp *pcmAppData, uMtApp *pmtApp
         {
             pmtAppData->sOneByOne.ucNum = pcmAppData->scmOneByOne.ucNum;
             emtCmdTmp = eget_mt_cmd(pcmAppData->scmOneByOne.sOne[0].eCmd);
-            pmtAppData->sOneByOne.eAFN  = eGetCmdAfn(emtCmdTmp);
+            pmtAppData->sOneByOne.eAFN  = emt_get_afn(emtCmdTmp);
             for(i = 0; i < pcmAppData->scmOneByOne.ucNum; i++)
             {
                 pmtAppData->sOneByOne.sOne[i].bOk= pcmAppData->scmOneByOne.sOne[i].bOk;
@@ -852,18 +852,18 @@ eMtCmd emt_trans_appdata_cm2mt(eMtCmd emtCmd, uCmApp *pcmAppData, uMtApp *pmtApp
         break;
 
         default:
-        *pmtAppData = *(uMtApp*)pcmAppData;
+        *pmtAppData = *(umt_app_t*)pcmAppData;
         break;
     }
 
- return (eMtCmd)MT_OK;
+ return (emt_cmd_t)MT_OK;
 }
 
 /*****************************************************************************
  函 数 名  : emt_trans_appdata_mt2cm
  功能描述  : 将对应协命令的议层数据转换为适配层应用层数据
- 输入参数  : eMtCmd emtCmd       
-             uMtApp *pmtAppData  
+ 输入参数  : emt_cmd_t emtCmd       
+             umt_app_t *pmtAppData  
  输出参数  : uCmApp *pcmAppData  
  返 回 值  : 
  调用函数  : 
@@ -875,16 +875,16 @@ eMtCmd emt_trans_appdata_cm2mt(eMtCmd emtCmd, uCmApp *pcmAppData, uMtApp *pmtApp
     修改内容   : 新生成函数
 
 *****************************************************************************/
-eMtCmd emt_trans_appdata_mt2cm(eMtCmd emtCmd, uMtApp *pmtAppData, uCmApp *pcmAppData)
+emt_cmd_t emt_trans_appdata_mt2cm(emt_cmd_t emtCmd, umt_app_t *pmtAppData, uCmApp *pcmAppData)
 {
     if(!pcmAppData || !pmtAppData)
     {
-        return (eMtCmd)MT_ERR_NULL;
+        return (emt_cmd_t)MT_ERR_NULL;
     }
 
     int i = 0;
     int j = 0;
-    eMtCmd emtCmdTmp;
+    emt_cmd_t emtCmdTmp;
     uint8_t  ucAFN = 0;
 
     switch(emtCmd)
@@ -1033,7 +1033,7 @@ eMtCmd emt_trans_appdata_mt2cm(eMtCmd emtCmd, uMtApp *pmtAppData, uCmApp *pcmApp
         break;
     }
 
-    return (eMtCmd)MT_OK;
+    return (emt_cmd_t)MT_OK;
 }
 
 
